@@ -1,0 +1,23 @@
+// Parser-Tests: node test/parser.test.js
+global.window = global;
+require('../js/data.js'); require('../js/cards.js');
+const assert = require('assert');
+const { parseDecklist } = MTG.cards;
+let r = parseDecklist(`Commander\n1 Atraxa, Praetors' Voice\n\nDeck\n1x Sol Ring (CMM) 400 *F*\n2 Island\n1 Fire // Ice\nSIDEBOARD:\n1 Lightning Bolt`);
+assert.deepStrictEqual(r.commanders, ["Atraxa, Praetors' Voice"]);
+assert.deepStrictEqual(r.cards, [{ name: 'Sol Ring', qty: 1 }, { name: 'Island', qty: 2 }, { name: 'Fire // Ice', qty: 1 }]);
+r = parseDecklist(`1 Edgar Markov *CMDR*\n1 Arcane Signet [Ramp]\n1 Swamp #land`);
+assert.deepStrictEqual(r.commanders, ['Edgar Markov']);
+assert.deepStrictEqual(r.cards.map((c) => c.name), ['Arcane Signet', 'Swamp']);
+r = parseDecklist(`// Commander\n1 Krenko, Mob Boss\n// Lands\n30 Mountain\nGoblin Matron`);
+assert.deepStrictEqual(r.commanders, ['Krenko, Mob Boss']);
+assert.deepStrictEqual(r.cards, [{ name: 'Mountain', qty: 30 }, { name: 'Goblin Matron', qty: 1 }]);
+const tags = (t, type = 'Instant') => [...MTG.cards.classify({ name: 'x', oracle_text: t, type_line: type })];
+assert(tags('Destroy target creature.').includes('removal'));
+assert(tags('Destroy all creatures.', 'Sorcery').includes('wipe'));
+assert(tags('{T}: Add {C}{C}.', 'Artifact').includes('ramp'));
+assert(tags('Draw two cards.').includes('draw'));
+assert(tags('Counter target spell.').includes('counter'));
+assert(tags('Search your library for a card, put it into your hand.', 'Sorcery').includes('tutor'));
+assert(!tags('Search your library for a basic land card, put it onto the battlefield.', 'Sorcery').includes('tutor'));
+console.log('Parser-/Kategorie-Tests OK');
