@@ -7,16 +7,17 @@ MTG.api = (() => {
   const cardCache = new Map(); // lowercase Name -> Karte
   let nextSlot = 0;
 
-  // Scryfall bittet um 50–100 ms Abstand zwischen Requests
-  async function throttle() {
+  // Scryfall: Such-/Collection-/Named-Endpunkte max. ~2 Requests/s, sonst ~10/s
+  async function throttle(path) {
+    const gap = /^\/cards\/(search|named|collection|random)/.test(path) ? 520 : 110;
     const now = Date.now();
-    const wait = Math.max(0, nextSlot - now);
-    nextSlot = Math.max(now, nextSlot) + 110;
-    if (wait) await new Promise((r) => setTimeout(r, wait));
+    const start = Math.max(now, nextSlot);
+    nextSlot = start + gap;
+    if (start > now) await new Promise((r) => setTimeout(r, start - now));
   }
 
-  async function sf(path, body) {
-    await throttle();
+  async function sf(path, body, attempt = 0) {
+    await throttle(path);
     const opts = { headers: { Accept: 'application/json' } };
     if (body) {
       opts.method = 'POST';
@@ -31,9 +32,9 @@ MTG.api = (() => {
     }
     const json = await res.json().catch(() => null);
     if (res.status === 404) return null; // z.B. Suche ohne Treffer
-    if (res.status === 429) {
-      await new Promise((r) => setTimeout(r, 1000));
-      return sf(path, body);
+    if (res.status === 429 && attempt < 4) {
+      nextSlot = Date.now() + 2000 * (attempt + 1); // alle folgenden Requests mitbremsen
+      return sf(path, body, attempt + 1);
     }
     if (!res.ok) throw new Error((json && json.details) || `Scryfall-Fehler ${res.status}`);
     return json;
@@ -157,6 +158,11 @@ MTG.api = (() => {
       });
     });
     const result = map.size ? map : null;
+    if (result) {
+      result.similar = Array.isArray(json.similar) ? json.similar.filter((x) => typeof x === 'string') : [];
+      result.tags = (json.panels?.taglinks || []).slice(0, 8).map((t) => t.value);
+      result.numDecks = json.container?.json_dict?.card?.num_decks || 0;
+    }
     edhCache.set(path, result);
     return result;
   }

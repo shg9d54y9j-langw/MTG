@@ -85,7 +85,7 @@ function mkCard(name, i = hash(name)) {
   // Export mit Auswahl
   await page.check('.pick[data-kind="cut"] >> nth=0');
   await page.check('.pick[data-kind="add"] >> nth=0');
-  await page.click('#an-apply');
+  await page.click('#an-results [data-act="apply"]');
   const newList = await page.inputValue('#decklist');
   console.log('Neue Liste Zeilen:', newList.split('\n').length);
 

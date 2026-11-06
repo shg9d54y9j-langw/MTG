@@ -4,50 +4,55 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Commander Werkstatt</title>
-  <meta name="description" content="Commander-Decks analysieren, Adds & Cuts erhalten und neue Decks per Fragebogen generieren.">
+  <meta name="description" content="Commander-Decks und Precons analysieren, Adds & Cuts erhalten und neue Decks per Fragebogen generieren.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">◆</span> Commander Werkstatt</div>
-    <nav class="tabs" role="tablist">
-      <button class="tab-btn active" data-tab="analyze" role="tab">Deck analysieren</button>
-      <button class="tab-btn" data-tab="wizard" role="tab">Deck-Assistent</button>
-    </nav>
-    <label class="currency">Währung
-      <select id="currency">
-        <option value="eur">€ EUR</option>
-        <option value="usd">$ USD</option>
-      </select>
-    </label>
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Commander&nbsp;Werkstatt</div>
+      <nav class="tabs" role="tablist">
+        <span class="tab-indicator" aria-hidden="true"></span>
+        <button class="tab-btn active" data-tab="analyze" role="tab">Deck analysieren</button>
+        <button class="tab-btn" data-tab="precon" role="tab">Precons</button>
+        <button class="tab-btn" data-tab="wizard" role="tab">Deck-Assistent</button>
+      </nav>
+      <label class="currency"><span>Währung</span>
+        <select id="currency">
+          <option value="eur">€ EUR</option>
+          <option value="usd">$ USD</option>
+        </select>
+      </label>
+    </div>
   </header>
 
   <main>
     <!-- ================= ANALYSE ================= -->
     <section id="tab-analyze" class="tab active">
+      <div class="hero">
+        <h1>Mach dein Deck besser.</h1>
+        <p>Liste einfügen, Ziel-Bracket und Budget wählen – du bekommst Statistiken, Cuts, Adds und günstige Alternativen.</p>
+      </div>
       <div class="layout">
         <form id="analyze-form" class="panel sticky">
-          <h2>Deckliste einfügen</h2>
-          <p class="hint">Format wie bei Moxfield/Archidekt/MTGA: <code>1 Sol Ring</code>. Commander unter einer Zeile <code>Commander</code> oder mit <code>*CMDR*</code> markieren.</p>
-          <textarea id="decklist" spellcheck="false" placeholder="Commander&#10;1 Atraxa, Praetors' Voice&#10;&#10;Deck&#10;1 Sol Ring&#10;1 Arcane Signet&#10;1 Swords to Plowshares&#10;..."></textarea>
+          <h2>Deckliste</h2>
+          <p class="hint">Format wie bei Moxfield, Archidekt oder MTGA: <code>1 Sol Ring</code>. Commander unter <code>Commander</code> oder mit <code>*CMDR*</code> markieren.</p>
+          <textarea id="decklist" spellcheck="false" placeholder="Commander&#10;1 Atraxa, Praetors' Voice&#10;&#10;Deck&#10;1 Sol Ring&#10;1 Arcane Signet&#10;..."></textarea>
+          <label class="field">Commander (falls nicht markiert)
+            <input id="cmdr-input" list="cmdr-suggest" autocomplete="off" placeholder="optional">
+            <datalist id="cmdr-suggest"></datalist>
+          </label>
           <div class="row">
-            <label class="grow">Commander (falls nicht markiert)
-              <input id="cmdr-input" list="cmdr-suggest" autocomplete="off" placeholder="optional">
-              <datalist id="cmdr-suggest"></datalist>
-            </label>
-          </div>
-          <div class="row">
-            <label>Ziel-Bracket
-              <select id="an-bracket"></select>
-            </label>
-            <label>Max. Preis pro Add
-              <select id="an-cap"></select>
-            </label>
+            <label>Ziel-Bracket <select id="an-bracket" class="bracket-select"></select></label>
+            <label>Max. Preis pro Add <select id="an-cap" class="cap-select"></select></label>
           </div>
           <div class="field">
-            <span class="label">Deck-Themes (optional, verbessert Cuts)</span>
+            <span class="label">Deck-Themes <small>(optional – sonst automatisch erkannt)</small></span>
             <div id="an-themes" class="chips"></div>
-            <input id="an-typal" class="typal-input hidden" placeholder="Kreaturentyp, z.B. Dragon">
+            <input id="an-typal" class="typal-input hidden" placeholder="Kreaturentyp, z. B. Dragon">
           </div>
           <div class="row actions">
             <button type="submit" class="btn primary" id="analyze-btn">Analysieren</button>
@@ -57,18 +62,62 @@
         </form>
         <div id="an-results" class="results">
           <div class="empty">
-            <div class="empty-icon">⟡</div>
-            <p>Füge links eine Deckliste ein und klicke auf <strong>Analysieren</strong>.<br>Du bekommst Statistiken, Bracket-Einschätzung, empfohlene <strong>Adds</strong>, <strong>Cuts</strong> und Budget-Alternativen.</p>
+            <div class="empty-icon" aria-hidden="true">✦</div>
+            <p>Füge links eine Deckliste ein und klicke auf <strong>Analysieren</strong>.</p>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ================= PRECONS ================= -->
+    <section id="tab-precon" class="tab">
+      <div id="pc-browse">
+        <div class="hero">
+          <h1>Precons durchsuchen.</h1>
+          <p>Alle Commander-Precons – mit Upgrade-Vorschlägen, Cuts und Ideen für einen Umbau mit anderem Commander.</p>
+        </div>
+        <div class="panel toolbar">
+          <div class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="pc-search" type="search" placeholder="Precon, Commander oder Set suchen …" autocomplete="off">
+          </div>
+          <div id="pc-colors" class="mini-mana" title="Nach Farben filtern"></div>
+          <select id="pc-sort" aria-label="Sortierung">
+            <option value="new">Neueste zuerst</option>
+            <option value="old">Älteste zuerst</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+        <p id="pc-count" class="count"></p>
+        <div id="pc-grid" class="precon-grid"></div>
+        <div class="center"><button type="button" id="pc-more" class="btn ghost hidden">Mehr anzeigen</button></div>
+      </div>
+
+      <div id="pc-detail" class="hidden">
+        <button type="button" class="btn ghost back" id="pc-back">← Alle Precons</button>
+        <div id="pc-head"></div>
+        <div class="panel options-bar">
+          <label>Upgrade-Budget pro Karte <select id="pc-cap" class="cap-select"></select></label>
+          <label>Ziel-Bracket <select id="pc-bracket" class="bracket-select"></select></label>
+          <label>Upgrade-Paket <select id="pc-size">
+            <option value="5">5 Tausche</option>
+            <option value="10" selected>10 Tausche</option>
+            <option value="15">15 Tausche</option>
+          </select></label>
+          <button type="button" class="btn primary" id="pc-run">Neu berechnen</button>
+          <div id="pc-status" class="status" aria-live="polite"></div>
+        </div>
+        <div id="pc-results" class="results"></div>
+      </div>
+    </section>
+
     <!-- ================= ASSISTENT ================= -->
     <section id="tab-wizard" class="tab">
+      <div class="hero">
+        <h1>Finde dein nächstes Deck.</h1>
+        <p>Fünf Fragen – dann bekommst du passende Commander und eine komplette 100-Karten-Liste.</p>
+      </div>
       <form id="wizard-form" class="panel wizard">
-        <h2>Welches Deck passt zu dir?</h2>
-
         <fieldset>
           <legend><span class="step">1</span> Lieblingsfarben</legend>
           <div id="wz-colors" class="mana-picker"></div>
@@ -85,9 +134,9 @@
         </fieldset>
 
         <fieldset>
-          <legend><span class="step">3</span> Deckziel / Themes <small>(bis zu 3)</small></legend>
+          <legend><span class="step">3</span> Deckziel / Themes <small>bis zu 3</small></legend>
           <div id="wz-themes" class="chips"></div>
-          <input id="wz-typal" class="typal-input hidden" placeholder="Kreaturentyp, z.B. Elf, Zombie, Dragon">
+          <input id="wz-typal" class="typal-input hidden" placeholder="Kreaturentyp, z. B. Elf, Zombie, Dragon">
         </fieldset>
 
         <fieldset>
@@ -96,7 +145,7 @@
         </fieldset>
 
         <fieldset>
-          <legend><span class="step">5</span> Commander schon im Kopf? <small>(optional)</small></legend>
+          <legend><span class="step">5</span> Commander schon im Kopf? <small>optional</small></legend>
           <input id="wz-cmdr" list="wz-cmdr-suggest" autocomplete="off" placeholder="Leer lassen für Vorschläge">
           <datalist id="wz-cmdr-suggest"></datalist>
         </fieldset>
@@ -114,10 +163,12 @@
 
   <footer>
     Kartendaten &amp; Preise: <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a> ·
-    Spielhäufigkeiten: <a href="https://edhrec.com" target="_blank" rel="noopener">EDHREC</a> (sofern erreichbar) ·
+    Spielhäufigkeiten: <a href="https://edhrec.com" target="_blank" rel="noopener">EDHREC</a> ·
+    Precon-Listen: <a href="https://mtgjson.com" target="_blank" rel="noopener">MTGJSON</a> ·
     Inoffizielles Fan-Tool, nicht mit Wizards of the Coast verbunden.
   </footer>
 
+  <script src="data/precons.js"></script>
   <script src="js/data.js"></script>
   <script src="js/api.js"></script>
   <script src="js/cards.js"></script>

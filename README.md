@@ -14,6 +14,12 @@ Statische Website für MTG-Commander-Decks – ohne Server, ohne Build-Schritt.
 - **Budget**: Preisgrenze pro Karte und günstigere Alternativen für teure Karten
 - Adds/Cuts abhaken → angepasste Liste kopieren oder übernehmen
 
+**Precons**
+- Alle 200 Commander-Precons (MTGJSON) durchsuchen – nach Name, Commander, Set und Farben
+- Pro Precon: Statistiken, Bracket, automatisch erkannte Themes, Cuts & Adds
+- **Schnelles Upgrade-Paket**: 5/10/15 Tausche im gewählten Budget inkl. Gesamtkosten, Einkaufsliste und upgedateter Liste
+- **Umbau-Ideen**: alternative Commander (aus dem Deck selbst, ähnliche laut EDHREC, passend zu den Themes) mit Angabe, wie viele Karten spielbar bleiben – per Klick als Umbau analysieren
+
 **Deck-Assistent**
 1. Lieblingsfarben (genau oder als Obergrenze)
 2. Bracket 1–5
@@ -26,6 +32,7 @@ Statische Website für MTG-Commander-Decks – ohne Server, ohne Build-Schritt.
 ## Datenquellen
 
 - [Scryfall API](https://scryfall.com/docs/api) – Kartendaten, Preise (EUR/USD), Popularität (`edhrec_rank`), Game-Changer-Flag
+- [MTGJSON](https://mtgjson.com) – Precon-Decklisten, gebündelt in `data/precons.js` (aktualisieren: `NODE_USE_ENV_PROXY=1 node tools/build-precons.js`)
 - [EDHREC](https://edhrec.com) JSON – Spielhäufigkeit und Synergie pro Commander. Das ist **keine offizielle API**; ist sie nicht erreichbar (z. B. wegen CORS), arbeitet die Seite automatisch nur mit Scryfall-Daten weiter.
 
 ## Starten
@@ -45,6 +52,7 @@ Zum Veröffentlichen eignet sich GitHub Pages (Settings → Pages → Branch wä
 node test/parser.test.js          # Parser & Kartenkategorien
 node test/smoke.js                # UI-Durchlauf mit gemockten APIs (Playwright)
 node test/smoke.js --edhrec       # dasselbe mit gemockten EDHREC-Daten
+node test/live.js                 # kompletter Durchlauf gegen die echten APIs (Netz nötig)
 ```
 
 ## Struktur
@@ -52,6 +60,8 @@ node test/smoke.js --edhrec       # dasselbe mit gemockten EDHREC-Daten
 ```
 index.html
 css/style.css
+data/precons.js  Precon-Listen (generiert)
+tools/build-precons.js
 js/data.js     Themes, Brackets, Budgets, Richtwerte
 js/api.js      Scryfall- & EDHREC-Zugriff (Rate-Limit, Cache)
 js/cards.js    Parser, Kategorien, Preise

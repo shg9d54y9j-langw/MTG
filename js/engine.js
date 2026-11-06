@@ -22,8 +22,15 @@ MTG.engine = (() => {
         if (id === 'typal') {
           if (!typal) return null;
           const safe = typal.replace(/["()]/g, '').trim();
-          const esc = safe.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          return { ...th, name: `Typal: ${safe}`, edh: null, q: `(t:"${safe}" OR o:"${safe}")`, rx: new RegExp(`\\b${esc}s?\\b`, 'i') };
+          // Mehrzahl-Formen: Elf → Elves, Wolf → Wolves, Fox → Foxes, Goblin → Goblins
+          const forms = new Set([safe, safe + 's', safe + 'es']);
+          if (/f$/i.test(safe)) forms.add(safe.slice(0, -1) + 'ves');
+          if (/fe$/i.test(safe)) forms.add(safe.slice(0, -2) + 'ves');
+          const list = [...forms];
+          const esc = list.map((f) => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+          return { ...th, name: `Typal: ${safe}`, edh: null,
+            q: `(t:"${safe}" OR ${list.map((f) => `o:"${f}"`).join(' OR ')})`,
+            rx: new RegExp(`\\b(${esc})\\b`, 'i') };
         }
         return th;
       })
@@ -124,7 +131,30 @@ MTG.engine = (() => {
     return [(full[0] || legends[0]).card];
   }
 
-  async function analyze({ text, commanderName, bracket, cap, cur, themeIds, typal, status }) {
+  /** Erkennt die stärksten Themes einer Kartenliste (inkl. Typal). */
+  function detectThemes(cardList, max = 3) {
+    const nonland = cardList.filter((c) => !C.isLand(c));
+    const res = D.THEMES.filter((t) => t.rx)
+      .map((t) => ({ t, n: nonland.filter((c) => C.themeMatches(c, [t]).length).length }))
+      .filter((x) => x.n >= 7)
+      .sort((a, b) => b.n - a.n)
+      .slice(0, max)
+      .map((x) => x.t);
+    // Typal: häufigster Kreaturentyp
+    const types = {};
+    nonland.filter(C.isCreature).forEach((c) => {
+      const sub = (C.typeLine(c).split(' // ')[0].split('—')[1] || '').trim().split(/\s+/).filter(Boolean);
+      sub.forEach((x) => (types[x] = (types[x] || 0) + 1));
+    });
+    const top = Object.entries(types).sort((a, b) => b[1] - a[1])[0];
+    if (top && top[1] >= 10) res.unshift(resolveThemes(['typal'], top[0])[0]);
+    return res.slice(0, max);
+  }
+
+  const canCommand = (c) => /Legendary/.test(C.typeLine(c).split(' // ')[0]) &&
+    (C.isCreature(c) || /can be your commander/i.test(C.oracle(c)));
+
+  async function analyze({ text, commanderName, bracket, cap, cur, themeIds, typal, status, autoThemes }) {
     const parsed = C.parseDecklist(text);
     if (!parsed.cards.length && !parsed.commanders.length) throw new Error('Keine Karten in der Liste gefunden.');
     const names = [...parsed.commanders, ...parsed.cards.map((c) => c.name)];
@@ -146,7 +176,8 @@ MTG.engine = (() => {
     const cmdrNames = new Set(commanders.map((c) => c.name));
     entries = entries.filter((e) => !cmdrNames.has(e.card.name));
 
-    const themes = resolveThemes(themeIds, typal);
+    let themes = resolveThemes(themeIds, typal);
+    if (!themes.length && autoThemes) themes = detectThemes(entries.map((e) => e.card));
     const rules = bracketRules(bracket);
     const id = identityOf(commanders);
 
@@ -262,7 +293,7 @@ MTG.engine = (() => {
         if ((c.cmc || 0) >= 6 && !e.tags.has('land')) { s += 0.35; reasons.push(`Hohe Manakosten (${c.cmc})`); }
         const matchesTheme = C.themeMatches(c, themes).length > 0;
         const role = ['ramp', 'draw', 'removal', 'counter', 'wipe'].some((k) => e.tags.has(k));
-        if (themes.length && !matchesTheme && !role) { s += 0.45; reasons.push('Passt nicht zu den gewählten Themes'); }
+        if (themes.length && !matchesTheme && !role) { s += 0.45; reasons.push('Passt nicht zu den Deck-Themes'); }
         if (matchesTheme) s -= 0.4;
         if (!role && !matchesTheme && !e.tags.has('creature') && !e.tags.has('land')) s += 0.15;
         if (e.tags.has('ramp') && overfull.ramp) { s += 0.2; reasons.push('Viel Rampe vorhanden'); }
@@ -301,6 +332,63 @@ MTG.engine = (() => {
       totalPrice, unknownPrices, deckSize, issues, gcs, flagged, bracketEstimate: est, rules,
       deficitAdds, synergyAdds, cuts, mustCut, swaps, edhrecUsed: !!edh, themes, cur,
     };
+  }
+
+  // =====================================================================
+  //  UMBAU-IDEEN (alternative Commander für eine bestehende Liste)
+  // =====================================================================
+  async function rebuildIdeas({ commanders, entries, themes, cur, status }) {
+    const id = identityOf(commanders);
+    const cmdrNames = new Set(commanders.map((c) => c.name));
+    const deckCards = entries.map((e) => e.card);
+    const nonland = deckCards.filter((c) => !C.isLand(c));
+    const cands = new Map();
+    const add = (card, src) => {
+      if (!card || cmdrNames.has(card.name) || !canCommand(card)) return;
+      if (card.legalities && card.legalities.commander === 'banned') return;
+      const e = cands.get(card.name) || { card, sources: new Set() };
+      e.sources.add(src);
+      cands.set(card.name, e);
+    };
+
+    // 1) Legenden, die schon im Deck sind
+    deckCards.forEach((c) => add(c, 'Schon im Deck'));
+    // 2) Ähnliche Commander laut EDHREC
+    status && status('Suche ähnliche Commander …');
+    const edhMain = await api.edhrec(commanders, null);
+    if (edhMain && edhMain.similar.length) {
+      const { cards } = await api.getCards(edhMain.similar.slice(0, 8));
+      cards.forEach((c) => add(c, 'Ähnlich laut EDHREC'));
+    }
+    // 3) Commander, die zu den Deck-Themes passen
+    for (const th of themes.slice(0, 2)) {
+      if (!th.q) continue;
+      status && status(`Suche Commander für „${th.name}“ …`);
+      (await api.search(`is:commander f:commander -is:digital id<=${idQuery(id)} ${th.q}`)).slice(0, 8).forEach((c) => add(c, `Passt zu ${th.name}`));
+    }
+
+    let list = [...cands.values()].map((e) => {
+      const cid = (e.card.color_identity || []).map((x) => x.toLowerCase());
+      const fits = nonland.filter((c) => C.withinIdentity(c, cid));
+      e.keep = fits.length;
+      e.offColor = deckCards.filter((c) => !C.withinIdentity(c, cid)).length;
+      e.themes = C.themeMatches(e.card, themes).map((t) => t.name);
+      e.price = C.price(e.card, cur);
+      e.score = e.keep / Math.max(1, nonland.length) + e.themes.length * 0.3 + popularity(e.card) * 0.5 + (e.sources.has('Schon im Deck') ? 0.3 : 0);
+      return e;
+    }).sort((a, b) => b.score - a.score).slice(0, 9);
+
+    // EDHREC-Überschneidung: wie viele Deckkarten spielt man typischerweise mit diesem Commander?
+    for (const [i, e] of list.entries()) {
+      status && status(`Prüfe Überschneidung ${i + 1}/${list.length} …`);
+      const edh = await api.edhrec([e.card], null);
+      if (edh) {
+        e.overlap = deckCards.filter((c) => edh.has(c.name.toLowerCase())).length;
+        e.tags = edh.tags.slice(0, 3);
+        e.score += e.overlap / 40;
+      }
+    }
+    return list.sort((a, b) => b.score - a.score);
   }
 
   // =====================================================================
@@ -460,5 +548,5 @@ MTG.engine = (() => {
     return (cur === 'eur' ? '' : '$') + v.toFixed(2).replace('.', cur === 'eur' ? ',' : '.') + (cur === 'eur' ? ' €' : '');
   }
 
-  return { analyze, suggestCommanders, buildDeck, resolveThemes, identityOf, fmt };
+  return { analyze, rebuildIdeas, detectThemes, suggestCommanders, buildDeck, resolveThemes, identityOf, fmt };
 })();
