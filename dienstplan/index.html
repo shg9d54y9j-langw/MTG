@@ -10,42 +10,42 @@
 <style>
 /* Layout: persönliche Begrüßung oben, Kalender als Hauptfläche, ruhige Seitenleiste; Tagesdetails als Schublade. Warm, hell, weich. */
 :root{
-  --bg:#fffaf6; --surface:#ffffff; --surface-2:#fdf1ea; --line:#f2e3da;
-  --fg:#35282b; --muted:#8a7370; --accent:#d94f70; --accent-ink:#b23a59; --accent-soft:#fde7ec; --accent-fg:#ffffff;
+  --bg:#ffffff; --surface:#ffffff; --surface-2:#fdf2f7; --line:#f5e1ea;
+  --fg:#2a2230; --muted:#8a7a8c; --accent:#d94f70; --accent-ink:#b23a59; --accent-soft:#fde7ec; --accent-fg:#ffffff;
   --early:#f4bf3a; --early-soft:#fff5d9; --early-fg:#7a5600;
   --late:#f28a4b; --late-soft:#ffeadb; --late-fg:#8f3f0e;
   --night:#7f7be0; --night-soft:#eeedfd; --night-fg:#3d3896;
-  --off-soft:#fdf1ea; --off-fg:#8a7370;
+  --off-soft:#fdf2f7; --off-fg:#8a7a8c;
   --vac:#34b39b; --vac-soft:#dff5ef; --vac-fg:#17614f;
-  --warn:#c2410c; --warn-soft:#ffeddc; --ok:#1e8a4c;
-  --hello-a:#ffe9dc; --hello-b:#fde3ec; --sun:#ffc85a;
-  --shadow:0 1px 2px rgba(120,60,40,.05),0 8px 28px rgba(150,80,50,.08);
+  --warn:#c62a4a; --warn-soft:#ffe8ee; --ok:#1e8a4c;
+  --hello-a:#ffe6ef; --hello-b:#fff3f8; --sun:#ffc2d6;
+  --shadow:0 1px 2px rgba(150,40,90,.05),0 8px 28px rgba(200,60,120,.08);
   --display:"Bricolage Grotesque",ui-rounded,"Segoe UI",system-ui,sans-serif;
   --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:20px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#1b1517; --surface:#251d20; --surface-2:#30262a; --line:#3d3135;
-  --fg:#f3e9e6; --muted:#b9a5a1; --accent:#f07a96; --accent-ink:#ff9bb3; --accent-soft:#45232d; --accent-fg:#2a0d15;
+  --bg:#17131a; --surface:#211b25; --surface-2:#2b2331; --line:#3a2f40;
+  --fg:#f6eef6; --muted:#b9a8bb; --accent:#f07a96; --accent-ink:#ff9bb3; --accent-soft:#45232d; --accent-fg:#2a0d15;
   --early:#f6c95a; --early-soft:#3d3115; --early-fg:#ffdc8f;
   --late:#f6a06b; --late-soft:#40271a; --late-fg:#ffc39d;
   --night:#9d9af2; --night-soft:#2b2950; --night-fg:#cfccff;
-  --off-soft:#30262a; --off-fg:#b9a5a1;
+  --off-soft:#2b2331; --off-fg:#b9a8bb;
   --vac:#5cccb4; --vac-soft:#173d35; --vac-fg:#a8ebdc;
-  --warn:#fb923c; --warn-soft:#3f2616; --ok:#5ad08a;
-  --hello-a:#3a2620; --hello-b:#3a2230; --sun:#f6c95a;
+  --warn:#ff7a95; --warn-soft:#42202b; --ok:#5ad08a;
+  --hello-a:#3a2033; --hello-b:#2a1f30; --sun:#f07a96;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.28);
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#1b1517; --surface:#251d20; --surface-2:#30262a; --line:#3d3135;
-  --fg:#f3e9e6; --muted:#b9a5a1; --accent:#f07a96; --accent-ink:#ff9bb3; --accent-soft:#45232d; --accent-fg:#2a0d15;
+  --bg:#17131a; --surface:#211b25; --surface-2:#2b2331; --line:#3a2f40;
+  --fg:#f6eef6; --muted:#b9a8bb; --accent:#f07a96; --accent-ink:#ff9bb3; --accent-soft:#45232d; --accent-fg:#2a0d15;
   --early:#f6c95a; --early-soft:#3d3115; --early-fg:#ffdc8f;
   --late:#f6a06b; --late-soft:#40271a; --late-fg:#ffc39d;
   --night:#9d9af2; --night-soft:#2b2950; --night-fg:#cfccff;
-  --off-soft:#30262a; --off-fg:#b9a5a1;
+  --off-soft:#2b2331; --off-fg:#b9a8bb;
   --vac:#5cccb4; --vac-soft:#173d35; --vac-fg:#a8ebdc;
-  --warn:#fb923c; --warn-soft:#3f2616; --ok:#5ad08a;
-  --hello-a:#3a2620; --hello-b:#3a2230; --sun:#f6c95a;
+  --warn:#ff7a95; --warn-soft:#42202b; --ok:#5ad08a;
+  --hello-a:#3a2033; --hello-b:#2a1f30; --sun:#f07a96;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.28);
   color-scheme:dark}
 
@@ -60,7 +60,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* Kopf */
 .top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto}
-.logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,var(--late),var(--accent));display:grid;place-items:center;color:var(--accent-fg)}
+.logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#f78fb3,var(--accent));display:grid;place-items:center;color:var(--accent-fg)}
 .brand h1{font-size:1.45rem}
 .brand small{display:block;color:var(--muted);font-size:.82rem;font-family:var(--body);font-weight:500}
 .monthnav{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
@@ -213,7 +213,7 @@ svg{flex:none}
 <body><style>
 [hidden]{display:none!important}
 .hello{position:relative;overflow:hidden;border-radius:24px;padding:22px 24px;background:linear-gradient(120deg,var(--hello-a),var(--hello-b));display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center}
-.hello::after{content:"";position:absolute;right:-40px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,var(--sun) 0 38%,transparent 39%);opacity:.55;pointer-events:none}
+.hello::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,var(--sun) 0 38%,transparent 39%),radial-gradient(circle at 20% 80%,var(--accent-soft) 0 22%,transparent 23%);opacity:.6;pointer-events:none}
 @media (max-width:640px){.hello{padding:18px}.hello::after{width:120px;height:120px;right:-55px;top:-60px}}
 .hello .txt{min-width:0;flex:1 1 320px;position:relative;z-index:1}
 .hello h2{font-size:clamp(1.35rem,3.2vw,1.8rem)}
@@ -703,7 +703,7 @@ function renderBanner(){
   const st=$("status");st.className="status "+(mode==="live"?"live":mode==="demo"?"demo":"");
   st.querySelector("span").textContent=mode==="live"?(isLead?"Live im Team · Teamleitung":"Live im Team"):mode==="demo"?"Demo · nur in diesem Browser":"Verbinde …";
   let b="";
-  if(mode==="demo")b=`<div class="banner warn"><span><b>Demo-Modus.</b> Kolleg:innen und ihre Antworten sind Beispiele. Öffne Schichtblick angemeldet über claude.ai, um mit deinem echten Team zu planen.</span></div>`;
+  if(mode==="demo")b=`<div class="banner info"><span><b>Demo-Modus.</b> Kolleg:innen und ihre Antworten sind Beispiele. Öffne Schichtblick angemeldet über claude.ai, um mit deinem echten Team zu planen.</span></div>`;
   else if(mode==="live"&&!canWrite)b=`<div class="banner warn"><span><b>Nur lesen.</b> Du kannst den Plan ansehen, aber nichts eintragen. Bitte die Teamleitung, dich als Mitwirkende:n einzuladen.</span></div>`;
   else if(mode==="live"&&Object.keys(data.members).length<=1&&loaded)b=`<div class="banner info"><span><b>Noch bist du allein im Team.</b> Teile diesen Dienstplan über „Teilen“ mit deinen Kolleg:innen und gib ihnen die Rolle Mitwirkende:r. Sobald sie ihn öffnen, erscheinen sie hier.</span></div>`;
   $("banner").innerHTML=b;
