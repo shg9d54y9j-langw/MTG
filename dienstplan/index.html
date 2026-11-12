@@ -10,44 +10,23 @@
 <style>
 /* Layout: persönliche Begrüßung oben, Kalender als Hauptfläche, ruhige Seitenleiste; Tagesdetails als Schublade. Warm, hell, weich. */
 :root{
-  --bg:#ffffff; --surface:#ffffff; --surface-2:#fdf2f7; --line:#f5e1ea;
-  --fg:#2a2230; --muted:#8a7a8c; --accent:#d94f70; --accent-ink:#b23a59; --accent-soft:#fde7ec; --accent-fg:#ffffff;
-  --early:#f4bf3a; --early-soft:#fff5d9; --early-fg:#7a5600;
-  --late:#f28a4b; --late-soft:#ffeadb; --late-fg:#8f3f0e;
-  --night:#7f7be0; --night-soft:#eeedfd; --night-fg:#3d3896;
-  --off-soft:#fdf2f7; --off-fg:#8a7a8c;
-  --vac:#34b39b; --vac-soft:#dff5ef; --vac-fg:#17614f;
-  --warn:#c62a4a; --warn-soft:#ffe8ee; --ok:#1e8a4c;
-  --hello-a:#ffe6ef; --hello-b:#fff3f8; --sun:#ffc2d6;
-  --shadow:0 1px 2px rgba(150,40,90,.05),0 8px 28px rgba(200,60,120,.08);
+  /* Bewusst nur ein helles Design: Beige, Pink, Schwarz. */
+  color-scheme:light;
+  --bg:#f8f2ea; --surface:#fffdf9; --surface-2:#f2e9df; --line:#e7dcd0;
+  --fg:#1d1a19; --muted:#776c66; --ink:#1d1a19; --ink-fg:#ffffff;
+  --accent:#e2588a; --accent-ink:#b8325f; --accent-soft:#fbe2ea; --accent-fg:#ffffff;
+  --early:#f2bd3c; --early-soft:#fdf1d2; --early-fg:#7a5500;
+  --late:#ef8a5c; --late-soft:#fce6da; --late-fg:#8f3c12;
+  --night:#2b2726; --night-soft:#e9e4df; --night-fg:#2b2726;
+  --off-soft:#f2e9df; --off-fg:#776c66;
+  --vac:#3aa996; --vac-soft:#dcf1ec; --vac-fg:#17604f;
+  --warn:#c62a4a; --warn-soft:#fde4ea; --ok:#1e8a4c;
+  --hello-a:#fbe2ea; --hello-b:#f8efe5; --sun:#f7b6cb;
+  --shadow:0 1px 2px rgba(60,40,30,.05),0 8px 28px rgba(90,60,40,.07);
   --display:"Bricolage Grotesque",ui-rounded,"Segoe UI",system-ui,sans-serif;
   --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:20px;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#17131a; --surface:#211b25; --surface-2:#2b2331; --line:#3a2f40;
-  --fg:#f6eef6; --muted:#b9a8bb; --accent:#f07a96; --accent-ink:#ff9bb3; --accent-soft:#45232d; --accent-fg:#2a0d15;
-  --early:#f6c95a; --early-soft:#3d3115; --early-fg:#ffdc8f;
-  --late:#f6a06b; --late-soft:#40271a; --late-fg:#ffc39d;
-  --night:#9d9af2; --night-soft:#2b2950; --night-fg:#cfccff;
-  --off-soft:#2b2331; --off-fg:#b9a8bb;
-  --vac:#5cccb4; --vac-soft:#173d35; --vac-fg:#a8ebdc;
-  --warn:#ff7a95; --warn-soft:#42202b; --ok:#5ad08a;
-  --hello-a:#3a2033; --hello-b:#2a1f30; --sun:#f07a96;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.28);
-  color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#17131a; --surface:#211b25; --surface-2:#2b2331; --line:#3a2f40;
-  --fg:#f6eef6; --muted:#b9a8bb; --accent:#f07a96; --accent-ink:#ff9bb3; --accent-soft:#45232d; --accent-fg:#2a0d15;
-  --early:#f6c95a; --early-soft:#3d3115; --early-fg:#ffdc8f;
-  --late:#f6a06b; --late-soft:#40271a; --late-fg:#ffc39d;
-  --night:#9d9af2; --night-soft:#2b2950; --night-fg:#cfccff;
-  --off-soft:#2b2331; --off-fg:#b9a8bb;
-  --vac:#5cccb4; --vac-soft:#173d35; --vac-fg:#a8ebdc;
-  --warn:#ff7a95; --warn-soft:#42202b; --ok:#5ad08a;
-  --hello-a:#3a2033; --hello-b:#2a1f30; --sun:#f07a96;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.28);
-  color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
@@ -60,7 +39,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* Kopf */
 .top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto}
-.logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#f78fb3,var(--accent));display:grid;place-items:center;color:var(--accent-fg)}
+.logo{width:40px;height:40px;border-radius:14px;background:var(--ink);display:grid;place-items:center;color:var(--accent)}
 .brand h1{font-size:1.45rem}
 .brand small{display:block;color:var(--muted);font-size:.82rem;font-family:var(--body);font-weight:500}
 .monthnav{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
@@ -69,7 +48,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .monthnav .label{min-width:150px;text-align:center;font-weight:700;font-family:var(--display);font-size:1.05rem}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{background:var(--surface-2)}
-.btn.primary{background:var(--accent);border-color:var(--accent-ink);color:var(--accent-fg)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--ink-fg)}
 .btn.primary:hover{filter:brightness(1.05)}
 .btn.ghost{border-color:transparent;background:transparent}
 .btn.danger{color:var(--warn)}
@@ -203,7 +182,7 @@ textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:1
 
 /* Toast */
 .toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;z-index:30;width:min(420px,calc(100% - 32px))}
-.toast{background:var(--fg);color:var(--bg);border-radius:12px;padding:11px 14px;font-size:.9rem;font-weight:500;box-shadow:var(--shadow);animation:pop .25s ease}
+.toast{background:var(--ink);color:var(--ink-fg);border-radius:12px;padding:11px 14px;font-size:.9rem;font-weight:500;box-shadow:var(--shadow);animation:pop .25s ease}
 @keyframes pop{from{transform:translateY(8px);opacity:0}}
 footer{color:var(--muted);font-size:.8rem;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;align-items:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
