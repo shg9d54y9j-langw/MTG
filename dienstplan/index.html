@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Schichtblick</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: Kalender als Hauptfläche links, ruhige Seitenleiste rechts (Nächster Dienst, Stunden, Tauschbörse); Tagesdetails als Schublade. */
+:root{
+  --bg:#f5f8f7; --surface:#ffffff; --surface-2:#eef3f1; --line:#dfe7e4;
+  --fg:#1d2b28; --muted:#5f716c; --accent:#1f8a70; --accent-soft:#d9f0e8; --accent-fg:#ffffff;
+  --early:#f6b93b; --early-soft:#fff3d6; --early-fg:#7a5200;
+  --late:#f07a5a; --late-soft:#fde5dd; --late-fg:#8a2f16;
+  --night:#5b63d3; --night-soft:#e5e6fb; --night-fg:#2d3392;
+  --off-soft:#eef3f1; --off-fg:#5f716c;
+  --vac:#2aa3b8; --vac-soft:#dbf2f6; --vac-fg:#145a66;
+  --warn:#c2410c; --warn-soft:#ffedd5; --ok:#15803d;
+  --shadow:0 1px 2px rgba(24,48,42,.06),0 6px 24px rgba(24,48,42,.07);
+  --display:"Bricolage Grotesque",ui-rounded,"Segoe UI",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121a18; --surface:#1a2421; --surface-2:#22302c; --line:#2c3b37;
+  --fg:#e6eeeb; --muted:#9db0aa; --accent:#3fbf98; --accent-soft:#1d3c33; --accent-fg:#0b1a15;
+  --early:#f6b93b; --early-soft:#3a2f14; --early-fg:#ffd98a;
+  --late:#f58a6c; --late-soft:#3d231b; --late-fg:#ffb9a5;
+  --night:#8b92f0; --night-soft:#262a52; --night-fg:#c3c7ff;
+  --off-soft:#22302c; --off-fg:#9db0aa;
+  --vac:#4cc3d6; --vac-soft:#173a40; --vac-fg:#a5e7f1;
+  --warn:#fb923c; --warn-soft:#3b2414; --ok:#4ade80;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.25);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a18; --surface:#1a2421; --surface-2:#22302c; --line:#2c3b37;
+  --fg:#e6eeeb; --muted:#9db0aa; --accent:#3fbf98; --accent-soft:#1d3c33; --accent-fg:#0b1a15;
+  --early:#f6b93b; --early-soft:#3a2f14; --early-fg:#ffd98a;
+  --late:#f58a6c; --late-soft:#3d231b; --late-fg:#ffb9a5;
+  --night:#8b92f0; --night-soft:#262a52; --night-fg:#c3c7ff;
+  --off-soft:#22302c; --off-fg:#9db0aa;
+  --vac:#4cc3d6; --vac-soft:#173a40; --vac-fg:#a5e7f1;
+  --warn:#fb923c; --warn-soft:#3b2414; --ok:#4ade80;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.25);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+
+/* Kopf */
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo{width:38px;height:38px;border-radius:11px;background:var(--accent);display:grid;place-items:center;color:var(--accent-fg)}
+.brand h1{font-size:1.45rem}
+.brand small{display:block;color:var(--muted);font-size:.82rem;font-family:var(--body);font-weight:500}
+.monthnav{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.monthnav button{border:0;background:transparent;width:36px;height:36px;border-radius:999px;display:grid;place-items:center}
+.monthnav button:hover{background:var(--surface-2)}
+.monthnav .label{min-width:150px;text-align:center;font-weight:700;font-family:var(--display);font-size:1.05rem}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.danger{color:var(--warn)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+/* Raster */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.cal{padding:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;padding:4px 4px 12px;font-size:.82rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.dow,.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.dow div{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;padding:0 6px 6px}
+.day{position:relative;min-height:104px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:8px;text-align:left;display:flex;flex-direction:column;gap:6px;transition:transform .12s ease,box-shadow .12s ease,border-color .12s}
+.day:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-1px)}
+.day.out{opacity:.42}
+.day.weekend{background:var(--surface-2)}
+.day.today{border:2px solid var(--accent);padding:7px}
+.day .num{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-variant-numeric:tabular-nums;font-size:.9rem}
+.day.today .num b{background:var(--accent);color:var(--accent-fg);border-radius:999px;padding:0 7px}
+.day .hol{font-size:.68rem;color:var(--muted);font-weight:600;line-height:1.2}
+.chip{border-radius:8px;padding:5px 7px;font-size:.78rem;font-weight:700;line-height:1.2;display:flex;flex-direction:column}
+.chip small{font-weight:500;font-size:.72rem;opacity:.85;font-variant-numeric:tabular-nums}
+.chip.F{background:var(--early-soft);color:var(--early-fg);box-shadow:inset 3px 0 0 var(--early)}
+.chip.S{background:var(--late-soft);color:var(--late-fg);box-shadow:inset 3px 0 0 var(--late)}
+.chip.N{background:var(--night-soft);color:var(--night-fg);box-shadow:inset 3px 0 0 var(--night)}
+.chip.U{background:var(--vac-soft);color:var(--vac-fg);box-shadow:inset 3px 0 0 var(--vac)}
+.chip.X{background:transparent;color:var(--off-fg);padding-left:0;font-weight:600}
+.badges{display:flex;gap:4px;margin-top:auto;flex-wrap:wrap}
+.badge{font-size:.68rem;font-weight:700;border-radius:999px;padding:2px 7px;display:inline-flex;align-items:center;gap:3px}
+.badge.wish{background:var(--accent-soft);color:var(--accent)}
+.badge.swap{background:var(--warn-soft);color:var(--warn)}
+.badge.got{background:var(--night-soft);color:var(--night-fg)}
+.short{display:none}
+@media (max-width:640px){
+  .cal{padding:10px}
+  .dow,.days{gap:4px}
+  .day{min-height:70px;padding:5px;border-radius:10px}
+  .day.today{padding:4px}
+  .chip{padding:3px 4px;font-size:.8rem;align-items:center;box-shadow:none!important}
+  .chip small,.chip .long,.day .hol{display:none}
+  .short{display:inline}
+  .badge{padding:1px 4px}
+  .badge .bt{display:none}
+  .monthnav .label{min-width:120px}
+}
+
+/* Seitenleiste */
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h2{font-size:1.05rem}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted)}
+.next{display:flex;gap:14px;align-items:center}
+.next .big{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;font-family:var(--display);font-size:1.5rem;font-weight:700;flex:none}
+.next .big.F{background:var(--early-soft);color:var(--early-fg)}
+.next .big.S{background:var(--late-soft);color:var(--late-fg)}
+.next .big.N{background:var(--night-soft);color:var(--night-fg)}
+.next .big.U{background:var(--vac-soft);color:var(--vac-fg)}
+.next .meta{min-width:0}
+.next .meta b{display:block;font-size:1.05rem}
+.next .meta span{color:var(--muted);font-size:.88rem}
+.bar{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .4s}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.stat b{display:block;font-family:var(--display);font-size:1.2rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.75rem;color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.88rem}
+.row .muted{color:var(--muted)}
+.tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:999px;padding:6px 8px;font-weight:600;font-size:.85rem;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.item .head{display:flex;align-items:center;gap:8px}
+.avatar{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;font-size:.75rem;font-weight:700;flex:none;background:var(--accent-soft);color:var(--accent)}
+.item .who{font-weight:600;font-size:.9rem;margin-right:auto}
+.pill{font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px}
+.pill.F{background:var(--early-soft);color:var(--early-fg)}
+.pill.S{background:var(--late-soft);color:var(--late-fg)}
+.pill.N{background:var(--night-soft);color:var(--night-fg)}
+.pill.state{background:var(--surface-2);color:var(--muted)}
+.pill.okp{background:var(--accent-soft);color:var(--accent)}
+.item p{margin:0;font-size:.85rem;color:var(--muted)}
+.item .actions{display:flex;gap:6px;flex-wrap:wrap}
+.item .actions .btn{padding:5px 11px;font-size:.82rem}
+.empty{color:var(--muted);font-size:.88rem;text-align:center;padding:12px}
+.deadline{background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:8px 10px;font-size:.85rem;font-weight:600}
+
+/* Schublade */
+.scrim{position:fixed;inset:0;background:rgba(15,30,26,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);z-index:21;transform:translateX(102%);visibility:hidden;transition:transform .25s ease,visibility .25s;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.15);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.drawer.open{transform:none;visibility:visible}
+@media (max-width:640px){
+  .drawer{top:auto;left:0;width:100%;max-height:88%;border-radius:20px 20px 0 0;transform:translateY(102%);padding-left:env(safe-area-inset-left,0px)}
+}
+.dhead{padding:18px 20px 12px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--line)}
+.dhead h2{font-size:1.3rem}
+.dhead p{margin:2px 0 0;color:var(--muted);font-size:.88rem}
+.dhead .x{margin-left:auto;border:0;background:var(--surface-2);width:34px;height:34px;border-radius:999px;display:grid;place-items:center;flex:none}
+.dbody{padding:16px 20px 24px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.shiftbox{border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px}
+.shiftbox.F{background:var(--early-soft);color:var(--early-fg)}
+.shiftbox.S{background:var(--late-soft);color:var(--late-fg)}
+.shiftbox.N{background:var(--night-soft);color:var(--night-fg)}
+.shiftbox.U{background:var(--vac-soft);color:var(--vac-fg)}
+.shiftbox.X{background:var(--surface-2);color:var(--off-fg)}
+.shiftbox b{font-family:var(--display);font-size:1.2rem;display:block}
+.section{display:flex;flex-direction:column;gap:10px}
+.section h3{font-size:.95rem}
+.team{display:flex;flex-wrap:wrap;gap:6px}
+.team span{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:999px;padding:3px 10px 3px 3px;font-size:.85rem}
+.team .avatar{width:24px;height:24px;font-size:.68rem}
+.choices{display:flex;flex-wrap:wrap;gap:6px}
+.choices label{position:relative}
+.choices input{position:absolute;opacity:0;inset:0}
+.choices span{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.85rem;font-weight:600;cursor:pointer}
+.choices input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.choices input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;background:var(--bg);color:var(--fg);resize:vertical}
+.note{font-size:.85rem;border-radius:12px;padding:10px 12px}
+.note.warn{background:var(--warn-soft);color:var(--warn)}
+.note.info{background:var(--accent-soft);color:var(--accent)}
+.split{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Toast */
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;z-index:30;width:min(420px,calc(100% - 32px))}
+.toast{background:var(--fg);color:var(--bg);border-radius:12px;padding:11px 14px;font-size:.9rem;font-weight:500;box-shadow:var(--shadow);animation:pop .25s ease}
+@keyframes pop{from{transform:translateY(8px);opacity:0}}
+footer{color:var(--muted);font-size:.8rem;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;align-items:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+svg{flex:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15l2.5 2.5L16 13"/></svg></div>
+      <div><h1>Schichtblick</h1><small id="who">Station 3B · Pflege</small></div>
+    </div>
+    <div class="monthnav" role="group" aria-label="Monat wählen">
+      <button id="prev" aria-label="Vorheriger Monat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="label" id="monthLabel" aria-live="polite"></div>
+      <button id="next" aria-label="Nächster Monat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+    <button class="btn" id="todayBtn">Heute</button>
+  </header>
+
+  <div class="grid">
+    <main class="panel cal">
+      <div class="legend" aria-label="Legende">
+        <span><i class="dot" style="background:var(--early)"></i>Früh 06–14</span>
+        <span><i class="dot" style="background:var(--late)"></i>Spät 14–22</span>
+        <span><i class="dot" style="background:var(--night)"></i>Nacht 22–06</span>
+        <span><i class="dot" style="background:var(--vac)"></i>Urlaub</span>
+        <span><span class="badge wish">★</span>Wunsch</span>
+        <span><span class="badge swap">⇄</span>Zum Tausch</span>
+      </div>
+      <div class="dow" aria-hidden="true"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
+      <div class="days" id="days"></div>
+    </main>
+
+    <aside class="side">
+      <section class="panel card" aria-labelledby="nextH">
+        <div class="eyebrow" id="nextH">Dein nächster Dienst</div>
+        <div id="nextShift"></div>
+      </section>
+
+      <section class="panel card" aria-labelledby="hoursH">
+        <div class="row"><h2 id="hoursH">Stunden im <span id="hoursMonth"></span></h2><span class="muted" id="hoursTxt"></span></div>
+        <div class="bar"><i id="hoursBar"></i></div>
+        <div class="stats" id="stats"></div>
+      </section>
+
+      <section class="panel card" aria-labelledby="swapH">
+        <div class="row"><h2 id="swapH">Tauschbörse</h2><span class="muted" id="swapCount"></span></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" id="tabTeam" aria-selected="true">Vom Team</button>
+          <button role="tab" id="tabMine" aria-selected="false">Meine</button>
+        </div>
+        <div class="list" id="swapList"></div>
+      </section>
+
+      <section class="panel card" aria-labelledby="wishH">
+        <div class="row"><h2 id="wishH">Meine Wünsche</h2><span class="muted" id="wishCount"></span></div>
+        <div class="deadline" id="deadline"></div>
+        <div class="list" id="wishList"></div>
+      </section>
+    </aside>
+  </div>
+
+  <footer>
+    <span>Beispieldaten · Änderungen bleiben in diesem Browser gespeichert.</span>
+    <button class="btn ghost" id="reset">Beispiel zurücksetzen</button>
+  </footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <div class="dhead">
+    <div><h2 id="dTitle"></h2><p id="dSub"></p></div>
+    <button class="x" id="dClose" aria-label="Schließen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="dbody" id="dBody"></div>
+</aside>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+const SHIFTS={
+  F:{name:"Frühdienst",short:"F",time:"06:00–14:00",start:6,end:14,h:8},
+  S:{name:"Spätdienst",short:"S",time:"14:00–22:00",start:14,end:22,h:8},
+  N:{name:"Nachtdienst",short:"N",time:"22:00–06:00",start:22,end:30,h:8},
+  U:{name:"Urlaub",short:"U",time:"ganztägig",h:7.7},
+  X:{name:"Frei",short:"–",time:""}
+};
+const MONTHS=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const WD=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+const TEAM=["Mira Hoffmann","Jonas Weber","Lea Schulz","Deniz Kaya","Paul Richter","Sofia Lang","Tom Becker","Aylin Demir","Ben Krüger"];
+const WISH_LIMIT=4, WEEK_HOURS=38.5, MIN_REST=11;
+const PATTERN="FFFFF--SSSSS--NNNN---";
+
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const fromIso=s=>{const[a,b,c]=s.split("-").map(Number);return new Date(a,b-1,c)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const today=new Date();today.setHours(0,0,0,0);
+const TODAY=iso(today);
+const initials=n=>n.split(" ").map(p=>p[0]).join("");
+const first=n=>n.split(" ")[0];
+const fmt=s=>{const d=fromIso(s);return WD[d.getDay()].slice(0,2)+", "+d.getDate()+". "+MONTHS[d.getMonth()].slice(0,3)+"."};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function hash(str){let h=2166136261;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+
+// Feiertage (bundesweit)
+function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
+const holCache={};
+function holidays(y){if(holCache[y])return holCache[y];const e=easter(y),m={};
+  [[`${y}-01-01`,"Neujahr"],[`${y}-05-01`,"Tag der Arbeit"],[`${y}-10-03`,"Tag der Dt. Einheit"],[`${y}-12-25`,"1. Weihnachtstag"],[`${y}-12-26`,"2. Weihnachtstag"]].forEach(([k,v])=>m[k]=v);
+  [[-2,"Karfreitag"],[1,"Ostermontag"],[39,"Christi Himmelfahrt"],[50,"Pfingstmontag"]].forEach(([o,v])=>m[iso(addDays(e,o))]=v);
+  return holCache[y]=m}
+const holiday=s=>holidays(+s.slice(0,4))[s];
+
+// Zustand
+const KEY="schichtblick-v1";
+function seed(){
+  const o=n=>iso(addDays(today,n));
+  // Teamangebote auf Tage legen, an denen ich frei bin
+  const freeDays=[];for(let i=2;i<40&&freeDays.length<4;i++){if(baseShift(o(i))==="X")freeDays.push(o(i))}
+  const vac=[];for(let i=0;i<5;i++)vac.push(o(16+i));
+  return{
+    vacation:vac,wishes:{},offers:{},taken:{},
+    team:[
+      {id:"t1",name:TEAM[0],date:freeDays[0],shift:"S",want:"Frühdienst oder frei",note:"Elternabend in der Schule, ab 17 Uhr.",status:"open"},
+      {id:"t2",name:TEAM[1],date:freeDays[1],shift:"N",want:"egal",note:"Hochzeit meiner Schwester.",status:"open"},
+      {id:"t3",name:TEAM[2],date:freeDays[2],shift:"F",want:"Spätdienst",note:"Arzttermin morgens.",status:"open"},
+      {id:"t4",name:TEAM[3],date:freeDays[3],shift:"S",want:"Wochenende frei",note:"",status:"open"}
+    ]
+  };
+}
+function baseShift(s){
+  const d=fromIso(s);const idx=Math.floor((d-new Date(2026,0,5))/864e5);
+  return PATTERN[((idx%PATTERN.length)+PATTERN.length)%PATTERN.length]==="-"?"X":PATTERN[((idx%PATTERN.length)+PATTERN.length)%PATTERN.length];
+}
+let state;
+function load(){try{const r=localStorage.getItem(KEY);if(r){state=JSON.parse(r);return}}catch(e){}state=seed()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+load();
+
+function shiftOf(s){
+  if(state.taken[s])return state.taken[s].shift;
+  const off=state.offers[s];if(off&&off.status==="given")return"X";
+  if(state.vacation.includes(s))return"U";
+  return baseShift(s);
+}
+function colleagues(s,sh){
+  if(!SHIFTS[sh]||sh==="U"||sh==="X")return[];
+  const h=hash(s+sh),n=sh==="N"?2:3,out=[];let i=0;
+  while(out.length<n&&i<20){const p=TEAM[(h+i*7)%TEAM.length];if(!out.includes(p))out.push(p);i++}
+  return out;
+}
+function restConflict(s,sh){
+  const S=SHIFTS[sh];if(!S||S.start==null)return null;
+  const prev=SHIFTS[shiftOf(iso(addDays(fromIso(s),-1)))],next=SHIFTS[shiftOf(iso(addDays(fromIso(s),1)))];
+  if(prev&&prev.end!=null){const gap=24+S.start-prev.end;if(gap<MIN_REST)return`Nur ${gap} h Ruhezeit nach dem ${prev.name} am Vortag (mindestens ${MIN_REST} h).`}
+  if(next&&next.start!=null){const gap=24+next.start-S.end;if(gap<MIN_REST)return`Nur ${gap} h Ruhezeit bis zum ${next.name} am Folgetag (mindestens ${MIN_REST} h).`}
+  return null;
+}
+
+// Ansicht
+let view=new Date(today.getFullYear(),today.getMonth(),1);
+let tab="team";
+const $=id=>document.getElementById(id);
+
+function render(){renderCal();renderNext();renderHours();renderSwaps();renderWishes();save()}
+
+function renderCal(){
+  const y=view.getFullYear(),m=view.getMonth();
+  $("monthLabel").textContent=MONTHS[m]+" "+y;
+  const start=addDays(view,-((view.getDay()+6)%7));
+  let html="";
+  for(let i=0;i<42;i++){
+    const d=addDays(start,i);
+    if(i===35&&d.getMonth()!==m)break;
+    const s=iso(d),sh=shiftOf(s),S=SHIFTS[sh],hol=holiday(s);
+    const cls=["day"];if(d.getMonth()!==m)cls.push("out");if(d.getDay()===0||d.getDay()===6||hol)cls.push("weekend");if(s===TODAY)cls.push("today");
+    const off=state.offers[s],w=state.wishes[s],tk=state.taken[s];
+    let badges="";
+    if(w)badges+=`<span class="badge wish" title="Wunsch: ${esc(w.type)}">★<span class="bt"> Wunsch</span></span>`;
+    if(off&&off.status!=="given")badges+=`<span class="badge swap" title="Zum Tausch angeboten">⇄<span class="bt"> ${off.responses&&off.responses.length?"Antwort":"Tausch"}</span></span>`;
+    if(off&&off.status==="given")badges+=`<span class="badge got" title="Abgegeben an ${esc(off.to)}">⇄<span class="bt"> abgegeben</span></span>`;
+    if(tk)badges+=`<span class="badge got" title="Übernommen von ${esc(tk.from)}">+<span class="bt"> ${tk.status==="pending"?"angefragt":"übernommen"}</span></span>`;
+    const chip=sh==="X"?`<div class="chip X"><span class="long">frei</span><span class="short">·</span></div>`
+      :`<div class="chip ${sh}"><span class="long">${S.name.replace("dienst","")}</span><span class="short">${S.short}</span>${S.start!=null?`<small>${S.time}</small>`:""}</div>`;
+    const label=`${WD[d.getDay()]}, ${d.getDate()}. ${MONTHS[d.getMonth()]}: ${S.name}${hol?", "+hol:""}`;
+    html+=`<button class="${cls.join(" ")}" data-d="${s}" aria-label="${esc(label)}"><div class="num"><b>${d.getDate()}</b></div>${hol?`<div class="hol">${esc(hol)}</div>`:""}${chip}<div class="badges">${badges}</div></button>`;
+  }
+  $("days").innerHTML=html;
+}
+
+function renderNext(){
+  let d=new Date(today),found=null;
+  for(let i=0;i<60;i++){const s=iso(d);const sh=shiftOf(s);if(sh!=="X"&&sh!=="U"){found={s,sh};break}d=addDays(d,1)}
+  if(!found){$("nextShift").innerHTML=`<p class="empty">In den nächsten Wochen ist kein Dienst geplant.</p>`;return}
+  const S=SHIFTS[found.sh],diff=Math.round((fromIso(found.s)-today)/864e5);
+  const when=diff===0?"Heute":diff===1?"Morgen":"In "+diff+" Tagen";
+  const team=colleagues(found.s,found.sh).map(first).join(", ");
+  $("nextShift").innerHTML=`<div class="next"><div class="big ${found.sh}">${S.short}</div><div class="meta"><b>${when} · ${S.name}</b><span>${fmt(found.s)} · ${S.time}<br>mit ${esc(team)}</span></div></div>
+  <button class="btn" data-open="${found.s}">Details ansehen</button>`;
+}
+
+function renderHours(){
+  const y=view.getFullYear(),m=view.getMonth(),days=new Date(y,m+1,0).getDate();
+  let soll=0,ist=0,c={F:0,S:0,N:0},wk=0;
+  for(let i=1;i<=days;i++){const d=new Date(y,m,i),s=iso(d),wd=d.getDay();
+    if(wd>0&&wd<6&&!holiday(s))soll+=WEEK_HOURS/5;
+    const sh=shiftOf(s);if(SHIFTS[sh].h)ist+=SHIFTS[sh].h;if(c[sh]!=null)c[sh]++;
+    if((wd===0||wd===6)&&"FSN".includes(sh))wk++}
+  soll=Math.round(soll*10)/10;ist=Math.round(ist*10)/10;
+  const diff=Math.round((ist-soll)*10)/10;
+  $("hoursMonth").textContent=MONTHS[m];
+  $("hoursTxt").innerHTML=`${ist.toLocaleString("de-DE")} / ${soll.toLocaleString("de-DE")} h`;
+  $("hoursBar").style.width=Math.min(100,ist/soll*100)+"%";
+  $("stats").innerHTML=`
+    <div class="stat"><b style="color:${diff>=0?"var(--ok)":"var(--warn)"}">${diff>0?"+":""}${diff.toLocaleString("de-DE")}</b><span>Stunden-Saldo</span></div>
+    <div class="stat"><b>${c.N}</b><span>Nächte</span></div>
+    <div class="stat"><b>${wk}</b><span>Wochenend­dienste</span></div>`;
+}
+
+function renderSwaps(){
+  $("tabTeam").setAttribute("aria-selected",tab==="team");$("tabMine").setAttribute("aria-selected",tab==="mine");
+  const teamOpen=state.team.filter(t=>t.status!=="done"&&t.date>=TODAY);
+  const mine=Object.entries(state.offers).filter(([s,o])=>s>=TODAY).sort();
+  $("swapCount").textContent=`${teamOpen.length} offen`;
+  let html="";
+  if(tab==="team"){
+    if(!teamOpen.length)html=`<p class="empty">Gerade sucht niemand Ersatz.</p>`;
+    teamOpen.sort((a,b)=>a.date.localeCompare(b.date)).forEach(t=>{
+      const mineSh=shiftOf(t.date);const busy=mineSh!=="X";const rc=!busy&&restConflict(t.date,t.shift);
+      html+=`<div class="item"><div class="head"><span class="avatar">${initials(t.name)}</span><span class="who">${esc(first(t.name))}</span><span class="pill ${t.shift}">${SHIFTS[t.shift].short} · ${fmt(t.date)}</span></div>
+      ${t.note?`<p>„${esc(t.note)}“</p>`:""}<p>Sucht im Gegenzug: ${esc(t.want)}</p>
+      ${t.status==="requested"?`<span class="pill state">Angefragt, wartet auf ${esc(first(t.name))}</span>`
+       :busy?`<p style="color:var(--warn)">Du hast an dem Tag selbst ${SHIFTS[mineSh].name}.</p>`
+       :rc?`<p style="color:var(--warn)">${esc(rc)}</p>`
+       :`<div class="actions"><button class="btn primary" data-take="${t.id}">Ich übernehme</button><button class="btn" data-open="${t.date}">Tag ansehen</button></div>`}
+      </div>`});
+  }else{
+    if(!mine.length)html=`<p class="empty">Du hast keinen Dienst zum Tausch angeboten. Tippe im Kalender auf einen Dienst, um ihn anzubieten.</p>`;
+    mine.forEach(([s,o])=>{
+      const sh=o.shift;
+      html+=`<div class="item"><div class="head"><span class="pill ${sh}">${SHIFTS[sh].short} · ${fmt(s)}</span><span class="who"></span>
+      ${o.status==="given"?`<span class="pill okp">an ${esc(first(o.to))} abgegeben</span>`:`<span class="pill state">${o.responses&&o.responses.length?o.responses.length+" Antwort":"offen"}</span>`}</div>
+      ${o.note?`<p>„${esc(o.note)}“</p>`:""}
+      ${o.status!=="given"&&o.responses&&o.responses.length?o.responses.map(r=>`<div class="actions"><span class="avatar">${initials(r)}</span><p style="align-self:center;margin-right:auto">${esc(first(r))} würde übernehmen</p><button class="btn primary" data-accept="${s}|${esc(r)}">Annehmen</button></div>`).join(""):""}
+      <div class="actions">${o.status!=="given"?`<button class="btn danger" data-withdraw="${s}">Zurückziehen</button>`:""}<button class="btn" data-open="${s}">Tag ansehen</button></div></div>`});
+  }
+  $("swapList").innerHTML=html;
+}
+
+function wishDeadline(){
+  const nm=new Date(view.getFullYear(),view.getMonth()+1,1);
+  return {month:nm,deadline:new Date(view.getFullYear(),view.getMonth(),15)};
+}
+function wishesIn(y,m){return Object.keys(state.wishes).filter(s=>{const d=fromIso(s);return d.getFullYear()===y&&d.getMonth()===m})}
+function renderWishes(){
+  const y=view.getFullYear(),m=view.getMonth(),list=wishesIn(y,m).sort();
+  $("wishCount").textContent=`${list.length} von ${WISH_LIMIT}`;
+  const dl=new Date(y,m-1,15);
+  $("deadline").textContent=dl>=today?`Wunschfrist für ${MONTHS[m]}: ${dl.getDate()}. ${MONTHS[dl.getMonth()]}`:`Wünsche für ${MONTHS[m]} gehen als Nachtrag an die Teamleitung.`;
+  $("wishList").innerHTML=list.length?list.map(s=>{const w=state.wishes[s];return`<div class="item"><div class="head"><span class="badge wish">★</span><span class="who">${fmt(s)}</span><span class="pill ${w.prio==="hoch"?"okp":"state"}">${w.prio==="hoch"?"wichtig":"wäre schön"}</span></div><p>${esc(w.type)}${w.note?" · "+esc(w.note):""}</p><div class="actions"><button class="btn" data-open="${s}">Bearbeiten</button></div></div>`}).join("")
+    :`<p class="empty">Noch keine Wünsche für ${MONTHS[m]}. Tippe auf einen Tag, um einen Freiwunsch einzutragen.</p>`;
+}
+
+// Schublade
+let openDay=null,lastFocus=null;
+function openDrawer(s){
+  openDay=s;lastFocus=document.activeElement;
+  const d=fromIso(s),sh=shiftOf(s),S=SHIFTS[sh],hol=holiday(s);
+  $("dTitle").textContent=`${WD[d.getDay()]}, ${d.getDate()}. ${MONTHS[d.getMonth()]}`;
+  const diff=Math.round((d-today)/864e5);
+  $("dSub").textContent=(hol?hol+" · ":"")+(diff===0?"Heute":diff>0?`in ${diff} Tag${diff>1?"en":""}`:`vor ${-diff} Tag${diff<-1?"en":""}`);
+  const past=s<TODAY,w=state.wishes[s],off=state.offers[s],tk=state.taken[s],work="FSN".includes(sh);
+  let h=`<div class="shiftbox ${sh}"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${sh==="F"?'<circle cx="12" cy="14" r="4"/><path d="M12 4v3M4 14H2M22 14h-2M5.6 7.6l1.4 1.4M18.4 7.6L17 9M3 20h18"/>':sh==="S"?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':sh==="N"?'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>':sh==="U"?'<path d="M2 20h20M6 20c0-6 3-10 6-12M12 8c2 1 5 0 6-2-3-1-5 0-6 2zM12 8c-1-2-4-3-6-2 1 2 4 3 6 2z"/>':'<path d="M4 12h16"/>'}</svg>
+   <div><b>${S.name}</b><span>${S.time||"Kein Dienst geplant"}${tk?` · übernommen von ${esc(first(tk.from))}`:""}${off&&off.status==="given"?` · abgegeben an ${esc(first(off.to))}`:""}</span></div></div>`;
+  if(work){const t=colleagues(s,sh);h+=`<div class="section"><h3>Mit dir im Dienst</h3><div class="team">${t.map(p=>`<span><span class="avatar">${initials(p)}</span>${esc(p)}</span>`).join("")}</div></div>`}
+  if(tk&&tk.status==="pending")h+=`<div class="note info">Anfrage an ${esc(first(tk.from))} gesendet. Sobald zugestimmt wird, gibt die Teamleitung den Tausch frei.</div>`;
+
+  if(past){h+=`<div class="note info">Dieser Tag liegt in der Vergangenheit.</div>`}
+  else{
+    // Tausch
+    if(work&&!tk){
+      if(off){
+        h+=`<div class="section"><h3>Zum Tausch angeboten</h3>${off.note?`<p class="note info">„${esc(off.note)}“</p>`:""}
+        ${off.responses&&off.responses.length?off.responses.map(r=>`<div class="split" style="align-items:center"><span class="avatar">${initials(r)}</span><span style="margin-right:auto">${esc(first(r))} würde übernehmen</span><button class="btn primary" data-accept="${s}|${esc(r)}">Annehmen</button></div>`).join(""):`<p style="margin:0;color:var(--muted);font-size:.88rem">Noch keine Antwort aus dem Team.</p>`}
+        <div class="split"><button class="btn danger" data-withdraw="${s}">Angebot zurückziehen</button></div></div>`;
+      }else{
+        h+=`<form class="section" id="swapForm"><h3>Dienst zum Tausch anbieten</h3>
+        <div class="choices" role="radiogroup" aria-label="Was möchtest du stattdessen?">
+          ${["egal","Frühdienst","Spätdienst","freier Tag"].map((x,i)=>`<label><input type="radio" name="want" id="want${i}" value="${x}" ${i===0?"checked":""}><span>${x==="egal"?"Tausch egal":x}</span></label>`).join("")}
+        </div>
+        <textarea id="swapNote" placeholder="Kurz für dein Team: warum, und was dir im Gegenzug passt"></textarea>
+        <div class="split"><button class="btn primary" type="submit">⇄ Im Team posten</button></div></form>`;
+      }
+    }
+    // Wunsch
+    const cnt=wishesIn(d.getFullYear(),d.getMonth()).filter(x=>x!==s).length;
+    h+=`<form class="section" id="wishForm"><h3>${w?"Dein Wunsch":"Wunsch eintragen"}</h3>
+      <div class="choices" role="radiogroup" aria-label="Art des Wunsches">
+        ${["Frei","Frühdienst","Spätdienst","Kein Nachtdienst"].map((x,i)=>`<label><input type="radio" name="wtype" id="wt${i}" value="${x}" ${(w?w.type===x:i===0)?"checked":""}><span>${x}</span></label>`).join("")}
+      </div>
+      <div class="choices" role="radiogroup" aria-label="Wie wichtig?">
+        <label><input type="radio" name="prio" id="pr0" value="normal" ${!w||w.prio!=="hoch"?"checked":""}><span>Wäre schön</span></label>
+        <label><input type="radio" name="prio" id="pr1" value="hoch" ${w&&w.prio==="hoch"?"checked":""}><span>Wichtig</span></label>
+      </div>
+      <textarea id="wishNote" placeholder="Notiz für die Teamleitung (optional)">${w?esc(w.note||""):""}</textarea>
+      ${!w&&cnt>=WISH_LIMIT?`<div class="note warn">Du hast für ${MONTHS[d.getMonth()]} schon ${WISH_LIMIT} Wünsche eingetragen. Entferne einen, um Platz zu schaffen.</div>`:""}
+      <div class="split"><button class="btn primary" type="submit" ${!w&&cnt>=WISH_LIMIT?"disabled":""}>★ ${w?"Wunsch speichern":"Wunsch eintragen"}</button>${w?`<button class="btn danger" type="button" data-delwish="${s}">Wunsch entfernen</button>`:""}</div>
+      </form>`;
+  }
+  $("dBody").innerHTML=h;
+  $("drawer").classList.add("open");$("scrim").classList.add("open");
+  setTimeout(()=>$("dClose").focus(),50);
+}
+function closeDrawer(){$("drawer").classList.remove("open");$("scrim").classList.remove("open");openDay=null;if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+function refreshDrawer(){if(openDay)openDrawer(openDay)}
+
+function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;$("toasts").appendChild(t);setTimeout(()=>t.remove(),3800)}
+
+// Aktionen
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-d],[data-open],[data-take],[data-accept],[data-withdraw],[data-delwish]");if(!b)return;
+  if(b.dataset.d)return openDrawer(b.dataset.d);
+  if(b.dataset.open){const s=b.dataset.open,d=fromIso(s);view=new Date(d.getFullYear(),d.getMonth(),1);render();return openDrawer(s)}
+  if(b.dataset.take){
+    const t=state.team.find(x=>x.id===b.dataset.take);if(!t)return;
+    t.status="requested";state.taken[t.date]={shift:t.shift,from:t.name,status:"pending"};render();refreshDrawer();
+    toast(`Anfrage an ${first(t.name)} gesendet.`);
+    setTimeout(()=>{t.status="done";if(state.taken[t.date])state.taken[t.date].status="ok";render();refreshDrawer();toast(`${first(t.name)} hat zugestimmt. Der ${SHIFTS[t.shift].name} am ${fmt(t.date)} steht jetzt in deinem Plan.`)},2600);
+    return;
+  }
+  if(b.dataset.accept){const[s,r]=b.dataset.accept.split("|");const o=state.offers[s];if(!o)return;o.status="given";o.to=r;render();refreshDrawer();toast(`Getauscht: ${first(r)} übernimmt deinen ${SHIFTS[o.shift].name} am ${fmt(s)}.`);return}
+  if(b.dataset.withdraw){delete state.offers[b.dataset.withdraw];render();refreshDrawer();toast("Angebot zurückgezogen.");return}
+  if(b.dataset.delwish){delete state.wishes[b.dataset.delwish];render();refreshDrawer();toast("Wunsch entfernt.");return}
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();const s=openDay;if(!s)return;
+  if(e.target.id==="wishForm"){
+    const f=e.target;state.wishes[s]={type:f.wtype.value,prio:f.prio.value,note:$("wishNote").value.trim()};
+    render();refreshDrawer();toast(`Wunsch für ${fmt(s)} eingetragen.`);
+  }
+  if(e.target.id==="swapForm"){
+    const sh=shiftOf(s);state.offers[s]={shift:sh,want:e.target.want.value,note:$("swapNote").value.trim(),status:"open",responses:[]};
+    tab="mine";render();refreshDrawer();toast("Im Team gepostet. Du bekommst Bescheid, sobald sich jemand meldet.");
+    const cand=TEAM.filter(p=>!colleagues(s,sh).includes(p));const r=cand[hash(s)%cand.length];
+    setTimeout(()=>{const o=state.offers[s];if(!o||o.status!=="open")return;o.responses.push(r);render();refreshDrawer();toast(`${first(r)} würde deinen Dienst am ${fmt(s)} übernehmen.`)},4500);
+  }
+});
+$("prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
+$("next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
+$("todayBtn").onclick=()=>{view=new Date(today.getFullYear(),today.getMonth(),1);render()};
+$("tabTeam").onclick=()=>{tab="team";renderSwaps()};
+$("tabMine").onclick=()=>{tab="mine";renderSwaps()};
+$("dClose").onclick=closeDrawer;$("scrim").onclick=closeDrawer;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&openDay)closeDrawer()});
+$("reset").onclick=()=>{state=seed();try{localStorage.removeItem(KEY)}catch(e){}view=new Date(today.getFullYear(),today.getMonth(),1);render();toast("Beispieldaten wiederhergestellt.")};
+render();
+})();
+</script>
+</body>
+</html>
