@@ -684,7 +684,7 @@ function renderBanner(){
   let b="";
   if(mode==="demo")b=`<div class="banner info"><span><b>Demo-Modus.</b> Kolleg:innen und ihre Antworten sind Beispiele. Öffne Schichtblick angemeldet über claude.ai, um mit deinem echten Team zu planen.</span></div>`;
   else if(mode==="live"&&!canWrite)b=`<div class="banner warn"><span><b>Nur lesen.</b> Du kannst den Plan ansehen, aber nichts eintragen. Bitte die Teamleitung, dich als Mitwirkende:n einzuladen.</span></div>`;
-  else if(mode==="live"&&Object.keys(data.members).length<=1&&loaded)b=`<div class="banner info"><span><b>Noch bist du allein im Team.</b> Teile diesen Dienstplan über „Teilen“ mit deinen Kolleg:innen und gib ihnen die Rolle Mitwirkende:r. Sobald sie ihn öffnen, erscheinen sie hier.</span></div>`;
+  else if(mode==="live"&&Object.keys(data.members).length<=1&&loaded)b=`<div class="banner info"><span><b>Noch bist du allein im Team.</b> Lade deine Kolleg:innen über „Teilen“ per E-Mail ein und schick ihnen dann den Link. Sobald sie ihn öffnen, erscheinen sie hier.</span></div>`;
   $("banner").innerHTML=b;
   $("footNote").textContent=mode==="demo"?"Demo-Daten bleiben nur in diesem Browser gespeichert.":"Wünsche sieht nur die Teamleitung. Tausche, Urlaub, Ausfälle und Nachrichten sieht das ganze Team.";
   $("reset").hidden=mode!=="demo";
@@ -1198,7 +1198,7 @@ async function startLive(){
   mode="live";lastSeen=+(store.get(SEEN_KEY())||0);
   const uid=await userApi.id();
   if(!uid){me="anon";canWrite=false}else me=uid;
-  isLead=await userApi.canEdit();
+  isLead=await userApi.isOwner(); // Teamleitung ist nur der Besitzer, eingeladene Bearbeiter sind normale Kolleg:innen
   try{const mm=await userApi.me();myName=(mm&&mm.name||"").split(" ")[0]}catch(e){}
   const cw=await userApi.can("data.write");if(cw===false)canWrite=false;
   renderBanner();
