@@ -483,6 +483,68 @@ body[data-tab="team"] .agenda{display:none!important}
 .occday input{width:100%}
 .occbox{background:var(--surface-2);border-radius:14px;padding:12px}
 /* Präsentations-Startbildschirm */
+/* Klickbares Logo */
+.brandlink{cursor:pointer;border-radius:16px;padding:4px 10px 4px 4px;margin:-4px -10px -4px -4px;transition:background .15s}
+.brandlink:hover{background:var(--surface-2)}
+.brandlink:hover .logo{transform:rotate(-6deg)}
+.brandlink .logo{transition:transform .2s}
+#stLogo{cursor:pointer}
+/* Unternehmensvorstellung The Rosé */
+.hotel{position:fixed;inset:0;z-index:70;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;animation:htin .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes htin{from{transform:translateY(14px)}to{transform:none}}
+.htbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+.htbrand{display:flex;align-items:center;gap:10px}
+.htbrand b{display:block;font-family:var(--display);font-size:1.15rem;line-height:1.1}
+.htbrand small{color:var(--muted);font-size:.8rem}
+.htmark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#f7b6cb,var(--accent));color:#fff;font-family:var(--display);font-weight:700;font-size:1.25rem;display:grid;place-items:center}
+.htclose{border:0;border-radius:999px;background:var(--ink);color:#fff;font:inherit;font-weight:700;font-size:.95rem;padding:11px 18px;cursor:pointer;box-shadow:0 8px 22px rgba(29,26,25,.18)}
+.htclose span{color:#f7a8c4;margin-left:4px}
+.htwrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:28px;padding:24px max(16px,env(safe-area-inset-right,0px)) calc(48px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.htvideo{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;max-height:72vh;width:100%;max-width:100%;
+  background:radial-gradient(900px 500px at 80% 0%,#f7c9d8,transparent 60%),radial-gradient(700px 500px at 0% 100%,#efd9c5,transparent 60%),linear-gradient(135deg,#f3e3d6,#f6d5df);box-shadow:0 24px 60px rgba(90,60,40,.16)}
+.htvideo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) sepia(.14)}
+.htcover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(18px,4vw,40px);background:linear-gradient(180deg,rgba(29,26,25,0) 35%,rgba(60,30,40,.55) 100%);transition:opacity .3s}
+.htvideo.playing .htcover{opacity:0;pointer-events:none}
+.htplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:50%;border:0;background:rgba(255,253,249,.92);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.2);transition:transform .15s}
+.htplay:hover{transform:translate(-50%,-50%) scale(1.06)}
+.htplay svg{margin-left:4px}
+.htkicker{margin:0 0 6px;color:#fbe2ea;text-transform:uppercase;letter-spacing:.14em;font-weight:700;font-size:.78rem}
+.hthero h1{color:#fff;font-size:clamp(1.7rem,4.4vw,3.2rem);line-height:1.05;max-width:20ch;text-shadow:0 2px 20px rgba(0,0,0,.18)}
+.htvnote{position:absolute;left:12px;right:12px;bottom:12px;margin:0;background:rgba(255,253,249,.92);color:var(--fg);border-radius:12px;padding:8px 12px;font-size:.82rem}
+.htvnote code{background:var(--accent-soft);color:var(--accent-ink);border-radius:6px;padding:1px 5px}
+.htlead{font-size:clamp(1.1rem,2vw,1.35rem);line-height:1.6;max-width:62ch;margin:0;color:var(--fg)}
+.htfacts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.htfacts li{background:var(--surface);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.htfacts b{font-family:var(--display);font-size:1.7rem;color:var(--accent-ink);line-height:1.1}
+.htfacts span{color:var(--muted);font-size:.9rem}
+.htsec{background:var(--surface);border-radius:var(--r);padding:clamp(20px,4vw,36px);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.htnum{margin:0;font-family:var(--display);font-weight:700;color:var(--accent);font-size:.95rem;letter-spacing:.1em}
+.htsec h2{font-size:clamp(1.4rem,3vw,2rem)}
+.htsec p{margin:0;font-size:1.03rem;line-height:1.7;max-width:68ch}
+.htgrid{display:grid;gap:14px}
+.htgrid.g3{grid-template-columns:1.2fr 1fr;grid-template-rows:repeat(2,minmax(160px,1fr))}
+.htgrid.g3 .tall{grid-row:span 2}
+.htgrid.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+.htgrid.g4 .wide{grid-column:1/-1;aspect-ratio:21/9}
+.htgrid.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.hm{position:relative;margin:0;border-radius:var(--r);overflow:hidden;min-height:180px;aspect-ratio:4/3;max-width:100%;
+  background:radial-gradient(400px 260px at 75% 15%,#f7c9d8,transparent 65%),radial-gradient(380px 260px at 10% 95%,#ead7c4,transparent 65%),linear-gradient(135deg,#f4e6da,#f8dbe4);box-shadow:var(--shadow)}
+.htgrid.g3 .hm{aspect-ratio:auto}
+.hm img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) sepia(.14) brightness(1.03);transition:transform .6s ease}
+.hm::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(247,182,203,.10),rgba(29,26,25,.35));pointer-events:none}
+.hm:hover img{transform:scale(1.04)}
+.hm figcaption{position:absolute;left:14px;bottom:12px;z-index:1;color:#fff;font-weight:600;font-size:.92rem;text-shadow:0 1px 10px rgba(0,0,0,.3)}
+.hm.noimg img{display:none}
+.hm.noimg::after{background:none}
+.hm.noimg figcaption{color:var(--accent-ink);text-shadow:none;font-family:var(--display);font-size:1.05rem}
+.htdepts{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.htdepts li{background:var(--accent-soft);color:var(--accent-ink);border-radius:999px;padding:6px 12px;font-weight:600;font-size:.88rem}
+.htfoot{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding-top:8px}
+.htfoot p{margin:0}
+.htcredit{color:var(--muted);font-size:.8rem}
+@media (max-width:760px){.htfacts{grid-template-columns:repeat(2,minmax(0,1fr))}.htgrid.g3,.htgrid.g4,.htgrid.g2{grid-template-columns:1fr;grid-template-rows:none}.htgrid.g3 .tall{grid-row:auto;aspect-ratio:4/3}.htgrid.g3 .hm{aspect-ratio:4/3}.htgrid.g4 .wide{aspect-ratio:4/3}.htvideo{aspect-ratio:4/5;max-height:70vh}}
+@media (prefers-reduced-motion:reduce){.hotel{animation:none}.hm img{transition:none}}
 .stswitch{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 14px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;position:relative}
 .stswitch:hover{background:var(--surface-2)}
 .stswitch .stdot{width:30px;height:18px;border-radius:999px;background:var(--line);position:relative;transition:background .2s;flex:none}
@@ -564,7 +626,7 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
 
 <div class="wrap">
   <header class="top">
-    <div class="brand">
+    <div class="brand brandlink" id="brandBtn" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="hotel" title="Über das Hotel The Rosé" aria-label="Schichtblick, Unternehmensvorstellung The Rosé öffnen">
       <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15l2.5 2.5L16 13"/></svg></div>
       <div><h1>Schichtblick</h1><small class="status" id="status"><i></i><span>Verbinde …</span></small></div>
     </div>
@@ -783,11 +845,81 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
 </aside>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <form class="fbbox" id="fbBox" hidden aria-label="Feedback an die Teamleitung"><b style="font-family:var(--display);font-size:1.05rem">Feedback an die Teamleitung</b><p style="margin:0;font-size:.85rem;color:var(--muted)">Was fehlt, was stört, was ist toll? Nur die Teamleitung liest das.</p><textarea id="fbText" maxlength="500" placeholder="Zum Beispiel: Ich hätte gern eine Erinnerung vor der Wunschfrist."></textarea><div class="split"><button class="btn primary" type="submit">Senden</button><button class="btn" type="button" id="fbClose">Abbrechen</button></div></form>
+<section class="hotel" id="hotel" hidden role="dialog" aria-modal="true" aria-labelledby="htTitle">
+  <div class="htbar">
+    <div class="htbrand"><span class="htmark" aria-hidden="true">R</span><span><b>The Rosé</b><small>Lifestyle &amp; Event Hotel · Wien</small></span></div>
+    <button class="htclose" id="htClose" type="button">Schließen <span aria-hidden="true">✕</span></button>
+  </div>
+  <div class="htwrap">
+    <header class="hthero">
+      <div class="htvideo" id="htVideoBox">
+        <video id="htVideo" playsinline muted loop preload="metadata" poster="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1800&q=80" aria-label="Imagefilm des Hotels The Rosé">
+          <source src="media/the-rose-film.mp4" type="video/mp4">
+        </video>
+        <div class="htcover">
+          <button class="htplay" id="htPlay" type="button" aria-label="Imagefilm abspielen"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+          <div class="htherotext">
+            <p class="htkicker">4-Sterne-Superior · Lifestyle &amp; Event Hotel</p>
+            <h1 id="htTitle">Willkommen im The Rosé – Lifestyle &amp; Event Hotel</h1>
+          </div>
+        </div>
+        <p class="htvnote" id="htVnote" hidden>Hier läuft euer Imagefilm. Legt dazu die Datei <code>media/the-rose-film.mp4</code> neben die App.</p>
+      </div>
+    </header>
+
+    <p class="htlead">Treten Sie ein in eine Welt, in der sich zeitgeistiges Design und herzliche Gastfreundschaft zu einem einzigartigen Erlebnis verbinden. Das The Rosé ist mehr als nur ein 4-Sterne-Superior-Hotel – es ist ein Ort der Begegnung, des Genusses und der besonderen Momente.</p>
+
+    <ul class="htfacts" aria-label="Das Hotel in Zahlen">
+      <li><b>4★</b><span>Superior</span></li>
+      <li><b>8</b><span>Abteilungen</span></li>
+      <li><b>~100</b><span>Mitarbeitende</span></li>
+      <li><b>Wien</b><span>Lifestyle &amp; Events</span></li>
+    </ul>
+
+    <article class="htsec">
+      <h2>1. Unsere Philosophie: Casual Luxury &amp; Ästhetik</h2>
+      <p>Wir glauben, dass wahrer Luxus nicht steif, sondern unbeschwert, nahbar und authentisch sein sollte. Unter dem Leitsatz „Casual Luxury“ haben wir einen Rückzugsort geschaffen, der höchste Qualitätsansprüche mit einer wunderbar entspannten Atmosphäre vereint. Lichtdurchflutete Räume, natürliche Materialien in warmen Sand- und Beigetönen sowie stilvolle Akzente in sanftem Rosé und Puderpink schaffen eine harmonische Ästhetik.</p>
+    </article>
+    <div class="htgrid g3">
+      <figure class="hm tall"><img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80" alt="Lichtdurchflutetes Hotelzimmer in Sand- und Beigetönen" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Wohlfühlzimmer in Sand &amp; Beige</figcaption></figure>
+      <figure class="hm "><img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80" alt="Lounge mit natürlichen Materialien und warmen Farben" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Lounge &amp; Lobby</figcaption></figure>
+      <figure class="hm "><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80" alt="Stilvolle Details in Rosé und Puderpink" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Akzente in Rosé &amp; Puderpink</figcaption></figure>
+    </div>
+
+    <article class="htsec">
+      <h2>2. Events &amp; Kulinarik: Raum für große Momente</h2>
+      <p>Als erstklassiges Event-Hotel haben wir uns ganz auf exklusive Hochzeiten und professionelle, inspirierende Seminare spezialisiert. Von der romantischen, freien Trauung in unserem lichtdurchfluteten Festsaal bis hin zum kreativen Business-Offsite in modernst ausgestatteten Meetingräumen – wir bieten den maßgeschneiderten Rahmen für jeden Anlass. Unser hauseigenes „Casual Fine Dining“-Konzept verbindet dabei regionale Spitzenprodukte mit internationalen Einflüssen.</p>
+    </article>
+    <div class="htgrid g4">
+      <figure class="hm wide"><img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80" alt="Festlich gedeckte Hochzeitstafel im Festsaal" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Hochzeiten im Festsaal</figcaption></figure>
+      <figure class="hm "><img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80" alt="Moderner Seminarraum für Business-Offsites" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Seminare &amp; Offsites</figcaption></figure>
+      <figure class="hm "><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80" alt="Teller im Casual-Fine-Dining-Stil" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Casual Fine Dining</figcaption></figure>
+    </div>
+
+    <article class="htsec">
+      <h2>3. Unser Team: Die Seele des Hauses</h2>
+      <p>Ein Hotel ist immer nur so gut wie die Menschen, die es mit Leben füllen. Unser starkes Team besteht aus acht engagierten Abteilungen: Unsere Rezeption &amp; Concierge empfängt Sie mit einem warmen Lächeln, während das Housekeeping für makellose Wohlfühlzimmer sorgt. Die Küche sowie unser Service-Team in Restaurant &amp; Frühstück und der Bar &amp; Lounge verwöhnen Sie kulinarisch von früh bis spät. Für Entspannung sorgt unser Spa &amp; Fitness-Team, während unsere Haustechnik im Hintergrund einen reibungslosen Ablauf garantiert. Bei Tagungen und Feierlichkeiten übernimmt unsere Abteilung Events &amp; Bankett die fehlerfreie Planung.</p>
+      <ul class="htdepts" aria-label="Die acht Abteilungen">
+        <li>Rezeption &amp; Concierge</li><li>Housekeeping</li><li>Küche</li><li>Restaurant &amp; Frühstück</li><li>Bar &amp; Lounge</li><li>Spa &amp; Fitness</li><li>Haustechnik</li><li>Events &amp; Bankett</li>
+      </ul>
+    </article>
+    <div class="htgrid g2">
+      <figure class="hm "><img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80" alt="Bar und Lounge am Abend" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Bar &amp; Lounge</figcaption></figure>
+      <figure class="hm "><img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1200&q=80" alt="Ruhiger Spa-Bereich" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Spa &amp; Fitness</figcaption></figure>
+    </div>
+
+    <footer class="htfoot">
+      <p>Das ganze Team plant seine Dienste mit <b>Schichtblick</b>.</p>
+      <button class="btn primary" id="htBack" type="button">Zurück zur App</button>
+      <p class="htcredit">Fotos: Platzhalter von Unsplash. Video: eigener Imagefilm.</p>
+    </footer>
+  </div>
+</section>
 <section class="stage" id="stage" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
   <button class="stoff" id="stOff" title="Präsentation ausschalten (Taste P)">Präsentation aus <span aria-hidden="true">✕</span></button>
   <div class="stinner">
     <div class="stleft">
-      <div class="stlogo" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15l2.5 2.5L16 13"/></svg></div>
+      <div class="stlogo" id="stLogo" role="button" tabindex="0" title="Über das Hotel The Rosé" aria-label="Unternehmensvorstellung The Rosé öffnen"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15l2.5 2.5L16 13"/></svg></div>
       <p class="stkicker">Live-Demo · Hotel in Wien</p>
       <h1 id="stTitle">Schichtblick</h1>
       <p class="stsub">Die Dienstplan-App, die Tauschen, Einspringen und Urlaub so einfach macht wie eine Nachricht.</p>
@@ -1993,6 +2125,27 @@ $("stStart").onclick=()=>{if(mode==="demo"){store.set(DEMO_KEY,"");demoSeed();de
   view=new Date(today.getFullYear(),today.getMonth(),1);weekStart=mondayOf(today);calView="month";store.set(VIEW_KEY,"month");teamDept="";store.set(TEAMDEPT_KEY,"");
   closeStage();$("intro").hidden=true;store.set(INTRO_KEY,"1");setTab("plan",true);changed();window.scrollTo({top:0})};
 window.addEventListener("hashchange",()=>{if(location.hash==="#praesentation")openStage()});
+
+/* ---------- Unternehmensvorstellung ---------- */
+let htReturn=null;
+function openHotel(){htReturn=document.activeElement;$("hotel").hidden=false;$("hotel").scrollTop=0;document.documentElement.style.overflow="hidden";setTimeout(()=>$("htClose").focus(),40)}
+function closeHotel(){const v=$("htVideo");try{v.pause()}catch(e){}$("htVideoBox").classList.remove("playing");$("hotel").hidden=true;document.documentElement.style.overflow="";if(htReturn&&htReturn.focus)htReturn.focus()}
+const brandKey=fn=>e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn()}};
+$("brandBtn").addEventListener("click",openHotel);$("brandBtn").addEventListener("keydown",brandKey(openHotel));
+$("stLogo").addEventListener("click",openHotel);$("stLogo").addEventListener("keydown",brandKey(openHotel));
+$("htClose").onclick=closeHotel;$("htBack").onclick=closeHotel;
+(function(){const v=$("htVideo"),box=$("htVideoBox");let ok=false;
+  const src=v.querySelector("source");src.addEventListener("error",()=>{ok=false;box.classList.add("novideo")});
+  v.addEventListener("loadeddata",()=>{ok=true});
+  $("htPlay").onclick=()=>{if(box.classList.contains("novideo")||!ok&&v.readyState<2){$("htVnote").hidden=false;setTimeout(()=>{$("htVnote").hidden=true},5000);return}
+    v.muted=false;v.play().then(()=>box.classList.add("playing")).catch(()=>{v.muted=true;v.play().then(()=>box.classList.add("playing")).catch(()=>{$("htVnote").hidden=false})})};
+  v.addEventListener("click",()=>{if(!v.paused){v.pause();box.classList.remove("playing")}});
+  v.addEventListener("ended",()=>box.classList.remove("playing"))})();
+document.addEventListener("keydown",e=>{if($("hotel").hidden)return;
+  if(e.key==="Escape"){e.preventDefault();e.stopImmediatePropagation();closeHotel();return}
+  if(e.key==="Tab"){const f=[...$("hotel").querySelectorAll("button,[href],[tabindex]:not([tabindex='-1'])")].filter(x=>x.offsetParent!==null);if(!f.length)return;const a=f[0],z=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}return}
+  if(!/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||""))e.stopImmediatePropagation()},true);
 
 /* ---------- Bereiche ---------- */
 const TAB_KEY="schichtblick-tab";
