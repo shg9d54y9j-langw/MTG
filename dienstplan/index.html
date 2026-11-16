@@ -931,7 +931,9 @@ const sameDept=u=>!!deptOf(me)&&deptOf(u)===deptOf(me);
 const canCover=(s,sh,by)=>(!by||sameDept(by))&&myShift(s)==="X"&&!restConflict(me,s,sh);
 const myWishes=()=>(data.wishes[me]&&data.wishes[me].items)||{};
 const nameOf=u=>u===me?"Du":(names[u]||"Kolleg:in");
-const firstOf=u=>nameOf(u).split(" ")[0];
+let firstDup={};
+function buildFirstDup(){const c={};for(const u of Object.keys(data.members)){const f=nameOf(u).split(" ")[0];c[f]=(c[f]||0)+1}firstDup=c}
+const firstOf=u=>{const n=nameOf(u),p=n.split(" ");return firstDup[p[0]]>1&&p.length>1&&u!==me?p[0]+" "+p[p.length-1][0]+".":p[0]};
 const initials=u=>{const n=nameOf(u);return n==="Kolleg:in"?"?":n.split(" ").map(p=>p[0]).join("").slice(0,2)};
 const seesAll=()=>isLead;
 const offerList=()=>Object.entries(data.offers).filter(([,o])=>o&&o.date&&(seesAll()||o.by===me||o.takenBy===me||sameDept(o.by))).map(([id,o])=>Object.assign({id},o));
@@ -1053,6 +1055,7 @@ function changed(){if(changePending)return;changePending=true;setTimeout(()=>{ch
 function render(){
   if(mode==="pending")return;
   if(shareTexts.length>500)shareTexts=[];
+  buildFirstDup();
   renderHello();renderAgenda();renderInvites();renderWeekShare();renderCal();renderSos();renderLead();renderCheck();renderNext();renderSwaps();renderHours();renderCloseBar();renderLeave();renderWishes();renderVacPlan();renderFair();renderFeedback();renderLeadWishes();renderSettings();renderTeam();renderSideLabels();renderTabBadges();renderPick();renderBell();
   document.querySelectorAll("[data-tabs]").forEach(el=>el.classList.toggle("tab-on",el.dataset.tabs.split(" ").includes(curTab)));
 }
@@ -1835,7 +1838,11 @@ function renderWeek(){
   const min=cfg().min;let h="";
   for(let i=0;i<7;i++){const d=addDays(weekStart,i),s=iso(d),sh=myShift(s),S=SHIFTS[sh],hol=holiday(s),we=d.getDay()===0||d.getDay()===6||hol;
     const dt=`<span class="dt">${s===TODAY?"Heute":WD[d.getDay()].slice(0,2)}<small>${d.getDate()}. ${MONTHS[d.getMonth()].slice(0,3)}${hol?" · "+esc(hol):""}</small></span>`;
-    if(calMode==="team"){
+    if(calMode==="team"&&ctxDept()==="all"){
+      h+=`<button class="wrow ${s===TODAY?"today":""} ${we?"weekend":""}" data-d="${s}">${dt}<span class="lines">${[...WORK].map(x=>{const p=staffing(s,x),low=p.length<min[x];
+        const per=deptList().filter(d=>d.times[x]).map(d=>{const n=staffing(s,x,d.id).length,lw=n<d.min[x];return`<span style="${lw?"color:var(--warn);font-weight:700":""}">${esc(d.name.split(" ")[0])} ${n}</span>`}).join(" · ");
+        return`<span class="ln"><span class="pill ${low?"bad":x}">${SHIFTS[x].short} ${p.length}/${min[x]}</span><span>${per}</span></span>`}).join("")}</span></button>`;
+    }else if(calMode==="team"){
       h+=`<button class="wrow ${s===TODAY?"today":""} ${we?"weekend":""}" data-d="${s}">${dt}<span class="lines">${[...WORK].filter(x=>min[x]||staffing(s,x).length).map(x=>{const p=staffing(s,x),low=p.length<min[x];return`<span class="ln"><span class="pill ${low?"bad":x}">${SHIFTS[x].short} ${p.length}/${min[x]}</span><span>${p.length?esc(p.map(u=>u===me?"Du":firstOf(u)).join(", ")):"niemand"}</span></span>`}).join("")}</span></button>`;
     }else{
       const t=colleagues(s,sh).map(firstOf),extra=[];
