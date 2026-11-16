@@ -712,10 +712,10 @@ const SHIFTS={
   S:{name:"Spätdienst",short:"S",time:"14:00–22:00",start:14,end:22,h:8},
   N:{name:"Nachtdienst",short:"N",time:"22:00–06:00",start:22,end:30,h:8},
   U:{name:"Urlaub",short:"U",time:"ganztägig",h:7.7},
-  K:{name:"Krank gemeldet",short:"K",time:"ganztägig",h:8},
+  K:{name:"Krankenstand",short:"K",time:"ganztägig",h:8},
   X:{name:"Frei",short:"–",time:""}
 };
-const MONTHS=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const MONTHS=["Jänner","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 const WD=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
 const groupName=g=>g==null?"nicht eingeteilt":"Gruppe "+"ABCDEF"[g];
 const WISH_LIMIT=4, MIN_REST=11;
@@ -741,8 +741,9 @@ const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},se
 function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
 const holCache={};
 function holidays(y){if(holCache[y])return holCache[y];const e=easter(y),m={};
-  [[`${y}-01-01`,"Neujahr"],[`${y}-05-01`,"Tag der Arbeit"],[`${y}-10-03`,"Tag der Dt. Einheit"],[`${y}-12-25`,"1. Weihnachtstag"],[`${y}-12-26`,"2. Weihnachtstag"]].forEach(([k,v])=>m[k]=v);
-  [[-2,"Karfreitag"],[1,"Ostermontag"],[39,"Christi Himmelfahrt"],[50,"Pfingstmontag"]].forEach(([o,v])=>m[iso(addDays(e,o))]=v);
+  // Gesetzliche Feiertage in Österreich
+  [[`${y}-01-01`,"Neujahr"],[`${y}-01-06`,"Heilige Drei Könige"],[`${y}-05-01`,"Staatsfeiertag"],[`${y}-08-15`,"Mariä Himmelfahrt"],[`${y}-10-26`,"Nationalfeiertag"],[`${y}-11-01`,"Allerheiligen"],[`${y}-12-08`,"Mariä Empfängnis"],[`${y}-12-25`,"Christtag"],[`${y}-12-26`,"Stefanitag"]].forEach(([k,v])=>m[k]=v);
+  [[1,"Ostermontag"],[39,"Christi Himmelfahrt"],[50,"Pfingstmontag"],[60,"Fronleichnam"]].forEach(([o,v])=>m[iso(addDays(e,o))]=v);
   return holCache[y]=m}
 const holiday=s=>holidays(+s.slice(0,4))[s];
 
@@ -781,7 +782,7 @@ function demoSeed(){
   // eigener genehmigter Urlaub
   data.leave.l1={by:"me",from:iso(addDays(today,16)),to:iso(addDays(today,20)),note:"",created:Date.now()-864e6};
   data.leaveApprovals.l1={decision:"approved",by:"d0",at:new Date(Date.now()-800e6).toISOString()};
-  data.settings.team={min:{F:2,S:2,N:2},leaveDays:30,shiftHours:8,leaveHours:8,weekHours:38.5,wishDay:15,pattern:DEFAULT_PATTERN,groups:4};
+  data.settings.team={min:{F:2,S:2,N:2},leaveDays:25,shiftHours:8,leaveHours:8,weekHours:40,wishDay:15,pattern:DEFAULT_PATTERN,groups:4};
   data.edits.d0={days:{[iso(addDays(today,3))]:"S"},at:{[iso(addDays(today,3))]:Date.now()-5e6}};
   {const ed=iso(addDays(today,26));data.edits.me={days:{[ed]:shiftFor("me",ed)==="X"?"F":"X"},at:{[ed]:Date.now()-3e6}}}
   data.feedback.d4={items:[{text:"Könnten wir die Wunschfrist auf den 20. legen? Der 15. ist für mich oft zu früh.",at:Date.now()-26e6}]};
@@ -810,8 +811,8 @@ function writeFailed(e){
 /* ---------- Dienste berechnen ---------- */
 let CFG=null;
 function computeCfg(){const t=data.settings.team||{};const sh=+t.shiftHours>0?+t.shiftHours:8;
-  return{min:Object.assign({F:2,S:2,N:1},t.min||{}),leaveDays:t.leaveDays!=null?t.leaveDays:30,shiftHours:sh,leaveHours:t.leaveHours!=null?+t.leaveHours:sh,
-    weekHours:+t.weekHours>0?+t.weekHours:38.5,wishDay:+t.wishDay>=1&&+t.wishDay<=28?+t.wishDay:15,
+  return{min:Object.assign({F:4,S:4,N:3},t.min||{}),leaveDays:t.leaveDays!=null?t.leaveDays:25,shiftHours:sh,leaveHours:t.leaveHours!=null?+t.leaveHours:sh,
+    weekHours:+t.weekHours>0?+t.weekHours:40,wishDay:+t.wishDay>=1&&+t.wishDay<=28?+t.wishDay:15,
     pattern:typeof t.pattern==="string"&&/^[FSN-]{1,42}$/.test(t.pattern)?t.pattern:DEFAULT_PATTERN,groups:+t.groups>=1&&+t.groups<=6?+t.groups:4,
     draftFrom:typeof t.draftFrom==="string"&&/^\d{4}-\d{2}$/.test(t.draftFrom)?t.draftFrom:null,closedThrough:typeof t.closedThrough==="string"&&/^\d{4}-\d{2}$/.test(t.closedThrough)?t.closedThrough:null,published:t.published&&typeof t.published==="object"?t.published:{}}}
 const ym=d=>d.getFullYear()+"-"+pad(d.getMonth()+1);
