@@ -471,6 +471,17 @@ body[data-tab="team"] .agenda{display:none!important}
 .member select{max-width:150px}
 @media (max-width:640px){.member{flex-wrap:wrap}.member select{max-width:48%}}
 .banner select{margin-left:auto}
+.badge.ev{background:#f3e8ff;color:#6b3fa0}
+.badge.ev.joined{background:#6b3fa0;color:#fff}
+.evitem .bar{margin:2px 0}
+.evform{display:flex;flex-direction:column;gap:8px}
+.evform .inline{gap:6px}
+.occ{font-size:.68rem;font-weight:700;color:var(--muted);margin-top:-2px}
+.day{position:relative}
+.occgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px}
+.occday{display:flex;flex-direction:column;gap:3px;font-size:.76rem;color:var(--muted);font-weight:600}
+.occday input{width:100%}
+.occbox{background:var(--surface-2);border-radius:14px;padding:12px}
 .tourinv{display:flex;align-items:center;gap:14px;flex-wrap:wrap;grid-column:1/-1}
 .tourinv>div:nth-child(2){flex:1;min-width:200px}
 .tourinv b{font-family:var(--display);font-size:1.05rem}
@@ -633,6 +644,10 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
         <p style="margin:0;font-size:.9rem;color:var(--muted)">Du kannst einen Dienst nicht machen? Biete ihn an. Wer frei hat, sieht ihn sofort und kann ihn übernehmen. Die Teamleitung gibt den Tausch danach frei.</p>
         <div class="split"><button class="btn primary" data-pick="swap">Dienst zum Tausch anbieten</button><button class="btn" data-pick="sick">Ich bin krank</button></div>
       </section>
+      <section class="panel card evcard" id="evCard" hidden aria-labelledby="evH" data-tabs="tausch">
+        <div class="chead"><span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><h2 id="evH">Events: Helfer gesucht</h2><span class="muted" id="evCount"></span></div>
+        <div class="list" id="evList"></div>
+      </section>
       <section class="panel card" aria-labelledby="swapH" data-tabs="tausch">
         <div class="chead"><span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14l-3.5-3.5M20 16H6l3.5 3.5"/></svg></span><h2 id="swapH">Tauschbörse</h2><span class="muted" id="swapCount"></span></div>
         <div class="tabs" role="tablist">
@@ -672,6 +687,23 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
         <p style="margin:0;font-size:.85rem;color:var(--muted)">Trag ein, wen du eingeladen hast. Sobald die Person Schichtblick öffnet, wird sie hier abgehakt.</p>
         <form class="inline" id="invForm"><input type="text" id="invName" maxlength="40" placeholder="Name, z. B. Mira" aria-label="Name der eingeladenen Person"><button class="btn" type="submit">Hinzufügen</button></form>
         <div class="list" id="invList"></div>
+      </section>
+      <section class="panel card lead" id="evLeadCard" hidden aria-labelledby="evlH" data-tabs="leitung">
+        <div class="chead"><span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><h2 id="evlH">Event planen</h2></div>
+        <form class="evform" id="evForm">
+          <input type="text" id="evTitle" maxlength="60" placeholder="z. B. Hochzeit im Ballsaal" aria-label="Titel" required>
+          <div class="inline"><input type="date" id="evDate" aria-label="Datum" required><input type="text" id="evFrom" value="18:00" maxlength="5" aria-label="Beginn" style="width:80px"><span>–</span><input type="text" id="evTo" value="01:00" maxlength="5" aria-label="Ende" style="width:80px"></div>
+          <div class="inline"><select id="evDept" aria-label="Abteilung"></select><label for="evNeed" style="font-size:.88rem">Personen</label><input type="number" id="evNeed" min="1" max="60" value="4" style="width:70px"></div>
+          <input type="text" id="evNote" maxlength="120" placeholder="Hinweis, z. B. 180 Gäste, Dresscode schwarz" aria-label="Hinweis">
+          <div class="split"><button class="btn primary" type="submit">Event anlegen</button></div>
+        </form>
+        <div class="list" id="evLeadList"></div>
+      </section>
+      <section class="panel card lead" id="occCard" hidden aria-labelledby="occH" data-tabs="leitung">
+        <div class="chead"><span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V9l9-5 9 5v11"/><path d="M7 20v-6h10v6M7 17h10"/></svg></span><h2 id="occH">Hotelauslastung</h2></div>
+        <p style="margin:0;font-size:.85rem;color:var(--muted)">Belegung in Prozent für die nächsten 14 Tage. Abteilungen mit „Nach Auslastung planen“ brauchen dann automatisch mehr oder weniger Personal. Leer = Standardwert.</p>
+        <div class="occgrid" id="occGrid"></div>
+        <div class="inline"><label for="occDefault" style="font-size:.88rem">Standardwert, wenn nichts eingetragen ist</label><input type="number" id="occDefault" min="0" max="100" style="width:80px"><span>%</span></div>
       </section>
       <section class="panel card lead" id="deptCard" hidden aria-labelledby="deptH" data-tabs="leitung">
         <div class="chead"><span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01"/></svg></span><h2 id="deptH">Abteilungen</h2><span class="muted" id="deptCount"></span></div>
@@ -743,9 +775,9 @@ const DEFAULT_PATTERN="FFFSSSNNN---"; // 3 Früh, 3 Spät, 3 Nacht, 3 frei; Grup
 // Abteilungen eines modernen Hotels: eigene Schichtzeiten, Rhythmus und Mindestbesetzung
 const HOTEL_DEPTS=[
   {id:"rez",name:"Rezeption & Concierge",pattern:"FFFSSSNNN---",groups:4,min:{F:3,S:3,N:1},times:{F:"07:00–15:00",S:"15:00–23:00",N:"23:00–07:00"}},
-  {id:"hk",name:"Housekeeping",pattern:"FFFSS--",groups:7,min:{F:6,S:2,N:0},times:{F:"07:00–15:00",S:"13:00–21:00",N:""}},
-  {id:"kue",name:"Küche",pattern:"FFFSSS--",groups:4,min:{F:4,S:4,N:0},times:{F:"06:00–14:00",S:"14:00–22:00",N:""}},
-  {id:"srv",name:"Restaurant & Frühstück",pattern:"FFFSSS--",groups:4,min:{F:4,S:3,N:0},times:{F:"06:30–14:30",S:"15:00–23:00",N:""}},
+  {id:"hk",name:"Housekeeping",pattern:"FFFSS--",groups:7,min:{F:6,S:2,N:0},occ:true,full:{F:12,S:3,N:0},times:{F:"07:00–15:00",S:"13:00–21:00",N:""}},
+  {id:"kue",name:"Küche",pattern:"FFFSSS--",groups:4,min:{F:4,S:4,N:0},occ:true,full:{F:5,S:5,N:0},times:{F:"06:00–14:00",S:"14:00–22:00",N:""}},
+  {id:"srv",name:"Restaurant & Frühstück",pattern:"FFFSSS--",groups:4,min:{F:4,S:3,N:0},occ:true,full:{F:6,S:4,N:0},times:{F:"06:30–14:30",S:"15:00–23:00",N:""}},
   {id:"bar",name:"Bar & Lounge",pattern:"FFSSS--",groups:7,min:{F:1,S:2,N:0},times:{F:"10:00–18:00",S:"17:00–01:00",N:""}},
   {id:"spa",name:"Spa & Fitness",pattern:"FFFSS--",groups:7,min:{F:2,S:2,N:0},times:{F:"07:00–15:00",S:"13:00–21:00",N:""}},
   {id:"tec",name:"Haustechnik",pattern:"FFFSSSNNN---",groups:4,min:{F:2,S:1,N:1},times:{F:"07:00–15:00",S:"14:00–22:00",N:"22:00–06:00"}},
@@ -756,6 +788,7 @@ function normDept(d,i){const t=d&&d.times||{},mn=d&&d.min||{};
   return{id:String(d&&d.id||"d"+i).replace(/[^a-z0-9_-]/gi,"").slice(0,20)||"d"+i,name:String(d&&d.name||"Abteilung "+(i+1)).slice(0,40),
     pattern:typeof(d&&d.pattern)==="string"&&/^[FSN-]{1,42}$/.test(d.pattern)?d.pattern:DEFAULT_PATTERN,groups:+(d&&d.groups)>=1&&+d.groups<=8?+d.groups:4,
     min:{F:Math.max(0,+mn.F||0),S:Math.max(0,+mn.S||0),N:Math.max(0,+mn.N||0)},
+    occ:!!(d&&d.occ),full:{F:Math.max(0,+((d&&d.full)||{}).F||0),S:Math.max(0,+((d&&d.full)||{}).S||0),N:Math.max(0,+((d&&d.full)||{}).N||0)},
     times:{F:parseTime(t.F)?t.F:"",S:parseTime(t.S)?t.S:"",N:parseTime(t.N)?t.N:""}}}
 const EPOCH=new Date(2026,0,5);
 const WORK="FSN";
@@ -785,13 +818,13 @@ function holidays(y){if(holCache[y])return holCache[y];const e=easter(y),m={};
 const holiday=s=>holidays(+s.slice(0,4))[s];
 
 /* ---------- Datenschicht: Team-Modus (db) oder Demo (Browser) ---------- */
-const data={members:{},wishes:{},offers:{},approvals:{},leave:{},leaveApprovals:{},sos:{},msgs:{},settings:{},invites:{},edits:{},actual:{},feedback:{}};
+const data={members:{},wishes:{},offers:{},approvals:{},leave:{},leaveApprovals:{},sos:{},msgs:{},settings:{},invites:{},edits:{},actual:{},feedback:{},occupancy:{},events:{},evsign:{}};
 const COLS=Object.keys(data);
 let mode="pending", me=null, myName="", isLead=false, canWrite=true, db=null, userApi=null, sampleFn=null, dl=null;
 const names={};
 let over={}, given={}, got={}, sick={}, vac={}, filled={};
 
-const DEMO_KEY="schichtblick-demo-v4";
+const DEMO_KEY="schichtblick-demo-v5";
 const DEMO_FIRST=["Mira","Jonas","Lea","Deniz","Paul","Sofia","Tom","Aylin","Ben","Clara","Lukas","Anna","Elias","Hannah","Maximilian","Lena","David","Emma","Felix","Laura","Jakob","Sarah","Tobias","Julia","Niklas","Marie","Stefan","Katharina","Florian","Nina","Matteo","Elena","Ivan","Ana","Mehmet","Zeynep","Marko","Petra","Kevin","Lisa","Samuel","Sophie","Daniel","Valentina","Gabriel","Laila","Fabian","Theresa","Oliver","Amira"];
 const DEMO_LAST=["Hoffmann","Weber","Schulz","Kaya","Richter","Lang","Becker","Demir","Krüger","Neumann","Gruber","Huber","Wagner","Pichler","Steiner","Moser","Mayer","Hofer","Leitner","Berger","Fuchs","Eder","Fischer","Schmid","Winkler","Novak","Horvat","Kovač","Yılmaz","Popović","Bauer","Wolf","Lechner","Haas","Schwarz"];
 const DEMO_SIZES={rez:16,hk:22,kue:16,srv:16,bar:8,spa:8,tec:8,evt:6};
@@ -828,6 +861,15 @@ function demoSeed(){
   {const ed=iso(addDays(today,26));data.edits.me={days:{[ed]:shiftFor("me",ed)==="X"?"F":"X"},at:{[ed]:Date.now()-3e6}}}
   data.feedback.d4={items:[{text:"Könnten wir die Wunschfrist auf den 20. legen? Der 15. ist für mich oft zu früh.",at:Date.now()-26e6}]};
   data.leave.l2={by:"d5",from:iso(addDays(today,40)),to:iso(addDays(today,47)),note:"",created:Date.now()-9e6};data.leaveApprovals.l2={decision:"approved",by:"me",at:new Date(Date.now()-8e6).toISOString()};
+  // Auslastung: realistisch schwankend, am Wochenende voller
+  for(let i=-20;i<70;i++){const d=addDays(today,i),s=iso(d),k=s.slice(0,7),we=d.getDay()===5||d.getDay()===6;
+    const v=Math.max(45,Math.min(99,Math.round((we?88:68)+((hash(s)%21)-10))));(data.occupancy[k]=data.occupancy[k]||{days:{}}).days[s]=v}
+  {const srv=Object.keys(data.members).filter(u=>deptOf(u)==="srv"),evt=Object.keys(data.members).filter(u=>deptOf(u)==="evt");
+   data.events.e1={title:"Hochzeit im Ballsaal",date:iso(addDays(today,5)),from:"17:00",to:"01:00",need:8,dept:"srv",note:"160 Gäste, Dresscode schwarz",created:Date.now()-5e6,by:"d0"};
+   data.events.e2={title:"Weihnachtsfeier einer Firma",date:iso(addDays(today,11)),from:"18:30",to:"00:30",need:4,dept:"all",note:"Aushilfe Service & Garderobe",created:Date.now()-2e6,by:"d0"};
+   data.events.e3={title:"Konferenz mit Mittagsbuffet",date:iso(addDays(today,3)),from:"08:00",to:"16:00",need:3,dept:"evt",note:"",created:Date.now()-9e6,by:"d0"};
+   srv.slice(0,5).forEach(u=>data.evsign[u]={events:{e1:Date.now()-3e6}});evt.slice(0,3).forEach(u=>data.evsign[u]={events:{e3:Date.now()-4e6}});
+   if(srv[6])data.evsign[srv[6]]={events:{e2:Date.now()-1e6}}}
   data.invites.list={names:DEMO_TEAM.slice(0,16).map(p=>p.name.split(" ")[0]).concat(["Viktoria"])};
 }
 function demoSave(){store.set(DEMO_KEY,JSON.stringify(data))}
@@ -853,7 +895,7 @@ function writeFailed(e){
 let CFG=null;
 function computeCfg(){const t=data.settings.team||{};const sh=+t.shiftHours>0?+t.shiftHours:8;
   return{min:Object.assign({F:4,S:4,N:3},t.min||{}),leaveDays:t.leaveDays!=null?t.leaveDays:25,shiftHours:sh,leaveHours:t.leaveHours!=null?+t.leaveHours:sh,
-    weekHours:+t.weekHours>0?+t.weekHours:40,wishDay:+t.wishDay>=1&&+t.wishDay<=28?+t.wishDay:15,
+    weekHours:+t.weekHours>0?+t.weekHours:40,occDefault:+t.occDefault>=0&&+t.occDefault<=100&&t.occDefault!==""&&t.occDefault!=null?+t.occDefault:70,wishDay:+t.wishDay>=1&&+t.wishDay<=28?+t.wishDay:15,
     pattern:typeof t.pattern==="string"&&/^[FSN-]{1,42}$/.test(t.pattern)?t.pattern:DEFAULT_PATTERN,groups:+t.groups>=1&&+t.groups<=6?+t.groups:4,
     depts:(Array.isArray(t.depts)&&t.depts.length?t.depts:HOTEL_DEPTS).slice(0,20).map(normDept),
     draftFrom:typeof t.draftFrom==="string"&&/^\d{4}-\d{2}$/.test(t.draftFrom)?t.draftFrom:null,closedThrough:typeof t.closedThrough==="string"&&/^\d{4}-\d{2}$/.test(t.closedThrough)?t.closedThrough:null,published:t.published&&typeof t.published==="object"?t.published:{}}}
@@ -876,6 +918,11 @@ const TEAMDEPT_KEY="schichtblick-dept";
 let teamDept=store.get(TEAMDEPT_KEY)||"";
 function ctxDept(){const mine=deptOf(me);if(!isLead&&mine)return mine;if(teamDept==="all"&&isLead)return"all";if(teamDept&&deptById(teamDept))return teamDept;return mine||(deptList()[0]||{}).id||"all"}
 const inDept=(u,dept)=>dept==="all"||deptOf(u)===dept;
+// Auslastung des Hotels in Prozent für einen Tag (eingetragen oder Standardwert)
+const occEntry=s=>{const m=data.occupancy[s.slice(0,7)];const v=m&&m.days&&m.days[s];return typeof v==="number"?v:null};
+const occOf=s=>{const v=occEntry(s);return v==null?cfg().occDefault:v};
+function minAt(s,sh,dept){const dp=dept||ctxDept();if(dp==="all")return deptList().reduce((a,d)=>a+minAt(s,sh,d.id),0);
+  const d=dc(dp),base=d.min[sh]||0;if(!d.occ||!d.full||!d.full[sh])return base;return Math.max(base,Math.ceil(d.full[sh]*occOf(s)/100))}
 function minFor(dept){if(dept==="all"){const o={F:0,S:0,N:0};deptList().forEach(d=>{o.F+=d.min.F;o.S+=d.min.S;o.N+=d.min.N});return o}return dc(dept).min}
 function metaFor(code,dept){const S=SHIFTS[code];if(!WORK.includes(code))return S;const t=dc(dept).times[code]||DEFAULT_TIMES[code],p=parseTime(t)||parseTime(DEFAULT_TIMES[code]);return Object.assign({},S,{time:t,start:p.start,end:p.end})}
 function applyTimes(){const d=deptOf(me)||(ctxDept()!=="all"?ctxDept():null);for(const c of WORK){const m=metaFor(c,d);SHIFTS[c].time=m.time;SHIFTS[c].start=m.start;SHIFTS[c].end=m.end}}
@@ -883,7 +930,7 @@ const editOf=(u,s)=>{if(!isLead&&isDraft(s))return null;const e=data.edits[u];re
 const planned=(u,s)=>editOf(u,s)||baseShift(u,s);
 function hoursOf(sh){const c=cfg();return WORK.includes(sh)||sh==="K"?(sh==="K"?c.leaveHours:c.shiftHours):sh==="U"?c.leaveHours:0}
 const actualOf=(u,s)=>{const a=data.actual[u];return a&&a.days&&a.days[s]||null};
-function hoursOn(u,s){const a=actualOf(u,s);return a&&typeof a.h==="number"?a.h:hoursOf(shiftFor(u,s))}
+function hoursOn(u,s){const a=actualOf(u,s);if(a&&typeof a.h==="number")return a.h;let h=hoursOf(shiftFor(u,s));const d=data.evsign[u];if(d&&d.events)for(const e of eventList())if(e.date===s&&d.events[e.id])h+=eventHours(e);return h}
 const sollPerDay=s=>{const d=fromIso(s),wd=d.getDay();return wd>0&&wd<6&&!holiday(s)?cfg().weekHours/5:0};
 const startOf=u=>{const m=data.members[u];return m&&m.joined&&/^\d{4}-\d{2}-\d{2}$/.test(m.joined)?m.joined:`${today.getFullYear()}-01-01`};
 function baseShift(uid,s){
@@ -940,6 +987,14 @@ const seesAll=()=>isLead;
 const offerList=()=>Object.entries(data.offers).filter(([,o])=>o&&o.date&&(seesAll()||o.by===me||o.takenBy===me||sameDept(o.by))).map(([id,o])=>Object.assign({id},o));
 const sosList=()=>Object.entries(data.sos).filter(([,x])=>x&&x.date&&(seesAll()||x.by===me||x.filledBy===me||sameDept(x.by))).map(([id,x])=>Object.assign({id},x));
 const leaveList=()=>Object.entries(data.leave).filter(([,l])=>l&&l.from).map(([id,l])=>Object.assign({id},l,{state:leaveState(id)}));
+const eventList=()=>Object.entries(data.events).filter(([,e])=>e&&e.date&&e.title).map(([id,e])=>Object.assign({id},e));
+const signupsOf=id=>Object.keys(data.evsign).filter(u=>{const d=data.evsign[u];return d&&d.events&&d.events[id]});
+const iJoined=id=>{const d=data.evsign[me];return!!(d&&d.events&&d.events[id])};
+const canJoin=e=>!isNoShift(me)&&(e.dept==="all"||!e.dept||deptOf(me)===e.dept);
+const eventFits=e=>canJoin(e)||isLead;
+const eventOpen=e=>e.date>=TODAY&&signupsOf(e.id).length<(+e.need||0);
+const eventHours=e=>{const p=parseTime(`${e.from}–${e.to}`);return p?Math.round((p.end-p.start)*4)/4:0};
+const myEventHours=s=>eventList().filter(e=>e.date===s&&iJoined(e.id)).reduce((a,e)=>a+eventHours(e),0);
 const msgList=()=>Object.entries(data.msgs).filter(([,m])=>m&&m.date).map(([id,m])=>Object.assign({id},m));
 const approved=o=>!!data.approvals[o.id];
 function wishMet(s,w){const sh=myShift(s);return w.type==="Frei"?(sh==="X"||sh==="U"):w.type==="Frühdienst"?sh==="F":w.type==="Spätdienst"?sh==="S":sh!=="N"}
@@ -955,11 +1010,11 @@ function leaveSummary(u,y){
 function leaveConflicts(l){
   const out=[],dp=deptOf(l.by)||ctxDept(),min=minFor(dp);
   for(const s of daysBetween(l.from,l.to)){if(s<TODAY)continue;const sh=planned(l.by,s);if(!WORK.includes(sh)||shiftFor(l.by,s)!==sh)continue;
-    const n=staffing(s,sh,dp).length-1;if(n<min[sh])out.push(`${fmt(s)}: ${SHIFTS[sh].name} nur ${n} von ${min[sh]}`)}
+    const n=staffing(s,sh,dp).length-1,mn=minAt(s,sh,dp);if(n<mn)out.push(`${fmt(s)}: ${SHIFTS[sh].name} nur ${n} von ${mn}`)}
   return out;
 }
 function understaffed(days){const out=[];const ds=isLead?deptList().map(d=>d.id):[deptOf(me)].filter(Boolean);
-  for(const dp of ds){const min=minFor(dp);for(let i=0;i<days;i++){const s=iso(addDays(today,i));for(const sh of WORK){if(!min[sh])continue;const n=staffing(s,sh,dp).length;if(n<min[sh])out.push({s,sh,n,dp})}}}return out}
+  for(const dp of ds){const min=minFor(dp);for(let i=0;i<days;i++){const s=iso(addDays(today,i));for(const sh of WORK){const mn=minAt(s,sh,dp);if(!mn)continue;const n=staffing(s,sh,dp).length;if(n<mn)out.push({s,sh,n,dp})}}}return out}
 
 /* ---------- Teilen ---------- */
 const ARTIFACT_URL="https://claude.ai/artifact/TB3tPUQMBSJP89E1fyiFGD";
@@ -1008,6 +1063,7 @@ function events(){
     for(const [k,t] of Object.entries(cfg().published||{})){if(k<ym(today))continue;ev.push({id:"pub"+k+t,at:+t||0,date:k+"-01",text:`Der Dienstplan für ${monthName(k)} ist veröffentlicht.`})}}
   for(const [u,f] of Object.entries(data.feedback)){if(!isLead||u===me||!f||!Array.isArray(f.items))continue;f.items.forEach(it=>ev.push({id:"fb"+u+it.at,at:+it.at||0,date:TODAY,lead:1,text:`Feedback von ${firstOf(u)}: „${String(it.text).slice(0,80)}${String(it.text).length>80?"…":""}“`}))}
   if(isLead)for(const u of Object.keys(data.members)){if(u!==me&&groupOf(u)==null&&!isNoShift(u))ev.push({id:"new"+u,at:+(data.members[u].joinedAt||0)||Date.parse(data.members[u].joined||"")||0,date:TODAY,lead:1,text:`${nameOf(u)} ist neu im Team und noch keiner Schichtgruppe zugeteilt.`})}
+  for(const e of eventList()){if(e.date<TODAY||e.by===me)continue;if(eventFits(e)&&!isLead&&!isNoShift(me))ev.push({id:"ev"+e.id,at:+e.created||0,date:e.date,text:`Neues Event „${e.title}“ am ${fmt(e.date)}: ${e.need} Personen gesucht.`})}
   for(const m of msgList()){
     if(m.by===me||m.date<TODAY)continue;
     if(WORK.includes(myShift(m.date))||isLead)ev.push({id:"msg"+m.id,at:P(m.at),date:m.date,text:`${firstOf(m.by)} zum ${fmt(m.date)}: „${m.text}“`});
@@ -1057,7 +1113,7 @@ function render(){
   if(mode==="pending")return;
   if(shareTexts.length>500)shareTexts=[];
   buildFirstDup();
-  renderHello();renderAgenda();renderInvites();renderWeekShare();renderCal();renderSos();renderLead();renderCheck();renderNext();renderSwaps();renderHours();renderCloseBar();renderLeave();renderWishes();renderVacPlan();renderFair();renderFeedback();renderLeadWishes();renderSettings();renderTeam();renderSideLabels();renderTabBadges();renderPick();renderBell();
+  renderHello();renderAgenda();renderInvites();renderWeekShare();renderCal();renderSos();renderLead();renderCheck();renderNext();renderSwaps();renderHours();renderCloseBar();renderLeave();renderWishes();renderVacPlan();renderFair();renderFeedback();renderLeadWishes();renderSettings();renderTeam();renderEvents();renderOccPanel();renderSideLabels();renderTabBadges();renderPick();renderBell();
   document.querySelectorAll("[data-tabs]").forEach(el=>el.classList.toggle("tab-on",el.dataset.tabs.split(" ").includes(curTab)));
 }
 
@@ -1089,10 +1145,12 @@ function renderHello(){
   const sos=sosList().filter(x=>x.by!==me&&x.status==="open"&&x.date>=TODAY&&canCover(x.date,x.shift,x.by)).length;
   const openTeam=offerList().filter(o=>o.by!==me&&o.status==="open"&&!approved(o)&&o.date>=TODAY).length;
   const answers=offerList().filter(o=>o.by===me&&o.status==="requested").length;
+  const evOpen=isLead?0:eventList().filter(e=>eventFits(e)&&eventOpen(e)&&!iJoined(e.id)).length;
   const pend=isLead?leadPending().length:0;
   const low=isLead?understaffed(14).length:0;
   let chips="";
   if(sos)chips+=`<button class="urgent" data-jump="sos"><b>${sos}</b> Einspringer gesucht</button>`;
+  if(evOpen)chips+=`<button data-jump="sos"><b>${evOpen}</b> Event${evOpen>1?"s suchen":" sucht"} Personal</button>`;
   if(answers)chips+=`<button data-jump="mine"><b>${answers}</b> Antwort${answers>1?"en":""} auf dein Angebot</button>`;
   if(pend)chips+=`<button data-jump="lead"><b>${pend}</b> zur Freigabe</button>`;
   const fresh=isLead?Object.keys(data.members).filter(u=>u!==me&&groupOf(u)==null&&!isNoShift(u)).length:0;
@@ -1158,11 +1216,13 @@ function renderCal(){
     const nmsg=msgs.filter(x=>x.date===s).length;
     let inner,label;
     if(calMode==="team"){
-      let lowAny=false;
-      const rows=[...WORK].filter(x=>min[x]||staffing(s,x).length).map(x=>{const n=staffing(s,x).length,low=n<min[x];if(low)lowAny=true;return`<span class="${x}${low?" low":""}"><span>${x}</span><span>${n}</span></span>`}).join("");
+      const cd=ctxDept();let lowAny=false;
+      const rows=[...WORK].filter(x=>minAt(s,x)||staffing(s,x).length).map(x=>{const n=staffing(s,x).length,low=n<minAt(s,x);if(low)lowAny=true;return`<span class="${x}${low?" low":""}"><span>${x}</span><span>${n}</span></span>`}).join("");
       if(lowAny&&s>=TODAY)cls.push("low");
       const openSos=soss.some(x=>x.date===s&&x.status==="open");
-      inner=`<div class="staff">${rows}</div><div class="badges">${openSos?`<span class="badge sos">!<span class="bt"> Ausfall</span></span>`:""}${nmsg?`<span class="badge msg">${bubbleIcon}<span class="bt"> ${nmsg}</span></span>`:""}</div>`;
+      const oc=occEntry(s);
+      const evc=eventList().filter(e=>e.date===s&&(e.dept==="all"||!e.dept||cd==="all"||e.dept===cd)).length;
+      inner=`${evc?`<span class="badge ev" style="position:absolute;top:8px;right:8px">✦ ${evc}</span>`:""}${oc!=null||isLead?`<div class="occ" title="Hotelauslastung">${oc!=null?oc:"~"+occOf(s)} %</div>`:""}<div class="staff">${rows}</div><div class="badges">${openSos?`<span class="badge sos">!<span class="bt"> Ausfall</span></span>`:""}${nmsg?`<span class="badge msg">${bubbleIcon}<span class="bt"> ${nmsg}</span></span>`:""}</div>`;
       label=`${WD[d.getDay()]}, ${d.getDate()}. ${MONTHS[d.getMonth()]}: Früh ${staffing(s,"F").length}, Spät ${staffing(s,"S").length}, Nacht ${staffing(s,"N").length}`;
     }else{
       let badges="";const w=wishes[s];
@@ -1176,6 +1236,7 @@ function renderCal(){
       if(leaves.some(l=>l.by===me&&l.state==="pending"&&s>=l.from&&s<=l.to))badges+=`<span class="badge leave">U<span class="bt"> beantragt</span></span>`;
       if(soss.some(x=>x.by!==me&&x.date===s&&x.status==="open"&&s>=TODAY&&canCover(s,x.shift,x.by)))badges+=`<span class="badge sos">!<span class="bt"> Einspringen?</span></span>`;
       if(nmsg)badges+=`<span class="badge msg">${bubbleIcon}<span class="bt"> ${nmsg}</span></span>`;
+      {const evs=eventList().filter(e=>e.date===s&&(eventFits(e)||iJoined(e.id)));if(evs.length){const mine=evs.some(e=>iJoined(e.id));badges+=`<span class="badge ev ${mine?"joined":""}">✦<span class="bt"> ${mine?"Event":"Event"}</span></span>`}}
       if(withU&&WORK.includes(sh)&&shiftFor(withU,s)===sh){cls.push("together");badges+=`<span class="badge with">♥<span class="bt"> ${esc(firstOf(withU))}</span></span>`}
       const chip=sh==="X"?`<div class="chip X"><span class="long">frei</span><span class="short">·</span></div>`
         :`<div class="chip ${sh}"><span class="long">${chipIcon(sh)}${sh==="K"?"Krank":S.name.replace("dienst","")}</span><span class="short">${S.short}</span>${S.start!=null?`<small>${S.time.replace(/:00/g,"")}</small>`:""}</div>`;
@@ -1253,6 +1314,40 @@ function renderCloseBar(){
   else if(isLead&&canWrite&&endM<TODAY)h=`<div class="split"><button class="btn" data-closem="${k}">${MONTHS[m]} abschließen</button></div><p style="margin:0;font-size:.8rem;color:var(--muted)">Danach kann niemand mehr Stunden oder Dienste in diesem Monat ändern.</p>`;
   $("closeBar").innerHTML=h;
 }
+function eventCard(e,inDrawer){
+  const su=signupsOf(e.id),need=+e.need||0,full=su.length>=need,joined=iJoined(e.id),past=e.date<TODAY,sh=myShift(e.date);
+  const clash=WORK.includes(sh)?(()=>{const m=SHIFTS[sh],p=parseTime(`${e.from}–${e.to}`);return p&&m.start!=null&&p.start<m.end&&p.end>m.start})():false;
+  const bar=`<div class="bar" style="height:8px"><i style="width:${Math.min(100,need?su.length/need*100:0)}%;background:${full?"var(--ok)":"var(--accent)"}"></i></div>`;
+  return`<div class="item evitem"><div class="head"><span class="badge ev">✦</span><span class="who">${esc(e.title)}</span><span class="pill state">${fmt(e.date)}</span></div>
+    <p>${esc(e.from)}–${esc(e.to)} Uhr · ${e.dept==="all"||!e.dept?"alle Abteilungen":esc(dc(e.dept).name)}${e.note?" · „"+esc(e.note)+"“":""}</p>
+    ${bar}<p><b style="color:var(--fg)">${su.length} von ${need}</b> dabei${su.length?": "+esc(su.map(u=>u===me?"Du":firstOf(u)).join(", ")):""}</p>
+    ${past||!canWrite?"":joined?`<div class="actions"><span class="pill okp">✓ Du bist dabei</span><button class="btn" data-evleave="${e.id}">Abmelden</button></div>`
+      :full?`<span class="pill state">Alle Plätze vergeben</span>`
+      :canJoin(e)?`<div class="actions"><button class="btn primary" data-evjoin="${e.id}">Ich bin dabei</button>${!inDrawer?`<button class="btn" data-open="${e.date}">Tag ansehen</button>`:""}</div>${clash?`<p style="color:var(--warn)">Achtung: Das überschneidet sich mit deinem ${SHIFTS[sh].name}.</p>`:sh==="X"?`<p class="cands">Du hast an dem Tag frei.</p>`:""}`:""}
+    ${isLead&&canWrite&&!inDrawer?`<div class="actions"><button class="btn danger" data-evdel="${e.id}">Event löschen</button></div>`:""}</div>`;
+}
+function renderEvents(){
+  const up=eventList().filter(e=>e.date>=TODAY).sort((a,b)=>a.date.localeCompare(b.date));
+  const forMe=up.filter(e=>(eventFits(e)&&!isLead)||iJoined(e.id)||(isLead&&eventFits(e)));
+  $("evCard").hidden=!forMe.length;
+  $("evCount").textContent=forMe.filter(eventOpen).length?forMe.filter(eventOpen).length+" suchen Personal":"";
+  $("evList").innerHTML=forMe.slice(0,6).map(e=>eventCard(e,false)).join("");
+  // Leitung
+  $("evLeadCard").hidden=!isLead;if(!isLead)return;
+  $("evDept").innerHTML=`<option value="all">Alle Abteilungen</option>`+deptList().map(d=>`<option value="${esc(d.id)}">${esc(d.name)}</option>`).join("");
+  if(!$("evDate").value)$("evDate").value=iso(addDays(today,7));$("evDate").min=TODAY;
+  $("evLeadList").innerHTML=up.length?up.map(e=>{const n=signupsOf(e.id).length;return`<div class="vacm"><b>${fmt(e.date).slice(4)}</b><span>${esc(e.title)} · ${n}/${e.need}</span><span class="pill ${n>=e.need?"okp":"bad"}">${n>=e.need?"voll":"offen"}</span></div>`}).join(""):`<p class="empty">Noch keine Events geplant.</p>`;
+}
+function renderOccPanel(){
+  if(!isLead){$("occCard").hidden=true;return}
+  $("occCard").hidden=false;
+  let h="";for(let i=0;i<14;i++){const s=iso(addDays(today,i)),v=occEntry(s);h+=`<label class="occday"><span>${fmt(s).replace(",","")}</span><input type="number" min="0" max="100" data-occ="${s}" value="${v!=null?v:""}" placeholder="${cfg().occDefault}" ${canWrite?"":"disabled"}></label>`}
+  $("occGrid").innerHTML=h;
+  const el=$("occDefault");if(document.activeElement!==el)el.value=cfg().occDefault;el.disabled=!canWrite;
+}
+async function saveOcc(s,v){const k=s.slice(0,7),doc=JSON.parse(JSON.stringify(data.occupancy[k]||{days:{}}));doc.days=doc.days||{};
+  if(v===""||v==null)delete doc.days[s];else doc.days[s]=Math.max(0,Math.min(100,Math.round(+v)));
+  const sn=[snap("occupancy",k)];if(await put("occupancy",k,doc))toastUndo(`Auslastung ${fmt(s)}: ${v===""?"Standardwert":doc.days[s]+" %"}.`,sn)}
 function renderSos(){
   const list=sosList().filter(x=>x.status==="open"&&x.date>=TODAY&&x.by!==me&&(canCover(x.date,x.shift,x.by)||isLead)).sort((a,b)=>a.date.localeCompare(b.date));
   $("sosCard").hidden=!list.length;
@@ -1390,6 +1485,8 @@ function renderDepts(){
       ${fld("tS","Spätdienst",d.times.S,"text",'placeholder="15:00–23:00"')}
       ${fld("tN","Nachtdienst",d.times.N,"text",'placeholder="23:00–07:00"')}
       ${fld("mF","Mindestbesetzung Früh",d.min.F)}${fld("mS","Mindestbesetzung Spät",d.min.S)}${fld("mN","Mindestbesetzung Nacht",d.min.N)}
+      <label>Nach Auslastung planen</label><select data-df="occ" data-di="${i}" ${canWrite?"":"disabled"}><option value="0" ${d.occ?"":"selected"}>nein</option><option value="1" ${d.occ?"selected":""}>ja</option></select>
+      ${d.occ?fld("fF","Bedarf Früh bei 100 % Auslastung",d.full.F)+fld("fS","Bedarf Spät bei 100 %",d.full.S)+fld("fN","Bedarf Nacht bei 100 %",d.full.N):""}
       ${fld("pattern","Rhythmus (F, S, N, - = frei)",d.pattern,"text",'maxlength="42" spellcheck="false"')}
       <label>Schichtgruppen</label><select data-df="groups" data-di="${i}" ${canWrite?"":"disabled"}>${[1,2,3,4,5,6,7,8].map(g=>`<option ${g===d.groups?"selected":""}>${g}</option>`).join("")}</select>
       <div class="patprev">${prev}<span style="font-family:var(--body)">Vorschau der nächsten 14 Tage je Gruppe.</span></div></div>
@@ -1481,6 +1578,8 @@ function openDrawer(s,keepFocus){
   if(groupOf(me)==null&&!ed&&!isNoShift(me))hD+=`<div class="note info">Du bist noch keiner Schichtgruppe zugeteilt. Sobald die Teamleitung das erledigt, erscheinen hier deine Dienste.</div>`;
   const soss=sosList().filter(x=>x.date===s&&x.by!==me&&x.status==="open");
   if(soss.length&&!past)hD+=`<div class="section"><h3>Einspringer gesucht</h3>${soss.map(x=>`<div class="split" style="align-items:center"><span class="avatar">${esc(initials(x.by))}</span><span style="margin-right:auto">${esc(nameOf(x.by))} · ${SHIFTS[x.shift].name}</span>${canWrite&&canCover(s,x.shift,x.by)?`<button class="btn primary" data-fill="${x.id}">Ich springe ein</button>`:`<span class="pill state">${myShift(s)==="X"?"Ruhezeit zu kurz":"du arbeitest selbst"}</span>`}</div>`).join("")}</div>`;
+  const evDay=eventList().filter(e=>e.date===s&&(eventFits(e)||iJoined(e.id)));
+  if(evDay.length)hD+=`<div class="section"><h3>Events an diesem Tag</h3>${evDay.map(e=>eventCard(e,true)).join("")}</div>`;
   if(work){const t=colleagues(s,sh);hD+=`<div class="section"><h3>Mit dir im Dienst</h3>${t.length?`<div class="team">${t.map(p=>`<span><span class="avatar">${esc(initials(p))}</span>${esc(nameOf(p))}</span>`).join("")}</div>`:`<p style="margin:0;color:var(--muted);font-size:.88rem">Aus deinem Team ist sonst niemand eingeteilt.</p>`}</div>`}
   const others=offers.filter(o=>o.by!==me&&o.status==="open"&&!approved(o));
   if(others.length&&!past)hD+=`<div class="section"><h3>Tauschangebote an diesem Tag</h3>${others.map(o=>`<div class="split" style="align-items:center"><span class="avatar">${esc(initials(o.by))}</span><span style="margin-right:auto">${esc(nameOf(o.by))} · ${SHIFTS[o.shift].name}</span>${canWrite&&canCover(s,o.shift,o.by)?`<button class="btn primary" data-take="${o.id}">Übernehmen</button>`:""}</div>`).join("")}</div>`;
@@ -1515,7 +1614,10 @@ function openDrawer(s,keepFocus){
 
   /* ---- Reiter Team ---- */
   const cdx=ctxDept();
-  let hT=`<div class="section"><h3>Besetzung${cdx==="all"?"":" · "+esc(dc(cdx).name)}</h3>${[...WORK].filter(x=>min[x]||staffing(s,x).length).map(x=>{const p=staffing(s,x),low=p.length<min[x];return`<div class="split" style="align-items:center;font-size:.86rem"><span class="pill ${low?"bad":x}" style="min-width:74px;text-align:center">${SHIFTS[x].short} · ${p.length}/${min[x]}</span><span style="color:var(--muted);min-width:0">${p.length?esc(p.map(firstOf).join(", ")):"niemand"}</span></div>`}).join("")}</div>`;
+  const ocE=occEntry(s);
+  let hT=`<div class="section occbox"><h3>Hotelauslastung</h3>${isLead&&canWrite&&!isClosed(s)?`<div class="inline"><input type="number" id="occInput" min="0" max="100" value="${ocE!=null?ocE:""}" placeholder="${cfg().occDefault}" aria-label="Auslastung in Prozent" style="width:90px"><span>%</span><button class="btn" type="button" data-occsave="${s}">Speichern</button></div>`:`<p style="margin:0;font-size:.9rem"><b>${occOf(s)} %</b>${ocE==null?" (geschätzt)":""}</p>`}
+    <p style="margin:0;font-size:.82rem;color:var(--muted)">${deptList().filter(d=>d.occ).map(d=>esc(d.name.split(" ")[0])).join(", ")||"Keine Abteilung"} plant nach Auslastung: Je voller das Haus, desto mehr Personal wird gebraucht.</p></div>
+  <div class="section"><h3>Besetzung${cdx==="all"?"":" · "+esc(dc(cdx).name)}</h3>${[...WORK].filter(x=>minAt(s,x)||staffing(s,x).length).map(x=>{const p=staffing(s,x),low=p.length<minAt(s,x);return`<div class="split" style="align-items:center;font-size:.86rem"><span class="pill ${low?"bad":x}" style="min-width:74px;text-align:center">${SHIFTS[x].short} · ${p.length}/${minAt(s,x)}</span><span style="color:var(--muted);min-width:0">${p.length?esc(p.map(firstOf).join(", ")):"niemand"}</span></div>`}).join("")}</div>`;
   if(isLead&&canWrite){
     const ids=cdx==="all"?[]:Object.keys(data.members).filter(u=>inDept(u,cdx)&&!isNoShift(u)).sort((a,b)=>(groupOf(a)??9)-(groupOf(b)??9)||nameOf(a).localeCompare(nameOf(b)));
     const closedDay=isClosed(s);
@@ -1657,6 +1759,15 @@ document.addEventListener("click",async e=>{
   if(ds.unsick){const sn=[snap("sos",ds.unsick)];if(await del("sos",ds.unsick))toastUndo("Krankmeldung zurückgenommen.",sn);return}
   if(ds.mdel){const sn=[snap("msgs",ds.mdel)];if(await del("msgs",ds.mdel))toastUndo("Nachricht gelöscht.",sn);return}
   if(ds.dtab){dTab=ds.dtab;applyDTab();return}
+  if(ds.occsave){const v=$("occInput").value;return saveOcc(ds.occsave,v)}
+  if(ds.evjoin||ds.evleave){const id=ds.evjoin||ds.evleave,e=eventList().find(x=>x.id===id);if(!e)return;
+    if(ds.evjoin){if(!canJoin(e))return toast("Dieses Event ist für eine andere Abteilung.");if(!eventOpen(e))return toast("Leider sind schon alle Plätze vergeben.");
+      if(!await confirmDo("Beim Event mitarbeiten?",`<p><b>${esc(e.title)}</b> am <b>${fmt(e.date)}</b>, ${esc(e.from)}–${esc(e.to)} Uhr.</p><p class="muted">Die Stunden werden deinem Stundenkonto gutgeschrieben.</p>`,"Ja, ich bin dabei"))return}
+    const doc=JSON.parse(JSON.stringify(data.evsign[me]||{events:{}}));doc.events=doc.events||{};const sn=[snap("evsign",me)];
+    if(ds.evjoin)doc.events[id]=Date.now();else delete doc.events[id];
+    if(await put("evsign",me,doc))toastUndo(ds.evjoin?`Danke! Du bist bei „${e.title}“ dabei.`:`Du bist von „${e.title}“ abgemeldet.`,sn);return}
+  if(ds.evdel){const e=eventList().find(x=>x.id===ds.evdel);if(!e)return;if(!await confirmDo("Event löschen?",`<p>„${esc(e.title)}“ am ${fmt(e.date)} wird für alle entfernt.</p>`,"Ja, löschen"))return;
+    const sn=[snap("events",ds.evdel)];if(await del("events",ds.evdel))toastUndo("Event gelöscht.",sn);return}
   if(ds.publish||ds.draft||ds.closem||ds.reopen){const c=JSON.parse(JSON.stringify(cfg())),sn=[snap("settings","team")];let msg="";
     if(ds.publish){if(c.draftFrom&&c.draftFrom<=ds.publish)c.draftFrom=null;c.published=Object.assign({},c.published,{[ds.publish]:Date.now()});msg=`${monthName(ds.publish)} ist veröffentlicht. Dein Team wird benachrichtigt.`}
     if(ds.draft){c.draftFrom=!c.draftFrom||ds.draft<c.draftFrom?ds.draft:c.draftFrom;msg=`${monthName(ds.draft)} ist jetzt ein Entwurf. Änderungen sieht das Team erst nach dem Veröffentlichen.`}
@@ -1689,9 +1800,14 @@ document.addEventListener("change",async e=>{
     if(f==="name"){if(!v)return renderDepts();d.name=v.slice(0,40)}
     else if(f[0]==="t"){v=v.replace(/\s*[-–]\s*/,"–");if(v&&!parseTime(v)){toast("Bitte die Zeit so eingeben: 07:00–15:00");return renderDepts()}d.times[f[1]]=v}
     else if(f[0]==="m")d.min[f[1]]=Math.max(0,Math.min(50,parseInt(v,10)||0));
+    else if(f==="occ"){d.occ=v==="1";d.full=d.full||{F:0,S:0,N:0};if(d.occ)for(const x of WORK)if(!d.full[x]&&d.min[x])d.full[x]=Math.ceil(d.min[x]*1.5)}
+    else if(f[0]==="f"&&f.length===2)d.full[f[1]]=Math.max(0,Math.min(80,parseInt(v,10)||0));
     else if(f==="pattern"){v=v.toUpperCase().replace(/[^FSN-]/g,"");if(!v){toast("Der Rhythmus braucht mindestens ein Zeichen: F, S, N oder -.");return renderDepts()}d.pattern=v.slice(0,42)}
     else if(f==="groups")d.groups=+v;
     return saveDepts(ds,`${d.name}: gespeichert.`)}
+  if(e.target.dataset&&e.target.dataset.occ){return saveOcc(e.target.dataset.occ,e.target.value)}
+  if(e.target.id==="occDefault"){const v=Math.max(0,Math.min(100,parseInt(e.target.value,10)||0));const sn=[snap("settings","team")];const raw=Object.assign({},data.settings.team||{},{occDefault:v});
+    if(await put("settings","team",raw))toastUndo(`Standard-Auslastung: ${v} %.`,sn);return}
   const SETS=["leaveDays","shiftHours","leaveHours","weekHours","wishDay"];
   if(SETS.includes(e.target.id)){
     const c=cfg(),next=JSON.parse(JSON.stringify(c)),id=e.target.id,raw=e.target.value;
@@ -1706,6 +1822,10 @@ document.addEventListener("input",e=>{if(e.target.id==="leaveTo")updateLeaveInfo
 document.addEventListener("submit",async e=>{
   e.preventDefault();
   if(e.target.id==="askForm")return ask($("askInput").value);
+  if(e.target.id==="evForm"){const t=$("evTitle").value.trim().slice(0,60),d=$("evDate").value,fr=$("evFrom").value.trim(),to=$("evTo").value.trim(),need=Math.max(1,Math.min(60,parseInt($("evNeed").value,10)||1));
+    if(!t||!d)return toast("Bitte Titel und Datum eintragen.");if(!parseTime(`${fr}–${to}`))return toast("Bitte die Zeiten so eingeben: 18:00 und 01:00");
+    const id=newId("e");if(await put("events",id,{title:t,date:d,from:fr,to,need,dept:$("evDept").value,note:$("evNote").value.trim().slice(0,120),created:Date.now(),by:me})){
+      $("evTitle").value="";$("evNote").value="";toast(`„${t}“ angelegt. Passende Mitarbeitende sehen es jetzt unter „Tauschen“.`)}return}
   if(e.target.id==="deptAdd"){const v=$("deptNew").value.trim().slice(0,40);if(!v)return;const ds2=JSON.parse(JSON.stringify(deptList()));
     let id=v.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g,"").slice(0,12)||"abt";while(ds2.some(d=>d.id===id))id+="x";
     ds2.push({id,name:v,pattern:"FFFSS--",groups:7,min:{F:1,S:1,N:0},times:{F:"07:00–15:00",S:"15:00–23:00",N:""}});$("deptNew").value="";
@@ -1819,7 +1939,8 @@ $("tabbar").addEventListener("click",e=>{const b=e.target.closest("button[data-t
 function renderTabBadges(){
   $("tabLead").hidden=!isLead;
   const nT=sosList().filter(x=>x.by!==me&&x.status==="open"&&x.date>=TODAY&&canCover(x.date,x.shift,x.by)).length+offerList().filter(o=>o.by===me&&o.status==="requested").length;
-  const b=$("tbTausch");b.hidden=!nT;b.textContent=nT;
+  const nE=isLead?0:eventList().filter(e=>eventFits(e)&&eventOpen(e)&&!iJoined(e.id)).length;
+  const b=$("tbTausch");b.hidden=!(nT+nE);b.textContent=nT+nE;
   const nL=isLead?leadPending().length+Object.keys(data.members).filter(u=>u!==me&&groupOf(u)==null&&!isNoShift(u)).length:0;
   const l=$("tbLead");l.hidden=!nL;l.textContent=nL;
 }
@@ -1841,17 +1962,18 @@ function renderWeek(){
   for(let i=0;i<7;i++){const d=addDays(weekStart,i),s=iso(d),sh=myShift(s),S=SHIFTS[sh],hol=holiday(s),we=d.getDay()===0||d.getDay()===6||hol;
     const dt=`<span class="dt">${s===TODAY?"Heute":WD[d.getDay()].slice(0,2)}<small>${d.getDate()}. ${MONTHS[d.getMonth()].slice(0,3)}${hol?" · "+esc(hol):""}</small></span>`;
     if(calMode==="team"&&ctxDept()==="all"){
-      h+=`<button class="wrow ${s===TODAY?"today":""} ${we?"weekend":""}" data-d="${s}">${dt}<span class="lines">${[...WORK].map(x=>{const p=staffing(s,x),low=p.length<min[x];
-        const per=deptList().filter(d=>d.times[x]).map(d=>{const n=staffing(s,x,d.id).length,lw=n<d.min[x];return`<span style="${lw?"color:var(--warn);font-weight:700":""}">${esc(d.name.split(" ")[0])} ${n}</span>`}).join(" · ");
-        return`<span class="ln"><span class="pill ${low?"bad":x}">${SHIFTS[x].short} ${p.length}/${min[x]}</span><span>${per}</span></span>`}).join("")}</span></button>`;
+      h+=`<button class="wrow ${s===TODAY?"today":""} ${we?"weekend":""}" data-d="${s}">${dt}<span class="lines">${[...WORK].map(x=>{const p=staffing(s,x),low=p.length<minAt(s,x);
+        const per=deptList().filter(d=>d.times[x]).map(d=>{const n=staffing(s,x,d.id).length,lw=n<minAt(s,x,d.id);return`<span style="${lw?"color:var(--warn);font-weight:700":""}">${esc(d.name.split(" ")[0])} ${n}</span>`}).join(" · ");
+        return`<span class="ln"><span class="pill ${low?"bad":x}">${SHIFTS[x].short} ${p.length}/${minAt(s,x)}</span><span>${per}</span></span>`}).join("")}</span></button>`;
     }else if(calMode==="team"){
-      h+=`<button class="wrow ${s===TODAY?"today":""} ${we?"weekend":""}" data-d="${s}">${dt}<span class="lines">${[...WORK].filter(x=>min[x]||staffing(s,x).length).map(x=>{const p=staffing(s,x),low=p.length<min[x];return`<span class="ln"><span class="pill ${low?"bad":x}">${SHIFTS[x].short} ${p.length}/${min[x]}</span><span>${p.length?esc(p.map(u=>u===me?"Du":firstOf(u)).join(", ")):"niemand"}</span></span>`}).join("")}</span></button>`;
+      h+=`<button class="wrow ${s===TODAY?"today":""} ${we?"weekend":""}" data-d="${s}">${dt}<span class="lines">${[...WORK].filter(x=>minAt(s,x)||staffing(s,x).length).map(x=>{const p=staffing(s,x),low=p.length<minAt(s,x);return`<span class="ln"><span class="pill ${low?"bad":x}">${SHIFTS[x].short} ${p.length}/${minAt(s,x)}</span><span>${p.length?esc(p.map(u=>u===me?"Du":firstOf(u)).join(", ")):"niemand"}</span></span>`}).join("")}</span></button>`;
     }else{
       const t=colleagues(s,sh).map(firstOf),extra=[];
       if(myWishes()[s])extra.push("★ Wunsch");
       const mo=offerList().find(o=>o.by===me&&o.date===s&&!approved(o));if(mo)extra.push("⇄ zum Tausch angeboten");
       if(sosList().some(x=>x.by!==me&&x.date===s&&x.status==="open"&&canCover(s,x.shift,x.by)))extra.push("Einspringer gesucht");
       const n=msgList().filter(m=>m.date===s).length;if(n)extra.push(n+" Nachricht"+(n>1?"en":""));
+      eventList().filter(e=>e.date===s&&iJoined(e.id)).forEach(e=>extra.push("✦ "+e.title+" "+e.from+"–"+e.to));
       h+=`<button class="arow ${s===TODAY?"today":""}" data-d="${s}">${dt}<span class="tag ${sh}">${S.short}</span><span class="info"><b>${sh==="X"?"Frei":S.name}${S.start!=null?" · "+timeOf(sh):""}</b><small>${esc([t.length?"mit "+t.join(", "):"",...extra].filter(Boolean).join(" · ")||"\u00a0")}</small></span></button>`;
     }}
   wl.innerHTML=h;
@@ -1951,7 +2073,7 @@ $("expTeam").onclick=()=>{
   head+="</tr>";dow+="</tr>";
   const rows=ids.map(u=>{let r=`<tr><td class="nm">${esc(u===me?(myName||"Ich"):nameOf(u))}<small>${cdp==="all"?esc(deptName(u))+" ":""}${groupOf(u)==null?"":groupName(groupOf(u)).slice(-1)}</small></td>`;
     for(let i=1;i<=n;i++){const s=iso(new Date(y,m,i)),sh=shiftFor(u,s);r+=`<td style="background:${col[sh]}">${sh==="X"?"":SHIFTS[sh].short}</td>`}return r+"</tr>"}).join("");
-  const sums=[...WORK].map(x=>{let r=`<tr class="sum"><td class="nm">${SHIFTS[x].name}</td>`;for(let i=1;i<=n;i++){const s=iso(new Date(y,m,i)),c=staffing(s,x).length,low=c<minFor(cdp)[x];r+=`<td${low?' class="low"':""}>${c}</td>`}return r+"</tr>"}).join("");
+  const sums=[...WORK].map(x=>{let r=`<tr class="sum"><td class="nm">${SHIFTS[x].name}</td>`;for(let i=1;i<=n;i++){const s=iso(new Date(y,m,i)),c=staffing(s,x).length,low=c<minAt(s,x,cdp);r+=`<td${low?' class="low"':""}>${c}</td>`}return r+"</tr>"}).join("");
   const html=`<!doctype html><html lang="de"><meta charset="utf-8"><title>Dienstplan ${MONTHS[m]} ${y}</title><style>@page{size:A4 landscape;margin:10mm}body{font:11px system-ui,sans-serif;color:#1d1a19;margin:16px}h1{font-size:18px;margin:0 0 4px}p{margin:0 0 10px;color:#776c66}table{border-collapse:collapse;width:100%}th,td{border:1px solid #e7dcd0;padding:3px 2px;text-align:center;min-width:18px}th.we{background:#f2e9df}td.nm{text-align:left;white-space:nowrap;padding:3px 6px;font-weight:600}td.nm small{color:#776c66;font-weight:400;margin-left:4px}tr.sum td{color:#776c66}tr.sum td.low{background:#c62a4a;color:#fff;font-weight:700}tr.sum:first-of-type td{border-top:2px solid #1d1a19}.leg span{display:inline-block;padding:2px 8px;margin-right:6px;border:1px solid #e7dcd0}</style><h1>Dienstplan ${cdp==="all"?"":esc(dc(cdp).name)+" · "}${MONTHS[m]} ${y}</h1><p class="leg"><span style="background:${col.F}">F Früh ${cdp==="all"?"":metaFor("F",cdp).time}</span><span style="background:${col.S}">S Spät ${cdp==="all"?"":metaFor("S",cdp).time}</span>${cdp==="all"||dc(cdp).times.N?`<span style="background:${col.N}">N Nacht ${cdp==="all"?"":metaFor("N",cdp).time}</span>`:""}<span style="background:${col.U}">U Urlaub</span><span style="background:${col.K}">K krank</span> Stand: ${fmt(TODAY)}${isDraft(iso(view))?" · ENTWURF":""}</p><table>${head}${dow}${rows}${sums}</table><p style="margin-top:8px">Unterste Zeilen: Anzahl pro Schicht, rot = unter Mindestbesetzung. Zum Drucken Strg+P bzw. Cmd+P.</p></html>`;
   offerFile(`team-dienstplan-${y}-${pad(m+1)}.html`,html,"text/html");
 };
