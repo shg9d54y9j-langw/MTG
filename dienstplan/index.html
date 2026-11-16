@@ -820,6 +820,7 @@ const isDraft=s=>{const f=cfg().draftFrom;return!!f&&s.slice(0,7)>=f};
 const isClosed=s=>{const c=cfg().closedThrough;return!!c&&s.slice(0,7)<=c};
 const monthName=k=>MONTHS[+k.slice(5,7)-1];
 function cfg(){return CFG||computeCfg()}
+const isNoShift=u=>!!(data.members[u]&&data.members[u].noShift);
 const groupOf=u=>{const m=data.members[u];return m&&typeof m.group==="number"&&m.group<cfg().groups?m.group:null};
 const groupNames=()=>Array.from({length:cfg().groups},(_,i)=>groupName(i));
 const editOf=(u,s)=>{if(!isLead&&isDraft(s))return null;const e=data.edits[u];return e&&e.days&&e.days[s]||null};
@@ -946,7 +947,7 @@ function events(){
       ev.push({id:"ed"+d+t,at:+t||0,date:d,text:v?`Die Teamleitung hat deinen Dienst am ${fmt(d)} geändert: ${v==="X"?"jetzt frei":SHIFTS[v].name}.`:`Dein Dienst am ${fmt(d)} folgt wieder dem normalen Rhythmus.`})}
     for(const [k,t] of Object.entries(cfg().published||{})){if(k<ym(today))continue;ev.push({id:"pub"+k+t,at:+t||0,date:k+"-01",text:`Der Dienstplan für ${monthName(k)} ist veröffentlicht.`})}}
   for(const [u,f] of Object.entries(data.feedback)){if(!isLead||u===me||!f||!Array.isArray(f.items))continue;f.items.forEach(it=>ev.push({id:"fb"+u+it.at,at:+it.at||0,date:TODAY,lead:1,text:`Feedback von ${firstOf(u)}: „${String(it.text).slice(0,80)}${String(it.text).length>80?"…":""}“`}))}
-  if(isLead)for(const u of Object.keys(data.members)){if(u!==me&&groupOf(u)==null)ev.push({id:"new"+u,at:+(data.members[u].joinedAt||0)||Date.parse(data.members[u].joined||"")||0,date:TODAY,lead:1,text:`${nameOf(u)} ist neu im Team und noch keiner Schichtgruppe zugeteilt.`})}
+  if(isLead)for(const u of Object.keys(data.members)){if(u!==me&&groupOf(u)==null&&!isNoShift(u))ev.push({id:"new"+u,at:+(data.members[u].joinedAt||0)||Date.parse(data.members[u].joined||"")||0,date:TODAY,lead:1,text:`${nameOf(u)} ist neu im Team und noch keiner Schichtgruppe zugeteilt.`})}
   for(const m of msgList()){
     if(m.by===me||m.date<TODAY)continue;
     if(WORK.includes(myShift(m.date))||isLead)ev.push({id:"msg"+m.id,at:P(m.at),date:m.date,text:`${firstOf(m.by)} zum ${fmt(m.date)}: „${m.text}“`});
@@ -989,7 +990,8 @@ async function refreshNames(){
   try{const ps=await userApi.profiles([...ids]);let ch=false;for(const id of ids){const n=(ps[id]&&ps[id].name)||"";if(n&&names[id]!==n){names[id]=n;ch=true}}if(ch){render();refreshDrawer()}}catch(e){}
   namesPending=false;
 }
-function changed(){rebuild();render();refreshDrawer();refreshNames()}
+let changePending=false;
+function changed(){if(changePending)return;changePending=true;setTimeout(()=>{changePending=false;rebuild();render();refreshDrawer();refreshNames()},12)}
 
 function render(){
   if(mode==="pending")return;
@@ -1000,11 +1002,12 @@ function render(){
 
 function renderBanner(){
   const st=$("status");st.className="status "+(mode==="live"?"live":mode==="demo"?"demo":"");
-  st.querySelector("span").textContent=mode==="live"?(isLead?"Live im Team · Teamleitung":"Live im Team"):mode==="demo"?"Demo · nur in diesem Browser":"Verbinde …";
+  if(!navigator.onLine){st.className="status";st.querySelector("span").textContent="Offline · Änderungen werden gesendet, sobald du wieder online bist";}
+  else st.querySelector("span").textContent=mode==="live"?(isLead?"Live im Team · Teamleitung":"Live im Team"):mode==="demo"?"Demo · nur in diesem Browser":"Verbinde …";
   let b="";
   if(mode==="demo")b=`<div class="banner info"><span><b>Demo-Modus.</b> Kolleg:innen und ihre Antworten sind Beispiele. Öffne Schichtblick angemeldet über claude.ai, um mit deinem echten Team zu planen.</span></div>`;
   else if(mode==="live"&&!canWrite)b=`<div class="banner warn"><span><b>Nur lesen.</b> Du kannst den Plan ansehen, aber nichts eintragen. Bitte die Teamleitung, dich als Mitwirkende:n einzuladen.</span></div>`;
-  else if(mode==="live"&&loaded&&groupOf(me)==null&&!isLead)b=`<div class="banner info"><span><b>Willkommen im Team!</b> Die Teamleitung teilt dich gerade einer Schichtgruppe zu. Bis dahin siehst du noch keine Dienste. Wünsche und Urlaub kannst du schon eintragen.</span></div>`;
+  else if(mode==="live"&&loaded&&groupOf(me)==null&&!isLead&&!isNoShift(me))b=`<div class="banner info"><span><b>Willkommen im Team!</b> Die Teamleitung teilt dich gerade einer Schichtgruppe zu. Bis dahin siehst du noch keine Dienste. Wünsche und Urlaub kannst du schon eintragen.</span></div>`;
   else if(mode==="live"&&Object.keys(data.members).length<=1&&loaded)b=`<div class="banner info"><span><b>Noch bist du allein im Team.</b> Lade deine Kolleg:innen über „Teilen“ per E-Mail ein und schick ihnen dann den Link. Sobald sie ihn öffnen, erscheinen sie hier.</span></div>`;
   $("banner").innerHTML=b;
   $("footNote").textContent=mode==="demo"?"Demo-Daten bleiben nur in diesem Browser gespeichert.":"Wünsche sieht nur die Teamleitung. Tausche, Urlaub, Ausfälle und Nachrichten sieht das ganze Team.";
@@ -1018,6 +1021,7 @@ function renderHello(){
   if(WORK.includes(sh)){const t=colleagues(TODAY,sh).map(firstOf);line=`Heute hast du ${S.name} von ${S.time.replace(/:00/g,"")} Uhr${t.length?", zusammen mit "+t.join(", "):""}.`}
   else if(sh==="U")line="Du hast heute Urlaub. Genieß die freie Zeit!";
   else if(sh==="K")line="Du bist heute krank gemeldet. Gute Besserung, um deinen Dienst kümmert sich das Team.";
+  else if(isNoShift(me))line="Du bist ohne eigenen Schichtdienst eingetragen. Unter „Leitung“ findest du alles für dein Team.";
   else{let nx=null;for(let i=1;i<30;i++){const s=iso(addDays(today,i)),x=myShift(s);if(WORK.includes(x)){nx={i,x};break}}
     line="Heute hast du frei."+(nx?` Dein nächster Dienst: ${nx.i===1?"morgen":"in "+nx.i+" Tagen"} ${SHIFTS[nx.x].name}.`:"")}
   const sos=sosList().filter(x=>x.by!==me&&x.status==="open"&&x.date>=TODAY&&canCover(x.date,x.shift)).length;
@@ -1029,7 +1033,7 @@ function renderHello(){
   if(sos)chips+=`<button class="urgent" data-jump="sos"><b>${sos}</b> Einspringer gesucht</button>`;
   if(answers)chips+=`<button data-jump="mine"><b>${answers}</b> Antwort${answers>1?"en":""} auf dein Angebot</button>`;
   if(pend)chips+=`<button data-jump="lead"><b>${pend}</b> zur Freigabe</button>`;
-  const fresh=isLead?Object.keys(data.members).filter(u=>u!==me&&groupOf(u)==null).length:0;
+  const fresh=isLead?Object.keys(data.members).filter(u=>u!==me&&groupOf(u)==null&&!isNoShift(u)).length:0;
   if(fresh)chips+=`<button class="urgent" data-jump="teamcard"><b>${fresh}</b> neu, bitte einteilen</button>`;
   if(low)chips+=`<button class="urgent" data-jump="staff"><b>${low}</b> Schicht${low>1?"en":""} unterbesetzt</button>`;
   if(openTeam)chips+=`<button data-jump="team"><b>${openTeam}</b> Tauschangebot${openTeam>1?"e":""}</button>`;
@@ -1144,7 +1148,7 @@ function renderCheck(){
     {ok:"pattern" in raw,t:"Schichtmuster eurer Station eingestellt",go:"settings"},
     {ok:"shiftHours" in raw&&"min" in raw,t:"Stunden und Mindestbesetzung geprüft",go:"settings"},
     {ok:inviteNames().length>0||ids.length>1,t:"Kolleg:innen eingeladen",go:"invites"},
-    {ok:ids.length>1&&ids.every(u=>groupOf(u)!=null),t:"Alle einer Schichtgruppe zugeteilt",go:"team"},
+    {ok:ids.length>1&&ids.every(u=>groupOf(u)!=null||isNoShift(u)),t:"Alle einer Schichtgruppe zugeteilt",go:"team"},
     {ok:!isDraft(TODAY),t:"Plan für diesen Monat veröffentlicht",go:"cal"}];
   const done=items.filter(i=>i.ok).length;
   card.hidden=done===items.length;
@@ -1270,7 +1274,7 @@ function renderWishes(){
 function renderFair(){
   const y=view.getFullYear(),end=new Date(y,view.getMonth()+1,0),jan=`${y}-01-01`;
   $("fairRange").textContent=`${y}, bis ${end.getDate()}. ${MONTHS[end.getMonth()].slice(0,3)}`;
-  const ids=Object.keys(data.members).filter(u=>groupOf(u)!=null||u===me);
+  const ids=Object.keys(data.members).filter(u=>(groupOf(u)!=null||u===me)&&!isNoShift(u));
   const rows=ids.map(u=>{const st=startOf(u)>jan?startOf(u):jan;let we=0,n=0,h=0,days=0;
     for(let d=fromIso(st);d<=end;d=addDays(d,1)){days++;const s=iso(d),sh=shiftFor(u,s);if(!WORK.includes(sh))continue;const wd=d.getDay();if(wd===0||wd===6)we++;if(sh==="N")n++;if(holiday(s))h++}
     const f=days>0?30/days:0;return{u,st,we,n,h,rwe:we*f,rn:n*f,rh:h*f,since:st>jan}});
@@ -1305,7 +1309,7 @@ function renderTeam(){
   $("teamList").innerHTML=ids.length?ids.map(u=>{const g=groupOf(u),sh=shiftFor(u,TODAY);
     return`<div class="member"><span class="avatar">${esc(initials(u))}</span><span class="nm">${esc(nameOf(u))}</span>
     <span class="pill ${WORK.includes(sh)||sh==="K"||sh==="U"?sh:"state"}" title="Heute">${sh==="X"?"heute frei":sh==="U"?"Urlaub":sh==="K"?"krank":"heute "+SHIFTS[sh].short}</span>
-    ${isLead&&canWrite?`<select data-group="${esc(u)}" aria-label="Schichtgruppe von ${esc(nameOf(u))}"${g==null?' style="border-color:var(--warn)"':""}><option value="" ${g==null?"selected":""}>nicht eingeteilt</option>${groupNames().map((n,i)=>`<option value="${i}" ${i===g?"selected":""}>${n}</option>`).join("")}</select>`:`<span class="pill ${g==null?"bad":"state"}">${groupName(g)}</span>`}</div>`}).join("")
+    ${isLead&&canWrite?`<select data-group="${esc(u)}" aria-label="Schichtgruppe von ${esc(nameOf(u))}"${g==null&&!isNoShift(u)?' style="border-color:var(--warn)"':""}><option value="" ${g==null&&!isNoShift(u)?"selected":""}>nicht eingeteilt</option>${groupNames().map((n,i)=>`<option value="${i}" ${i===g?"selected":""}>${n}</option>`).join("")}<option value="none" ${isNoShift(u)?"selected":""}>kein Schichtdienst</option></select>`:`<span class="pill ${g==null&&!isNoShift(u)?"bad":"state"}">${isNoShift(u)?"kein Schichtdienst":groupName(g)}</span>`}</div>`}).join("")
     :`<p class="empty">Noch niemand im Team.</p>`;
 }
 
@@ -1371,7 +1375,7 @@ function openDrawer(s,keepFocus){
   /* ---- Reiter Dienst ---- */
   let hD=`<div class="shiftbox ${sh}"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${icon(sh)}</svg>
    <div><b>${S.name}</b><span>${sh==="K"&&mySos?SHIFTS[mySos.shift].name+" fällt aus"+(mySos.filledBy?` · ${esc(firstOf(mySos.filledBy))} springt ein`:" · noch kein Ersatz"):(S.time||"Kein Dienst geplant")}${gt?` · übernommen von ${esc(firstOf(gt))}`:""}${fl?` · eingesprungen für ${esc(firstOf(fl))}`:""}${g?` · abgegeben an ${esc(firstOf(g))}`:""}${ed&&!gt&&!fl&&!g&&!isK?" · von der Teamleitung eingetragen":""}</span></div></div>`;
-  if(groupOf(me)==null&&!ed)hD+=`<div class="note info">Du bist noch keiner Schichtgruppe zugeteilt. Sobald die Teamleitung das erledigt, erscheinen hier deine Dienste.</div>`;
+  if(groupOf(me)==null&&!ed&&!isNoShift(me))hD+=`<div class="note info">Du bist noch keiner Schichtgruppe zugeteilt. Sobald die Teamleitung das erledigt, erscheinen hier deine Dienste.</div>`;
   const soss=sosList().filter(x=>x.date===s&&x.by!==me&&x.status==="open");
   if(soss.length&&!past)hD+=`<div class="section"><h3>Einspringer gesucht</h3>${soss.map(x=>`<div class="split" style="align-items:center"><span class="avatar">${esc(initials(x.by))}</span><span style="margin-right:auto">${esc(nameOf(x.by))} · ${SHIFTS[x.shift].name}</span>${canWrite&&canCover(s,x.shift)?`<button class="btn primary" data-fill="${x.id}">Ich springe ein</button>`:`<span class="pill state">${myShift(s)==="X"?"Ruhezeit zu kurz":"du arbeitest selbst"}</span>`}</div>`).join("")}</div>`;
   if(work){const t=colleagues(s,sh);hD+=`<div class="section"><h3>Mit dir im Dienst</h3>${t.length?`<div class="team">${t.map(p=>`<span><span class="avatar">${esc(initials(p))}</span>${esc(nameOf(p))}</span>`).join("")}</div>`:`<p style="margin:0;color:var(--muted);font-size:.88rem">Aus deinem Team ist sonst niemand eingeteilt.</p>`}</div>`}
@@ -1488,7 +1492,8 @@ const saveOffer=(id,o)=>{o.updated=Date.now();return put("offers",id,o)};
 function confirmDo(title,html,ok){return new Promise(res=>{
   const box=$("confirmBox"),prev=document.activeElement;$("cTitle").textContent=title;$("cText").innerHTML=html;$("cOk").textContent=ok||"Ja";box.hidden=false;setTimeout(()=>$("cOk").focus(),30);
   const done=v=>{box.hidden=true;$("cOk").onclick=$("cNo").onclick=null;box.onclick=null;document.removeEventListener("keydown",kd,true);if(prev&&prev.focus)prev.focus();res(v)};
-  const kd=e=>{if(e.key==="Escape"){e.stopImmediatePropagation();done(false)}};document.addEventListener("keydown",kd,true);
+  const kd=e=>{if(e.key==="Escape"){e.stopImmediatePropagation();done(false)}
+    if(e.key==="Tab"){const a=$("cOk"),b=$("cNo");if(e.shiftKey&&document.activeElement===a){e.preventDefault();b.focus()}else if(!e.shiftKey&&document.activeElement===b){e.preventDefault();a.focus()}}};document.addEventListener("keydown",kd,true);
   $("cOk").onclick=()=>done(true);$("cNo").onclick=()=>done(false);box.onclick=e=>{if(e.target===box)done(false)}})}
 async function take(id){
   const o=clone("offers",id);if(!o||o.status!=="open")return toast("Dieses Angebot ist nicht mehr offen.");
@@ -1558,8 +1563,8 @@ document.addEventListener("click",async e=>{
 });
 document.addEventListener("change",async e=>{
   const sel=e.target.closest("select[data-group]");
-  if(sel){const u=sel.dataset.group,m=Object.assign({vacation:[]},data.members[u]||{});m.group=sel.value===""?null:+sel.value;
-    if(await put("members",u,m))toast(m.group==null?`${nameOf(u)} ist jetzt nicht eingeteilt.`:`${nameOf(u)} ist jetzt in ${groupName(m.group)}.`);return}
+  if(sel){const u=sel.dataset.group,m=Object.assign({vacation:[]},data.members[u]||{});m.noShift=sel.value==="none";m.group=sel.value===""||sel.value==="none"?null:+sel.value;
+    if(await put("members",u,m))toast(m.noShift?`${nameOf(u)} arbeitet ohne Schichtdienst.`:m.group==null?`${nameOf(u)} ist jetzt nicht eingeteilt.`:`${nameOf(u)} ist jetzt in ${groupName(m.group)}.`);return}
   const ed=e.target.closest("select[data-edit]");
   if(ed){const u=ed.dataset.edit,s=openDay;if(!s)return;if(isClosed(s))return toast("Dieser Monat ist abgeschlossen.");const doc=JSON.parse(JSON.stringify(data.edits[u]||{days:{}}));doc.days=doc.days||{};doc.at=doc.at||{};doc.at[s]=Date.now();
     const before=doc.days[s]||null;if(ed.value==="")delete doc.days[s];else doc.days[s]=ed.value;
@@ -1689,7 +1694,7 @@ function renderTabBadges(){
   $("tabLead").hidden=!isLead;
   const nT=sosList().filter(x=>x.by!==me&&x.status==="open"&&x.date>=TODAY&&canCover(x.date,x.shift)).length+offerList().filter(o=>o.by===me&&o.status==="requested").length;
   const b=$("tbTausch");b.hidden=!nT;b.textContent=nT;
-  const nL=isLead?leadPending().length+Object.keys(data.members).filter(u=>u!==me&&groupOf(u)==null).length:0;
+  const nL=isLead?leadPending().length+Object.keys(data.members).filter(u=>u!==me&&groupOf(u)==null&&!isNoShift(u)).length:0;
   const l=$("tbLead");l.hidden=!nL;l.textContent=nL;
 }
 
@@ -1702,7 +1707,7 @@ function setView(v){calView=v;store.set(VIEW_KEY,v);if(v==="week"){const inView=
 function renderWeek(){
   const wl=$("weekList"),week=calView==="week";
   $("viewMonth").setAttribute("aria-pressed",!week);$("viewWeek").setAttribute("aria-pressed",week);
-  wl.hidden=!week;$("days").hidden=week;$("dowRow").hidden=week;
+  wl.hidden=!week;$("days").hidden=week;$("dowRow").hidden=week;$("agenda").hidden=week;
   if(!week)return;
   const end=addDays(weekStart,6);
   $("monthLabel").textContent=`${weekStart.getDate()}.${weekStart.getMonth()!==end.getMonth()?(weekStart.getMonth()+1)+".":""}–${end.getDate()}. ${MONTHS[end.getMonth()].slice(0,3)} ${end.getFullYear()}`;
@@ -1797,6 +1802,8 @@ $("tabTeam").onclick=()=>{tab="team";renderSwaps()};
 $("tabMine").onclick=()=>{tab="mine";renderSwaps()};
 $("dClose").onclick=closeDrawer;$("scrim").onclick=closeDrawer;
 $("copyClose").onclick=()=>{$("copybox").hidden=true};
+window.addEventListener("offline",()=>{renderBanner();toast("Keine Internetverbindung. Du kannst weiterplanen, Änderungen werden später gesendet.")});
+window.addEventListener("online",()=>{renderBanner();toast("Wieder online.")});
 $("fbOpen").onclick=()=>{if(!canWrite||mode==="pending")return toast("Feedback geht nur mit Schreibrechten.");$("fbBox").hidden=false;$("fbText").focus()};
 $("fbClose").onclick=()=>{$("fbBox").hidden=true};
 $("fbBox").addEventListener("submit",async e=>{e.preventDefault();e.stopPropagation();const t=$("fbText").value.trim().slice(0,500);if(!t)return;
@@ -1841,7 +1848,9 @@ function handleHash(){
   if(m&&!isNaN(fromIso(m[1]))){const d=fromIso(m[1]);view=new Date(d.getFullYear(),d.getMonth(),1);render();openDrawer(m[1])}
 }
 window.addEventListener("hashchange",handleHash);
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&tourIdx>=0){endTour();return}if(e.key==="Escape"&&pickMode){pickMode=null;renderPick();return}if(e.key==="Escape"){if(!$("fbBox").hidden){$("fbBox").hidden=true;return}if(!$("copybox").hidden){$("copybox").hidden=true;return}if(!$("notif").hidden)closeNotif();else if(openDay)closeDrawer()}});
+document.addEventListener("keydown",e=>{
+  if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&!e.altKey&&!e.ctrlKey&&!e.metaKey&&!openDay&&tourIdx<0&&$("confirmBox").hidden&&!/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||"")&&(curTab==="plan"||curTab==="team")){stepCal(e.key==="ArrowLeft"?-1:1);return}
+  if(e.key==="Escape"&&tourIdx>=0){endTour();return}if(e.key==="Escape"&&pickMode){pickMode=null;renderPick();return}if(e.key==="Escape"){if(!$("fbBox").hidden){$("fbBox").hidden=true;return}if(!$("copybox").hidden){$("copybox").hidden=true;return}if(!$("notif").hidden)closeNotif();else if(openDay)closeDrawer()}});
 $("reset").onclick=()=>{store.set(DEMO_KEY,"");demoSeed();demoSave();evKnown=null;view=new Date(today.getFullYear(),today.getMonth(),1);changed();toast("Demo-Daten wiederhergestellt.")};
 const INTRO_KEY="schichtblick-intro-v1";
 $("introOk").onclick=()=>{$("intro").hidden=true;store.set(INTRO_KEY,"1")};
@@ -1870,7 +1879,7 @@ async function startLive(){
     db.collection(col).onSnapshot(snap=>{
       const m={};snap.docs.forEach(d=>{if(d.exists)m[d.id]=d.data()});data[col]=m;
       if(!snap.metadata.fromCache)firstDone[col]=true;
-      if(!loaded&&COLS.every(c=>firstDone[c])){loaded=true;loadedAt=Date.now();clearTimeout(timer);renderBanner();setTimeout(handleHash,0)}
+      if(!loaded&&COLS.every(c=>firstDone[c])){loaded=true;loadedAt=Date.now();clearTimeout(timer);renderBanner();setTimeout(handleHash,0);if(isLead&&canWrite)setTimeout(cleanup,4000)}
       if(col==="members"&&firstDone.members&&!joined&&canWrite&&uid&&!data.members[uid]){
         joined=true;db.collection("members").doc(uid).set({group:null,vacation:[],joined:TODAY,joinedAt:Date.now()}).catch(writeFailed);
       }
@@ -1882,6 +1891,15 @@ async function startLive(){
   changed();
 }
 
+// Alte, erledigte Einträge entfernen, damit die App schnell bleibt. Genehmigte Tausche und
+// Krankmeldungen bleiben, weil sie den vergangenen Plan und die Stunden bestimmen.
+async function cleanup(){
+  const k="schichtblick-cleanup";if(store.get(k)===TODAY||!db)return;store.set(k,TODAY);
+  const old30=iso(addDays(today,-30)),old60=iso(addDays(today,-60));let n=0;
+  for(const o of offerList()){if(o.date<old30&&!approved(o)){try{await db.collection("offers").doc(o.id).delete();n++}catch(e){}}}
+  for(const m of msgList()){if(m.date<old60){try{await db.collection("msgs").doc(m.id).delete();n++}catch(e){}}}
+  if(n)toast(`Aufgeräumt: ${n} alte Einträge entfernt.`);
+}
 (async function boot(){
   let d=null,u=null,s=null,dw=null;
   try{if(window.claude&&typeof window.claude.use==="function"){[d,u,s,dw]=await Promise.all(["db","user","sample","downloads"].map(n=>window.claude.use(n).catch(()=>null)))}}catch(e){}
