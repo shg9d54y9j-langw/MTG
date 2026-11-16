@@ -1,8 +1,0 @@
-Imagefilm für die Unternehmensvorstellung "The Rosé"
-
-Legt hier eure Videodatei mit genau diesem Namen ab:
-  the-rose-film.mp4
-
-Die App spielt sie dann im großen Video oben in der Hotel-Ansicht ab
-(Klick auf das Schichtblick-Logo oben links).
-Tipp: kurz halten (20–40 Sekunden) und unter ca. 20 MB, damit sie schnell lädt.

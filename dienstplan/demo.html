@@ -503,7 +503,7 @@ body[data-tab="team"] .agenda{display:none!important}
 .htwrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:28px;padding:24px max(16px,env(safe-area-inset-right,0px)) calc(48px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .htvideo{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;max-height:72vh;width:100%;max-width:100%;
   background:radial-gradient(900px 500px at 80% 0%,#f7c9d8,transparent 60%),radial-gradient(700px 500px at 0% 100%,#efd9c5,transparent 60%),linear-gradient(135deg,#f3e3d6,#f6d5df);box-shadow:0 24px 60px rgba(90,60,40,.16)}
-.htvideo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) sepia(.14)}
+.htvideo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .htcover{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(18px,4vw,40px);background:linear-gradient(180deg,rgba(29,26,25,0) 35%,rgba(60,30,40,.55) 100%);transition:opacity .3s}
 .htvideo.playing .htcover{opacity:0;pointer-events:none}
 .htplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:50%;border:0;background:rgba(255,253,249,.92);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.2);transition:transform .15s}
@@ -532,6 +532,7 @@ body[data-tab="team"] .agenda{display:none!important}
   background:radial-gradient(400px 260px at 75% 15%,#f7c9d8,transparent 65%),radial-gradient(380px 260px at 10% 95%,#ead7c4,transparent 65%),linear-gradient(135deg,#f4e6da,#f8dbe4);box-shadow:var(--shadow)}
 .htgrid.g3 .hm{aspect-ratio:auto}
 .hm img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85) sepia(.14) brightness(1.03);transition:transform .6s ease}
+.hm img[src^="media/"]{filter:none}
 .hm::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(247,182,203,.10),rgba(29,26,25,.35));pointer-events:none}
 .hm:hover img{transform:scale(1.04)}
 .hm figcaption{position:absolute;left:14px;bottom:12px;z-index:1;color:#fff;font-weight:600;font-size:.92rem;text-shadow:0 1px 10px rgba(0,0,0,.3)}
@@ -853,7 +854,7 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
   <div class="htwrap">
     <header class="hthero">
       <div class="htvideo" id="htVideoBox">
-        <video id="htVideo" playsinline muted loop preload="metadata" poster="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1800&q=80" aria-label="Imagefilm des Hotels The Rosé">
+        <video id="htVideo" playsinline muted loop preload="metadata" poster="media/the-rose-poster.jpg" aria-label="Imagefilm des Hotels The Rosé">
           <source src="media/the-rose-film.mp4" type="video/mp4">
         </video>
         <div class="htcover">
@@ -881,9 +882,9 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
       <p>Wir glauben, dass wahrer Luxus nicht steif, sondern unbeschwert, nahbar und authentisch sein sollte. Unter dem Leitsatz „Casual Luxury“ haben wir einen Rückzugsort geschaffen, der höchste Qualitätsansprüche mit einer wunderbar entspannten Atmosphäre vereint. Lichtdurchflutete Räume, natürliche Materialien in warmen Sand- und Beigetönen sowie stilvolle Akzente in sanftem Rosé und Puderpink schaffen eine harmonische Ästhetik.</p>
     </article>
     <div class="htgrid g3">
-      <figure class="hm tall"><img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80" alt="Lichtdurchflutetes Hotelzimmer in Sand- und Beigetönen" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Wohlfühlzimmer in Sand &amp; Beige</figcaption></figure>
-      <figure class="hm "><img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80" alt="Lounge mit natürlichen Materialien und warmen Farben" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Lounge &amp; Lobby</figcaption></figure>
-      <figure class="hm "><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80" alt="Stilvolle Details in Rosé und Puderpink" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Akzente in Rosé &amp; Puderpink</figcaption></figure>
+      <figure class="hm tall"><img src="media/the-rose-zimmer.jpg" alt="Lichtdurchflutetes Hotelzimmer in Sand- und Beigetönen" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Wohlfühlzimmer in Sand &amp; Beige</figcaption></figure>
+      <figure class="hm "><img src="media/the-rose-rezeption.jpg" alt="Rezeption und Lobby des The Rosé mit Concierge" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Rezeption &amp; Lobby</figcaption></figure>
+      <figure class="hm "><img src="media/the-rose-akzente.jpg" alt="Festlich gedeckte Tafel mit Rosen in Rosé und Puderpink" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Akzente in Rosé &amp; Puderpink</figcaption></figure>
     </div>
 
     <article class="htsec">
@@ -891,9 +892,9 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
       <p>Als erstklassiges Event-Hotel haben wir uns ganz auf exklusive Hochzeiten und professionelle, inspirierende Seminare spezialisiert. Von der romantischen, freien Trauung in unserem lichtdurchfluteten Festsaal bis hin zum kreativen Business-Offsite in modernst ausgestatteten Meetingräumen – wir bieten den maßgeschneiderten Rahmen für jeden Anlass. Unser hauseigenes „Casual Fine Dining“-Konzept verbindet dabei regionale Spitzenprodukte mit internationalen Einflüssen.</p>
     </article>
     <div class="htgrid g4">
-      <figure class="hm wide"><img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80" alt="Festlich gedeckte Hochzeitstafel im Festsaal" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Hochzeiten im Festsaal</figcaption></figure>
-      <figure class="hm "><img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80" alt="Moderner Seminarraum für Business-Offsites" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Seminare &amp; Offsites</figcaption></figure>
-      <figure class="hm "><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80" alt="Teller im Casual-Fine-Dining-Stil" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Casual Fine Dining</figcaption></figure>
+      <figure class="hm wide"><img src="media/the-rose-festsaal.jpg" alt="Festlich gedeckte Hochzeitstafel im Festsaal" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Hochzeiten im Festsaal</figcaption></figure>
+      <figure class="hm "><img src="media/the-rose-seminar.jpg" alt="Moderner Seminarraum für Business-Offsites" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Seminare &amp; Offsites</figcaption></figure>
+      <figure class="hm "><img src="media/the-rose-dining.jpg" alt="Teller im Casual-Fine-Dining-Stil" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Casual Fine Dining</figcaption></figure>
     </div>
 
     <article class="htsec">
@@ -904,14 +905,14 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
       </ul>
     </article>
     <div class="htgrid g2">
-      <figure class="hm "><img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80" alt="Bar und Lounge am Abend" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Bar &amp; Lounge</figcaption></figure>
-      <figure class="hm "><img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1200&q=80" alt="Ruhiger Spa-Bereich" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Spa &amp; Fitness</figcaption></figure>
+      <figure class="hm "><img src="media/the-rose-lounge.jpg" alt="Lounge mit Sesseln in Rosé und Sandtönen" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Lounge</figcaption></figure>
+      <figure class="hm "><img src="media/the-rose-spa.jpg" alt="Ruhiger Spa-Bereich" loading="lazy" onerror="this.closest('figure').classList.add('noimg')"><figcaption>Spa &amp; Fitness</figcaption></figure>
     </div>
 
     <footer class="htfoot">
       <p>Das ganze Team plant seine Dienste mit <b>Schichtblick</b>.</p>
       <button class="btn primary" id="htBack" type="button">Zurück zur App</button>
-      <p class="htcredit">Fotos: Platzhalter von Unsplash. Video: eigener Imagefilm.</p>
+      <p class="htcredit">Imagefilm und alle Bilder: The Rosé.</p>
     </footer>
   </div>
 </section>
@@ -2128,7 +2129,8 @@ window.addEventListener("hashchange",()=>{if(location.hash==="#praesentation")op
 
 /* ---------- Unternehmensvorstellung ---------- */
 let htReturn=null;
-function openHotel(){htReturn=document.activeElement;$("hotel").hidden=false;$("hotel").scrollTop=0;document.documentElement.style.overflow="hidden";setTimeout(()=>$("htClose").focus(),40)}
+function openHotel(){htReturn=document.activeElement;$("hotel").hidden=false;$("hotel").scrollTop=0;document.documentElement.style.overflow="hidden";setTimeout(()=>$("htClose").focus(),40);
+  const v=$("htVideo");if(!matchMedia("(prefers-reduced-motion: reduce)").matches){v.muted=true;v.play().catch(()=>{})}}
 function closeHotel(){const v=$("htVideo");try{v.pause()}catch(e){}$("htVideoBox").classList.remove("playing");$("hotel").hidden=true;document.documentElement.style.overflow="";if(htReturn&&htReturn.focus)htReturn.focus()}
 const brandKey=fn=>e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn()}};
 $("brandBtn").addEventListener("click",openHotel);$("brandBtn").addEventListener("keydown",brandKey(openHotel));
