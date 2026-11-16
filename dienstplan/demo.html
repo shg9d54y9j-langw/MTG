@@ -483,6 +483,17 @@ body[data-tab="team"] .agenda{display:none!important}
 .occday input{width:100%}
 .occbox{background:var(--surface-2);border-radius:14px;padding:12px}
 /* Präsentations-Startbildschirm */
+.stswitch{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 14px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;position:relative}
+.stswitch:hover{background:var(--surface-2)}
+.stswitch .stdot{width:30px;height:18px;border-radius:999px;background:var(--line);position:relative;transition:background .2s;flex:none}
+.stswitch .stdot::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.stswitch[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stswitch[aria-pressed="true"] .stdot{background:var(--accent)}
+.stswitch[aria-pressed="true"] .stdot::after{transform:translateX(12px)}
+@media (max-width:640px){.stswitch .sttxt{display:none}.stswitch{padding:0 10px}.top .stswitch{order:1}}
+@media (max-width:480px){.top .stswitch{display:none!important}}
+.stoff{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:61;border:0;border-radius:999px;background:var(--ink);color:#fff;font:inherit;font-weight:700;font-size:.92rem;padding:10px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.stoff span{color:#f7a8c4;margin-left:4px}
 .stage{position:fixed;inset:0;z-index:60;background:radial-gradient(1200px 600px at 85% 10%,var(--hello-a),transparent 60%),radial-gradient(900px 500px at 0% 100%,var(--accent-soft),transparent 60%),var(--bg);overflow:auto;
   padding:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));display:grid;place-items:center}
 .stinner{width:min(1100px,100%);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr);gap:48px;align-items:center}
@@ -563,6 +574,7 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
       <button id="next" aria-label="Nächster Monat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
     <button class="btn" id="todayBtn">Heute</button>
+    <button class="stswitch" id="stToggle" hidden aria-pressed="false" title="Präsentation ein- oder ausschalten (Taste P)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/><path d="M10 8l4 2-4 2z" fill="currentColor"/></svg><span class="sttxt">Präsentation</span><span class="stdot" aria-hidden="true"></span></button>
     <div class="bellwrap">
       <button class="bell" id="bell" aria-label="Benachrichtigungen" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="count" id="bellCount" hidden></span></button>
       <div class="notif" id="notif" hidden role="region" aria-label="Benachrichtigungen"></div>
@@ -772,6 +784,7 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <form class="fbbox" id="fbBox" hidden aria-label="Feedback an die Teamleitung"><b style="font-family:var(--display);font-size:1.05rem">Feedback an die Teamleitung</b><p style="margin:0;font-size:.85rem;color:var(--muted)">Was fehlt, was stört, was ist toll? Nur die Teamleitung liest das.</p><textarea id="fbText" maxlength="500" placeholder="Zum Beispiel: Ich hätte gern eine Erinnerung vor der Wunschfrist."></textarea><div class="split"><button class="btn primary" type="submit">Senden</button><button class="btn" type="button" id="fbClose">Abbrechen</button></div></form>
 <section class="stage" id="stage" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
+  <button class="stoff" id="stOff" title="Präsentation ausschalten (Taste P)">Präsentation aus <span aria-hidden="true">✕</span></button>
   <div class="stinner">
     <div class="stleft">
       <div class="stlogo" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15l2.5 2.5L16 13"/></svg></div>
@@ -1972,9 +1985,10 @@ const QR_CL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAV4AAAFeCAIAAABCSeBNA
 const DEMO_URL="https://claude.ai/artifact/JtnW7buAfU3McZEChuAYqp";
 function stageTarget(){if(/github\.io$/.test(location.hostname))return{url:"https://shg9d54y9j-langw.github.io/MTG/dienstplan/demo.html",img:QR_GH};
   if(window.claude)return{url:DEMO_URL,img:QR_CL};return{url:"https://shg9d54y9j-langw.github.io/MTG/dienstplan/demo.html",img:QR_GH}}
-function openStage(){const t=stageTarget();$("stQr").src=t.img;$("stUrl").textContent=t.url.replace(/^https:\/\//,"");$("stage").hidden=false;setTimeout(()=>$("stStart").focus(),50)}
-function closeStage(){$("stage").hidden=true}
-$("stOpen").onclick=openStage;$("stClose").onclick=closeStage;
+function openStage(){const t=stageTarget();$("stQr").src=t.img;$("stUrl").textContent=t.url.replace(/^https:\/\//,"");$("stage").hidden=false;$("stToggle").setAttribute("aria-pressed","true");setTimeout(()=>$("stStart").focus(),50)}
+function closeStage(){$("stage").hidden=true;$("stToggle").setAttribute("aria-pressed","false")}
+const toggleStage=()=>$("stage").hidden?openStage():closeStage();
+$("stOpen").onclick=openStage;$("stClose").onclick=closeStage;$("stOff").onclick=closeStage;$("stToggle").onclick=toggleStage;
 $("stStart").onclick=()=>{if(mode==="demo"){store.set(DEMO_KEY,"");demoSeed();demoSave();evKnown=null}
   view=new Date(today.getFullYear(),today.getMonth(),1);weekStart=mondayOf(today);calView="month";store.set(VIEW_KEY,"month");teamDept="";store.set(TEAMDEPT_KEY,"");
   closeStage();$("intro").hidden=true;store.set(INTRO_KEY,"1");setTab("plan",true);changed();window.scrollTo({top:0})};
@@ -2158,6 +2172,7 @@ function handleHash(){
 }
 window.addEventListener("hashchange",handleHash);
 document.addEventListener("keydown",e=>{
+  if((e.key==="p"||e.key==="P")&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!$("stToggle").hidden&&!/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||"")){toggleStage();e.preventDefault();return}
   if(!$("stage").hidden){if(e.key==="Escape"){closeStage();e.preventDefault()}return}
   if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&!e.altKey&&!e.ctrlKey&&!e.metaKey&&!openDay&&tourIdx<0&&$("confirmBox").hidden&&!/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||"")&&(curTab==="plan"||curTab==="team")){stepCal(e.key==="ArrowLeft"?-1:1);return}
   if(e.key==="Escape"&&tourIdx>=0){endTour();return}if(e.key==="Escape"&&pickMode){pickMode=null;renderPick();return}if(e.key==="Escape"){if(!$("fbBox").hidden){$("fbBox").hidden=true;return}if(!$("copybox").hidden){$("copybox").hidden=true;return}if(!$("notif").hidden)closeNotif();else if(openDay)closeDrawer()}});
@@ -2171,7 +2186,7 @@ document.body.dataset.tab="plan";document.querySelectorAll("[data-tabs]").forEac
 
 /* ---------- Start ---------- */
 let loaded=false;
-function startDemo(){mode="demo";me="me";isLead=true;canWrite=true;setTab(curTab,true);$("stOpen").hidden=false;if(location.hash==="#praesentation")setTimeout(openStage,0);DEMO_TEAM.forEach((p,i)=>names["d"+i]=p.name);demoLoad();lastSeen=+(store.get(SEEN_KEY())||0);loaded=true;loadedAt=Date.now();renderBanner();changed();handleHash()}
+function startDemo(){mode="demo";me="me";isLead=true;canWrite=true;setTab(curTab,true);$("stOpen").hidden=false;$("stToggle").hidden=false;if(location.hash==="#praesentation")setTimeout(openStage,0);DEMO_TEAM.forEach((p,i)=>names["d"+i]=p.name);demoLoad();lastSeen=+(store.get(SEEN_KEY())||0);loaded=true;loadedAt=Date.now();renderBanner();changed();handleHash()}
 
 async function startLive(){
   mode="live";lastSeen=+(store.get(SEEN_KEY())||0);
