@@ -450,9 +450,57 @@ body[data-tab="tausch"] .monthnav,body[data-tab="tausch"] #todayBtn,body[data-ta
 .pickbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:16px;padding:12px 14px;margin:0 4px 12px;font-size:.92rem}
 .pickbar b{color:#f7a8c4}
 .pickbar button{margin-left:auto;border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:6px 12px;font-weight:600}
-.days.picking .day:not(.pickable),.agenda.picking .arow:not(.pickable){opacity:.4}
+.days.picking .day:not(.pickable),.agenda.picking .arow:not(.pickable),.weeklist.picking [data-d]:not(.pickable){opacity:.4}
 .days.picking .day.pickable,.agenda.picking .arow.pickable{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
 .helpcard{background:linear-gradient(135deg,var(--surface),var(--accent-soft))}
+.calhead .viewseg{display:inline-flex}
+.tourinv{display:flex;align-items:center;gap:14px;flex-wrap:wrap;grid-column:1/-1}
+.tourinv>div:nth-child(2){flex:1;min-width:200px}
+.tourinv b{font-family:var(--display);font-size:1.05rem}
+.tourinv p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.intro{display:block}
+/* Woche */
+.weeklist{display:flex;flex-direction:column;gap:8px}
+.weeklist .arow{padding:14px}
+.weeklist .arow .info small{white-space:normal}
+.wrow{display:grid;grid-template-columns:70px minmax(0,1fr);gap:12px;align-items:start;border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface);text-align:left;width:100%}
+.wrow.today{border:2px solid var(--accent)}
+.wrow.weekend{background:var(--weekend)}
+.wrow .dt{font-weight:700;line-height:1.2}.wrow .dt small{display:block;color:var(--muted);font-weight:500;font-size:.78rem}
+.wrow .lines{display:flex;flex-direction:column;gap:5px;min-width:0}
+.wrow .ln{display:flex;gap:8px;align-items:baseline;font-size:.86rem;min-width:0}
+.wrow .ln .pill{flex:none;min-width:58px;text-align:center}
+.wrow .ln span:last-child{color:var(--muted);min-width:0}
+/* Bestätigung */
+.confirm{position:fixed;inset:0;background:rgba(29,26,25,.35);z-index:40;display:grid;place-items:center;padding:16px}
+.cbox{background:var(--surface);border-radius:22px;padding:22px;width:min(440px,100%);box-shadow:0 30px 60px rgba(0,0,0,.2);display:flex;flex-direction:column;gap:12px}
+.cbox h3{font-size:1.2rem}
+.cbox #cText{font-size:.95rem;color:var(--fg)}
+.cbox #cText p{margin:0 0 6px}
+.cbox #cText .muted{color:var(--muted);font-size:.86rem}
+.cbox .split .btn{padding:11px 18px}
+/* Tour */
+.tour{position:fixed;inset:0;z-index:45}
+.tring{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(29,26,25,.55);transition:all .3s ease;pointer-events:none}
+.tcard{position:fixed;background:var(--surface);border-radius:18px;padding:16px;width:min(340px,calc(100vw - 32px));box-shadow:0 20px 50px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px;transition:top .3s ease,left .3s ease}
+.tcard small{color:var(--accent-ink);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+.tcard p{margin:0;font-size:.95rem}
+/* Schriftgröße */
+body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbbox{zoom:1.15}
+/* iPad und Touch */
+@media (min-width:761px) and (max-width:960px){
+  .side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+  .drawer{width:min(480px,100%)}
+}
+@media (pointer:coarse){
+  .btn{min-height:44px}
+  .tabs button,.dtabs button{min-height:40px}
+  .day{min-height:92px}
+  select,input[type=text],input[type=number],input[type=date]{min-height:42px;font-size:16px}
+  textarea{font-size:16px}
+  .day:hover{transform:none}
+}
+@media (hover:none){.qa button:hover,.btn:hover{transform:none}}
 </style>
 
 <div class="wrap">
@@ -481,11 +529,10 @@ body[data-tab="tausch"] .monthnav,body[data-tab="tausch"] #todayBtn,body[data-ta
   </nav>
   <section class="hello" id="hello" aria-live="polite" data-tabs="plan"><div class="txt"><h2>Willkommen bei Schichtblick</h2><p>Dein Dienstplan wird geladen …</p></div></section>
 
-  <section class="panel intro" id="intro" hidden aria-label="So funktioniert Schichtblick" data-tabs="plan">
-    <div class="step"><span class="n">1</span><div><b>Was möchtest du tun?</b><p>Nutz die großen Knöpfe oben: tauschen, frei wünschen, Urlaub oder krank melden. Schichtblick führt dich Schritt für Schritt.</p></div></div>
-    <div class="step"><span class="n">2</span><div><b>Tippe auf einen Tag</b><p>Dann siehst du deinen Dienst, wer mit dir arbeitet, und kannst alles für diesen Tag erledigen.</p></div></div>
-    <div class="step"><span class="n">3</span><div><b>Die Glocke hält dich auf dem Laufenden</b><p>Antworten, Freigaben und Planänderungen erscheinen oben rechts.</p></div></div>
-    <div class="introfoot"><span style="color:var(--muted);font-size:.85rem">Keine Sorge: Ruhezeiten und Besetzung prüft Schichtblick automatisch.</span><button class="btn primary" id="introOk">Verstanden</button></div>
+  <section class="panel intro" id="intro" hidden aria-label="Kurze Tour" data-tabs="plan">
+    <div class="tourinv"><span class="ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
+      <div><b>Neu hier?</b><p>Eine kurze Tour zeigt dir in 30 Sekunden, wo alles ist.</p></div>
+      <div class="split"><button class="btn primary" id="tourStart">Tour starten</button><button class="btn ghost" id="introOk">Nein danke</button></div></div>
   </section>
 
   <div id="banner"></div>
@@ -498,13 +545,15 @@ body[data-tab="tausch"] .monthnav,body[data-tab="tausch"] #todayBtn,body[data-ta
           <button id="modeMe" aria-pressed="true">Mein Plan</button>
           <button id="modeTeam" aria-pressed="false">Besetzung</button>
         </div>
+        <div class="seg viewseg" role="group" aria-label="Ansicht"><button id="viewMonth" aria-pressed="true">Monat</button><button id="viewWeek" aria-pressed="false">Woche</button></div>
         <div class="legend" aria-label="Legende" id="legend"></div>
       </div>
       <div class="calbar" id="calbar"><select id="withSel" aria-label="Mit wem arbeite ich zusammen?"></select><span class="muted" id="withInfo" style="font-size:.84rem"></span></div>
       <div id="draftBar"></div>
       <div id="pickBar"></div>
       <div class="agenda" id="agenda"></div>
-      <div class="dow" aria-hidden="true"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
+      <div class="weeklist" id="weekList" hidden></div>
+      <div class="dow" aria-hidden="true" id="dowRow"><div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div></div>
       <div class="days" id="days"><div class="loading" style="grid-column:1/-1">Dienstplan wird geladen …</div></div>
     </main>
     <div class="teamgrid" data-tabs="team">
@@ -637,7 +686,7 @@ body[data-tab="tausch"] .monthnav,body[data-tab="tausch"] #todayBtn,body[data-ta
 
   <footer>
     <span id="footNote"></span>
-    <span class="split"><button class="btn ghost" id="fbOpen">Feedback geben</button><button class="btn ghost" id="showIntro">Einführung zeigen</button><button class="btn ghost" id="reset" hidden>Demo zurücksetzen</button></span>
+    <span class="split"><button class="btn ghost" id="fontBtn" aria-pressed="false">Größere Schrift</button><button class="btn ghost" id="fbOpen">Feedback geben</button><button class="btn ghost" id="showIntro">Tour zeigen</button><button class="btn ghost" id="reset" hidden>Demo zurücksetzen</button></span>
   </footer>
 </div>
 
@@ -651,6 +700,8 @@ body[data-tab="tausch"] .monthnav,body[data-tab="tausch"] #todayBtn,body[data-ta
 </aside>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <form class="fbbox" id="fbBox" hidden aria-label="Feedback an die Teamleitung"><b style="font-family:var(--display);font-size:1.05rem">Feedback an die Teamleitung</b><p style="margin:0;font-size:.85rem;color:var(--muted)">Was fehlt, was stört, was ist toll? Nur die Teamleitung liest das.</p><textarea id="fbText" maxlength="500" placeholder="Zum Beispiel: Ich hätte gern eine Erinnerung vor der Wunschfrist."></textarea><div class="split"><button class="btn primary" type="submit">Senden</button><button class="btn" type="button" id="fbClose">Abbrechen</button></div></form>
+<div class="confirm" id="confirmBox" hidden role="dialog" aria-modal="true" aria-labelledby="cTitle"><div class="cbox"><h3 id="cTitle"></h3><div id="cText"></div><div class="split"><button class="btn primary" id="cOk">Ja</button><button class="btn" id="cNo">Zurück</button></div></div></div>
+<div class="tour" id="tour" hidden><div class="tring" id="tRing"></div><div class="tcard" id="tCard" role="dialog" aria-live="polite"><small id="tStep"></small><p id="tText"></p><div class="split"><button class="btn primary" id="tNext">Weiter</button><button class="btn ghost" id="tSkip">Überspringen</button></div></div></div>
 <div class="copybox" id="copybox" hidden role="dialog" aria-label="Text zum Kopieren"><b>Text markieren und kopieren</b><textarea id="copyText" readonly></textarea><div class="split"><button class="btn" id="copyClose">Schließen</button></div></div>
 
 <script>
@@ -1050,13 +1101,14 @@ function renderCal(){
       if(nmsg)badges+=`<span class="badge msg">${bubbleIcon}<span class="bt"> ${nmsg}</span></span>`;
       if(withU&&WORK.includes(sh)&&shiftFor(withU,s)===sh){cls.push("together");badges+=`<span class="badge with">♥<span class="bt"> ${esc(firstOf(withU))}</span></span>`}
       const chip=sh==="X"?`<div class="chip X"><span class="long">frei</span><span class="short">·</span></div>`
-        :`<div class="chip ${sh}"><span class="long">${chipIcon(sh)}${sh==="K"?"Krank":S.name.replace("dienst","")}</span><span class="short">${S.short}</span>${S.start!=null?`<small>${S.time}</small>`:""}</div>`;
+        :`<div class="chip ${sh}"><span class="long">${chipIcon(sh)}${sh==="K"?"Krank":S.name.replace("dienst","")}</span><span class="short">${S.short}</span>${S.start!=null?`<small>${S.time.replace(/:00/g,"")}</small>`:""}</div>`;
       inner=`${chip}<div class="badges">${badges}</div>`;
       label=`${WD[d.getDay()]}, ${d.getDate()}. ${MONTHS[d.getMonth()]}: ${S.name}${hol?", "+hol:""}`;
     }
     html+=`<button class="${cls.join(" ")}" data-d="${s}" aria-label="${esc(label)}"><div class="num"><b>${d.getDate()}</b></div>${hol?`<div class="hol">${esc(hol)}</div>`:""}${inner}</button>`;
   }
   $("days").innerHTML=html;
+  renderWeek();
 }
 
 function renderAgenda(){
@@ -1198,7 +1250,7 @@ function renderLeave(){
   $("leaveList").innerHTML=`<p style="margin:0;font-size:.85rem;color:var(--muted)">${sum.used} genommen oder genehmigt${sum.pend?`, ${sum.pend} beantragt`:""}. Gezählt werden nur Tage, an denen du laut Plan Dienst hättest.</p>`+
     (mine.length?mine.map(l=>`<div class="item"><div class="head"><span class="who">${fmtRange(l.from,l.to)}</span><span class="pill ${l.state==="approved"?"U":l.state==="rejected"?"bad":"state"}">${l.state==="approved"?"genehmigt":l.state==="rejected"?"abgelehnt":"beantragt"}</span></div>
       <div class="actions">${l.state==="pending"&&canWrite?`<button class="btn danger" data-ldel="${l.id}">Antrag zurückziehen</button>`:""}<button class="btn" data-open="${l.from}">Ansehen</button></div></div>`).join("")
-    :`<p class="empty">Noch kein Urlaub beantragt. Tippe auf einen Tag und wähle „Urlaub beantragen“.</p>`);
+    :`<div class="empty">Noch kein Urlaub geplant. Lust auf ein paar freie Tage?<div class="split" style="justify-content:center;margin-top:8px">${canWrite?'<button class="btn primary" data-pick="leave">Urlaub beantragen</button>':""}</div></div>`);
 }
 
 function wishDeadline(y,m){return new Date(y,m-1,cfg().wishDay,23,59,59)}
@@ -1211,7 +1263,7 @@ function renderWishes(){
   const dl=wishDeadline(y,m);
   $("deadline").textContent=new Date()<=dl?`Wunschfrist für ${MONTHS[m]}: ${dl.getDate()}. ${MONTHS[dl.getMonth()]}`:`Die Wunschfrist für ${MONTHS[m]} ist am ${dl.getDate()}. ${MONTHS[dl.getMonth()]} abgelaufen.${isLead?" Als Teamleitung kannst du trotzdem eintragen.":" Dringendes bitte direkt mit der Teamleitung klären."}`;
   $("wishList").innerHTML=list.length?list.map(s=>{const w=items[s],ok=wishMet(s,w);return`<div class="item"><div class="head"><span class="badge wish">★</span><span class="who">${fmt(s)}</span><span class="pill ${ok?"okp":"state"}">${ok?"✓ laut Plan erfüllt":"noch nicht erfüllt"}</span></div><p>${esc(w.type)} · ${w.prio==="hoch"?"wichtig":"wäre schön"}${w.note?" · "+esc(w.note):""}</p><div class="actions"><button class="btn" data-open="${s}">Bearbeiten</button></div></div>`}).join("")
-    :`<p class="empty">Noch keine Wünsche für ${MONTHS[m]}. Tippe auf einen Tag, um einen Freiwunsch einzutragen.</p>`;
+    :`<div class="empty">Noch keine Wünsche für ${MONTHS[m]}. Gibt es einen Tag, an dem du frei sein möchtest?<div class="split" style="justify-content:center;margin-top:8px">${canWrite&&!wishLocked(iso(new Date(y,m,28)))?'<button class="btn primary" data-pick="wish">Wunsch eintragen</button>':""}</div></div>`;
 }
 
 function renderFair(){
@@ -1270,7 +1322,7 @@ function renderSwaps(){
   $("swapCount").textContent=`${team.filter(o=>o.status==="open").length} offen`;
   let html="";
   if(tab==="team"){
-    if(!team.length)html=`<p class="empty">Gerade sucht niemand Ersatz.</p>`;
+    if(!team.length)html=`<div class="empty">Alles ruhig. Gerade sucht niemand Ersatz. Wenn jemand einen Dienst abgeben möchte, erscheint er hier und die Glocke meldet sich.</div>`;
     team.forEach(o=>{
       const mineSh=myShift(o.date),busy=mineSh!=="X",rc=!busy&&restConflict(me,o.date,o.shift);
       html+=`<div class="item"><div class="head"><span class="avatar">${esc(initials(o.by))}</span><span class="who">${esc(firstOf(o.by))}</span><span class="pill ${o.shift}">${SHIFTS[o.shift].short} · ${fmt(o.date)}</span></div>
@@ -1282,7 +1334,7 @@ function renderSwaps(){
        :`<div class="actions"><button class="btn primary" data-take="${o.id}">Ich übernehme</button><button class="btn" data-open="${o.date}">Tag ansehen</button></div>`}
       </div>`});
   }else{
-    if(!mine.length)html=`<p class="empty">Du hast keinen Dienst zum Tausch angeboten. Tippe im Kalender auf einen Dienst, um ihn anzubieten.</p>`;
+    if(!mine.length)html=`<div class="empty">Du hast gerade nichts zum Tausch angeboten.<div class="split" style="justify-content:center;margin-top:8px">${canWrite?'<button class="btn primary" data-pick="swap">Dienst anbieten</button>':""}</div></div>`;
     mine.forEach(o=>{
       const own=o.by===me;
       html+=`<div class="item"><div class="head"><span class="pill ${o.shift}">${SHIFTS[o.shift].short} · ${fmt(o.date)}</span><span class="who"></span>${offerStatusPill(o)}</div>
@@ -1432,9 +1484,15 @@ function toastUndo(msg,snaps){toast(msg,async()=>{for(const [col,id,prev] of sna
 const clone=(col,id)=>{const o=data[col][id];return o?JSON.parse(JSON.stringify(o)):null};
 const saveOffer=(id,o)=>{o.updated=Date.now();return put("offers",id,o)};
 
+function confirmDo(title,html,ok){return new Promise(res=>{
+  const box=$("confirmBox"),prev=document.activeElement;$("cTitle").textContent=title;$("cText").innerHTML=html;$("cOk").textContent=ok||"Ja";box.hidden=false;setTimeout(()=>$("cOk").focus(),30);
+  const done=v=>{box.hidden=true;$("cOk").onclick=$("cNo").onclick=null;box.onclick=null;document.removeEventListener("keydown",kd,true);if(prev&&prev.focus)prev.focus();res(v)};
+  const kd=e=>{if(e.key==="Escape"){e.stopImmediatePropagation();done(false)}};document.addEventListener("keydown",kd,true);
+  $("cOk").onclick=()=>done(true);$("cNo").onclick=()=>done(false);box.onclick=e=>{if(e.target===box)done(false)}})}
 async function take(id){
   const o=clone("offers",id);if(!o||o.status!=="open")return toast("Dieses Angebot ist nicht mehr offen.");
   if(!canCover(o.date,o.shift))return toast("Das passt nicht in deinen Plan.");
+  if(!await confirmDo("Dienst übernehmen?",`<p>Du übernimmst den <b>${SHIFTS[o.shift].name}</b> von <b>${esc(firstOf(o.by))}</b> am <b>${fmt(o.date)}</b> (${SHIFTS[o.shift].time}).</p><p class="muted">${esc(firstOf(o.by))} muss noch zustimmen, danach gibt die Teamleitung frei.</p>`,"Ja, übernehmen"))return;
   o.status="requested";o.takenBy=me;
   if(await saveOffer(id,o)){toast(`Anfrage an ${firstOf(o.by)} gesendet.`);
     if(mode==="demo")setTimeout(()=>{const x=clone("offers",id);if(!x||x.status!=="requested"||x.takenBy!==me)return;x.status="agreed";saveOffer(id,x)},2600)}
@@ -1442,6 +1500,7 @@ async function take(id){
 async function fill(id){
   const x=clone("sos",id);if(!x||x.status!=="open")return toast("Dafür hat sich schon jemand gefunden.");
   if(!canCover(x.date,x.shift))return toast("Das passt nicht in deinen Plan.");
+  if(!await confirmDo("Einspringen?",`<p>Du springst am <b>${fmt(x.date)}</b> für <b>${esc(firstOf(x.by))}</b> ein: <b>${SHIFTS[x.shift].name}</b>, ${SHIFTS[x.shift].time}.</p><p class="muted">Das gilt sofort. Danke, dass du hilfst!</p>`,"Ja, ich springe ein"))return;
   x.status="filled";x.filledBy=me;x.updated=Date.now();
   if(await put("sos",id,x))toast(`Danke! Du übernimmst am ${fmt(x.date)} den ${SHIFTS[x.shift].name} für ${firstOf(x.by)}.`);
 }
@@ -1530,8 +1589,9 @@ document.addEventListener("submit",async e=>{
   }
   if(e.target.id==="swapForm"){
     const sh=myShift(s);if(!WORK.includes(sh))return;
-    const id=newId(),note=$("swapNote").value.trim().slice(0,280);
-    if(await saveOffer(id,{by:me,date:s,shift:sh,want:e.target.want.value,note,status:"open",takenBy:null,created:Date.now()})){
+    const id=newId(),note=$("swapNote").value.trim().slice(0,280),want=e.target.want.value;
+    if(!await confirmDo("Dienst zum Tausch anbieten?",`<p>Du bietest deinen <b>${SHIFTS[sh].name}</b> am <b>${fmt(s)}</b> (${SHIFTS[sh].time}) an.</p><p class="muted">Im Gegenzug: ${esc(want==="egal"?"egal":want)}${note?" · „"+esc(note)+"“":""}. Dein Team sieht das Angebot sofort.</p>`,"Ja, anbieten"))return;
+    if(await saveOffer(id,{by:me,date:s,shift:sh,want,note,status:"open",takenBy:null,created:Date.now()})){
       tab="mine";render();toast("Im Team gepostet. Die Glocke meldet sich, sobald jemand antwortet.");
       if(mode==="demo")setTimeout(()=>{const o=clone("offers",id);if(!o||o.status!=="open")return;
         const cand=Object.keys(data.members).filter(u=>u!==me&&shiftFor(u,s)==="X"&&!restConflict(u,s,sh));if(!cand.length)return;
@@ -1542,7 +1602,8 @@ document.addEventListener("submit",async e=>{
     const to=$("leaveTo").value&&$("leaveTo").value>=s?$("leaveTo").value:s;
     if(daysBetween(s,to).length>60)return toast("Bitte höchstens 60 Tage am Stück beantragen.");
     if(leaveList().some(l=>l.by===me&&l.state!=="rejected"&&!(to<l.from||s>l.to)))return toast("Für diesen Zeitraum hast du schon Urlaub beantragt.");
-    const id=newId("u");
+    const id=newId("u"),nWd=leaveWorkdays(me,s,to),rest=leaveSummary(me,fromIso(s).getFullYear()).rest-nWd;
+    if(!await confirmDo("Urlaub beantragen?",`<p>Urlaub von <b>${fmt(s)}</b> bis <b>${fmt(to)}</b>.</p><p class="muted">Das sind ${nWd} Diensttag${nWd===1?"":"e"}. Danach bleiben dir ${rest} Urlaubstage. Die Teamleitung entscheidet.</p>`,"Ja, beantragen"))return;
     if(await put("leave",id,{by:me,from:s,to,note:$("leaveNote").value.trim().slice(0,200),created:Date.now()})){toast(`Urlaub ${fmtRange(s,to)} beantragt. Die Teamleitung entscheidet.`);}
   }
   if(e.target.id==="actForm"&&isClosed(s))return toast("Dieser Monat ist abgeschlossen.");
@@ -1631,23 +1692,88 @@ function renderTabBadges(){
   const l=$("tbLead");l.hidden=!nL;l.textContent=nL;
 }
 
+/* ---------- Monat / Woche ---------- */
+const VIEW_KEY="schichtblick-view";
+let calView=store.get(VIEW_KEY)==="week"?"week":"month";
+const mondayOf=d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+let weekStart=mondayOf(today);
+function setView(v){calView=v;store.set(VIEW_KEY,v);if(v==="week"){const inView=today.getMonth()===view.getMonth()&&today.getFullYear()===view.getFullYear();weekStart=mondayOf(inView?today:view)}renderCal();renderPick()}
+function renderWeek(){
+  const wl=$("weekList"),week=calView==="week";
+  $("viewMonth").setAttribute("aria-pressed",!week);$("viewWeek").setAttribute("aria-pressed",week);
+  wl.hidden=!week;$("days").hidden=week;$("dowRow").hidden=week;
+  if(!week)return;
+  const end=addDays(weekStart,6);
+  $("monthLabel").textContent=`${weekStart.getDate()}.${weekStart.getMonth()!==end.getMonth()?(weekStart.getMonth()+1)+".":""}–${end.getDate()}. ${MONTHS[end.getMonth()].slice(0,3)} ${end.getFullYear()}`;
+  const min=cfg().min;let h="";
+  for(let i=0;i<7;i++){const d=addDays(weekStart,i),s=iso(d),sh=myShift(s),S=SHIFTS[sh],hol=holiday(s),we=d.getDay()===0||d.getDay()===6||hol;
+    const dt=`<span class="dt">${s===TODAY?"Heute":WD[d.getDay()].slice(0,2)}<small>${d.getDate()}. ${MONTHS[d.getMonth()].slice(0,3)}${hol?" · "+esc(hol):""}</small></span>`;
+    if(calMode==="team"){
+      h+=`<button class="wrow ${s===TODAY?"today":""} ${we?"weekend":""}" data-d="${s}">${dt}<span class="lines">${[...WORK].map(x=>{const p=staffing(s,x),low=p.length<min[x];return`<span class="ln"><span class="pill ${low?"bad":x}">${SHIFTS[x].short} ${p.length}/${min[x]}</span><span>${p.length?esc(p.map(u=>u===me?"Du":firstOf(u)).join(", ")):"niemand"}</span></span>`}).join("")}</span></button>`;
+    }else{
+      const t=colleagues(s,sh).map(firstOf),extra=[];
+      if(myWishes()[s])extra.push("★ Wunsch");
+      const mo=offerList().find(o=>o.by===me&&o.date===s&&!approved(o));if(mo)extra.push("⇄ zum Tausch angeboten");
+      if(sosList().some(x=>x.by!==me&&x.date===s&&x.status==="open"&&canCover(s,x.shift)))extra.push("Einspringer gesucht");
+      const n=msgList().filter(m=>m.date===s).length;if(n)extra.push(n+" Nachricht"+(n>1?"en":""));
+      h+=`<button class="arow ${s===TODAY?"today":""}" data-d="${s}">${dt}<span class="tag ${sh}">${S.short}</span><span class="info"><b>${sh==="X"?"Frei":S.name}${S.start!=null?" · "+timeOf(sh):""}</b><small>${esc([t.length?"mit "+t.join(", "):"",...extra].filter(Boolean).join(" · ")||"\u00a0")}</small></span></button>`;
+    }}
+  wl.innerHTML=h;
+}
+function stepCal(dir){
+  if(calView==="week"){weekStart=addDays(weekStart,7*dir);const mid=addDays(weekStart,3);view=new Date(mid.getFullYear(),mid.getMonth(),1)}
+  else view=new Date(view.getFullYear(),view.getMonth()+dir,1);
+  render();
+}
+// Wischen auf Touch-Geräten
+(function(){let x0=null,y0=null;const st=e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY};
+  const en=e=>{if(x0==null)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;if(Math.abs(dx)>60&&Math.abs(dx)>1.5*Math.abs(dy))stepCal(dx<0?1:-1)};
+  ["days","weekList"].forEach(id=>{const el=$(id);el.addEventListener("touchstart",st,{passive:true});el.addEventListener("touchend",en,{passive:true})})})();
+// Schriftgröße
+const FONT_KEY="schichtblick-font";
+function applyFont(){const big=store.get(FONT_KEY)==="1";document.body.classList.toggle("big",big);$("fontBtn").textContent=big?"Normale Schrift":"Größere Schrift";$("fontBtn").setAttribute("aria-pressed",big)}
+$("fontBtn").onclick=()=>{store.set(FONT_KEY,store.get(FONT_KEY)==="1"?"0":"1");applyFont()};
+applyFont();
+// Tour
+let tourIdx=-1;
+function tourSteps(){return[
+  {sel:".qa",text:"Hier startest du alles: tauschen, frei wünschen, Urlaub beantragen oder dich krank melden. Schichtblick führt dich danach Schritt für Schritt."},
+  {sel:calView==="week"?"#weekList":(window.innerWidth<=640?"#agenda":"#days"),text:"Tippe auf einen Tag. Dann siehst du deinen Dienst, wer mit dir arbeitet, und kannst alles für diesen Tag erledigen."},
+  {sel:"#tabbar",text:"Hier wechselst du zwischen deinem Plan, der Tauschbörse und dem Team."+(isLead?" Unter „Leitung“ findest du Freigaben und Einstellungen.":"")},
+  {sel:"#bell",text:"Die Glocke meldet Antworten auf Tausche, Freigaben und Änderungen an deinem Plan."}].filter(x=>document.querySelector(x.sel))}
+function startTour(){setTab("plan",true);$("intro").hidden=true;tourIdx=0;$("tour").hidden=false;showTour()}
+function showTour(){
+  const steps=tourSteps();if(tourIdx>=steps.length){endTour();return}
+  const st=steps[tourIdx],el=document.querySelector(st.sel);el.scrollIntoView({block:"center",behavior:"instant"});
+  setTimeout(()=>{const r=el.getBoundingClientRect(),pad=8,ring=$("tRing"),card=$("tCard");
+    const top=Math.max(4,r.top-pad),left=Math.max(4,r.left-pad),w=Math.min(window.innerWidth-8,r.width+pad*2),hgt=Math.min(window.innerHeight-8,r.height+pad*2);
+    Object.assign(ring.style,{top:top+"px",left:left+"px",width:w+"px",height:hgt+"px"});
+    $("tStep").textContent=`Schritt ${tourIdx+1} von ${steps.length}`;$("tText").textContent=st.text;$("tNext").textContent=tourIdx===steps.length-1?"Fertig":"Weiter";
+    const cw=card.offsetWidth,ch=card.offsetHeight;let ct=top+hgt+12;if(ct+ch>window.innerHeight-8)ct=Math.max(8,top-ch-12);if(ct+ch>window.innerHeight-8)ct=window.innerHeight-ch-8;
+    let cl=Math.min(Math.max(8,left),window.innerWidth-cw-8);
+    Object.assign(card.style,{top:ct+"px",left:cl+"px"});$("tNext").focus()},60);
+}
+function endTour(){$("tour").hidden=true;tourIdx=-1;store.set(INTRO_KEY,"1")}
+$("tNext").onclick=()=>{tourIdx++;showTour()};$("tSkip").onclick=endTour;
+window.addEventListener("resize",()=>{if(tourIdx>=0)showTour()});
+
 /* ---------- Geführte Aktionen ---------- */
 let pickMode=null;
 const PICK_TXT={swap:"den Dienst, den du <b>tauschen</b> möchtest",wish:"den Tag, für den du dir etwas <b>wünschst</b>",leave:"den <b>ersten Urlaubstag</b>"};
 function renderPick(){
   const bar=$("pickBar");
-  if(!pickMode){bar.innerHTML="";$("days").classList.remove("picking");$("agenda").classList.remove("picking");return}
+  if(!pickMode){bar.innerHTML="";["days","agenda","weekList"].forEach(i=>$(i).classList.remove("picking"));return}
   bar.innerHTML=`<div class="pickbar"><span>Tippe auf ${PICK_TXT[pickMode]}.</span><button type="button" data-pickcancel="1">Abbrechen</button></div>`;
-  $("days").classList.add("picking");$("agenda").classList.add("picking");
+  ["days","agenda","weekList"].forEach(i=>$(i).classList.add("picking"));
   const ok=s=>s>=TODAY&&(pickMode!=="swap"||WORK.includes(myShift(s)));
-  document.querySelectorAll("#days .day[data-d],#agenda .arow[data-d]").forEach(el=>el.classList.toggle("pickable",ok(el.dataset.d)));
+  document.querySelectorAll("#days .day[data-d],#agenda .arow[data-d],#weekList [data-d]").forEach(el=>el.classList.toggle("pickable",ok(el.dataset.d)));
 }
 function startPick(a){
   if(a==="sick"){let t=null;for(let i=0;i<3;i++){const s=iso(addDays(today,i));if(WORK.includes(myShift(s))){t=s;break}}
     if(!t)return toast("In den nächsten zwei Tagen hast du keinen Dienst. Gute Besserung!");
     setTab("plan",true);openDrawer(t);dTab="dienst";applyDTab();const dd=[...$("dBody").querySelectorAll("details.sec")].find(x=>x.querySelector("[data-sickask]"));if(dd){dd.open=true;dd.scrollIntoView({block:"center"})}return}
   setTab("plan",true);pickMode=a;renderPick();
-  ($("agenda").offsetParent?$("agenda"):$("days")).scrollIntoView({behavior:"smooth",block:"center"});
+  (calView==="week"?$("weekList"):$("agenda").offsetParent?$("agenda"):$("days")).scrollIntoView({behavior:"smooth",block:"center"});
 }
 function finishPick(s){
   const a=pickMode;pickMode=null;renderPick();
@@ -1659,9 +1785,11 @@ function finishPick(s){
 }
 
 /* ---------- Bedienung ---------- */
-$("prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
-$("next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
-$("todayBtn").onclick=()=>{view=new Date(today.getFullYear(),today.getMonth(),1);render()};
+$("prev").onclick=()=>stepCal(-1);
+$("next").onclick=()=>stepCal(1);
+$("todayBtn").onclick=()=>{view=new Date(today.getFullYear(),today.getMonth(),1);weekStart=mondayOf(today);render()};
+$("viewMonth").onclick=()=>setView("month");
+$("viewWeek").onclick=()=>setView("week");
 $("modeMe").onclick=()=>setTab("plan",true);
 $("modeTeam").onclick=()=>setTab("team",true);
 $("tabTeam").onclick=()=>{tab="team";renderSwaps()};
@@ -1712,11 +1840,12 @@ function handleHash(){
   if(m&&!isNaN(fromIso(m[1]))){const d=fromIso(m[1]);view=new Date(d.getFullYear(),d.getMonth(),1);render();openDrawer(m[1])}
 }
 window.addEventListener("hashchange",handleHash);
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&pickMode){pickMode=null;renderPick();return}if(e.key==="Escape"){if(!$("fbBox").hidden){$("fbBox").hidden=true;return}if(!$("copybox").hidden){$("copybox").hidden=true;return}if(!$("notif").hidden)closeNotif();else if(openDay)closeDrawer()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&tourIdx>=0){endTour();return}if(e.key==="Escape"&&pickMode){pickMode=null;renderPick();return}if(e.key==="Escape"){if(!$("fbBox").hidden){$("fbBox").hidden=true;return}if(!$("copybox").hidden){$("copybox").hidden=true;return}if(!$("notif").hidden)closeNotif();else if(openDay)closeDrawer()}});
 $("reset").onclick=()=>{store.set(DEMO_KEY,"");demoSeed();demoSave();evKnown=null;view=new Date(today.getFullYear(),today.getMonth(),1);changed();toast("Demo-Daten wiederhergestellt.")};
 const INTRO_KEY="schichtblick-intro-v1";
 $("introOk").onclick=()=>{$("intro").hidden=true;store.set(INTRO_KEY,"1")};
-$("showIntro").onclick=()=>{$("intro").hidden=false;$("intro").scrollIntoView({behavior:"smooth",block:"center"})};
+$("showIntro").onclick=()=>startTour();
+$("tourStart").onclick=()=>startTour();
 if(!store.get(INTRO_KEY))$("intro").hidden=false;
 document.body.dataset.tab="plan";document.querySelectorAll("[data-tabs]").forEach(el=>el.classList.toggle("tab-on",el.dataset.tabs.split(" ").includes("plan")));
 
