@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="theme-color" content="#f8f2ea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Schichtblick">
+<meta name="application-name" content="Schichtblick">
+<title>Schichtblick Spickzettel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: Handy-Spickzettel. Feste Stoppuhr unten, darüber die 10 Schritte als Zeitleiste; der aktuelle Schritt leuchtet. Bewusst ein helles Design wie die App. */
+:root{
+  color-scheme:light;
+  --bg:#f8f2ea; --card:#fffdf9; --line:#e7dcd0; --ink:#1d1a19; --muted:#776c66;
+  --pink:#e2588a; --pink-ink:#b8325f; --pink-soft:#fbe2ea; --ok:#1e8a4c; --ok-soft:#dcf1e4; --warn:#c62a4a;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 140px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+header{display:flex;flex-direction:column;gap:6px}
+.kick{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:700;color:var(--pink-ink)}
+h1{font-size:2rem}
+.lead{margin:0;color:var(--muted);max-width:60ch}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.box h2{font-size:1.1rem;margin-bottom:8px}
+.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--pink);flex:none;margin-top:2px}
+.check input:checked+span{color:var(--muted);text-decoration:line-through}
+.links{display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.links code{background:var(--pink-soft);color:var(--pink-ink);border-radius:8px;padding:2px 6px;word-break:break-all;font-size:.82rem}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 14px;transition:border-color .2s,box-shadow .2s}
+.step.now{border:2px solid var(--pink);box-shadow:0 10px 30px rgba(226,88,138,.18);padding:15px}
+.step.done{opacity:.55}
+.time{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;font-size:1.05rem;line-height:1.2}
+.time small{display:block;font-family:var(--body);font-weight:600;font-size:.72rem;color:var(--muted)}
+.step h3{font-size:1.15rem}
+.body{grid-column:2;display:flex;flex-direction:column;gap:8px;min-width:0}
+.tap{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.tap li{display:flex;gap:8px;font-size:.95rem}
+.tap li::before{content:"";flex:none;width:7px;height:7px;border-radius:2px;background:var(--ink);margin-top:.55em}
+.tap b{background:var(--ink);color:#fff;border-radius:7px;padding:0 6px;font-weight:600;font-size:.88rem;white-space:nowrap}
+.say{margin:0;background:var(--pink-soft);border-radius:12px;padding:10px 12px;font-size:.95rem;color:var(--ink)}
+.say::before{content:"Sag: ";font-weight:700;color:var(--pink-ink)}
+.tip{margin:0;font-size:.85rem;color:var(--muted)}
+.done-btn{justify-self:start;grid-column:2;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--ink)}
+.step.done .done-btn{background:var(--ok-soft);border-color:var(--ok-soft);color:var(--ok)}
+details.box summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:1.1rem;list-style:none;display:flex;justify-content:space-between}
+details.box summary::after{content:"+";color:var(--muted)}
+details[open].box summary::after{content:"–"}
+.qa{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.qa p{margin:0;font-size:.93rem}
+.qa b{display:block}
+.qrrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.qrrow img{width:110px;height:110px;border-radius:12px;background:#fff;padding:6px;image-rendering:pixelated}
+/* Stoppuhr */
+.timer{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--ink);color:#fff;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.tin{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.clock{font-family:var(--display);font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.clock.over{color:#ff8fb1}
+.tnow{flex:1;min-width:0;font-size:.85rem;color:#e7dcd0;line-height:1.3}
+.tnow b{display:block;color:#fff;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog{position:absolute;left:0;top:0;height:3px;background:var(--pink);transition:width .5s linear}
+.tbtn{border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
+.tbtn.go{background:var(--pink);color:#fff}
+.tbtn.reset{background:rgba(255,255,255,.14);color:#fff}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="kick">Spickzettel · 10 Minuten · Live-Demo</span>
+    <h1>Schichtblick präsentieren</h1>
+    <p class="lead">Öffne diese Seite auf dem Handy und präsentiere am iPad. Drück unten auf Start, sobald du beginnst. Der aktuelle Schritt leuchtet pink, die Uhr zeigt, ob du in der Zeit bist.</p>
+  </header>
+
+  <section class="box" aria-labelledby="prepH">
+    <h2 id="prepH">Vorher abhaken</h2>
+    <ul class="check" id="prep">
+      <li><label><input type="checkbox" id="p1"><span>iPad geladen, Querformat, Helligkeit hoch, „Nicht stören“ an</span></label></li>
+      <li><label><input type="checkbox" id="p2"><span>Demo am iPad mit <b>#praesentation</b> am Ende des Links geöffnet (Links siehe unten). Der Startbildschirm mit QR-Code erscheint.</span></label></li>
+      <li><label><input type="checkbox" id="p3"><span>Einmal im WLAN des Raums geladen. Danach läuft die Demo auch ohne Internet weiter.</span></label></li>
+      <li><label><input type="checkbox" id="p4"><span>QR-Code mit dem eigenen Handy getestet</span></label></li>
+      <li><label><input type="checkbox" id="p5"><span>Notfall: Screenshots der wichtigsten Ansichten in den Fotos</span></label></li>
+    </ul>
+  </section>
+
+  <section class="box links" aria-labelledby="linkH">
+    <h2 id="linkH">Links</h2>
+    <div class="qrrow"><img alt="QR-Code zur Demo" id="qrImg" width="110" height="110"><div><b>Präsentation starten (GitHub):</b><br><code>shg9d54y9j-langw.github.io/MTG/dienstplan/demo.html#praesentation</code></div></div>
+    <div><b>Falls GitHub nicht geht (Claude-Demo, muss öffentlich geteilt sein):</b><br><code>claude.ai/artifact/JtnW7buAfU3McZEChuAYqp#praesentation</code></div>
+    <p class="tip">Ohne <b>#praesentation</b> erreichst du den Startbildschirm unten in der App über „Präsentation“.</p>
+  </section>
+
+  <div id="steps" style="display:flex;flex-direction:column;gap:12px"></div>
+
+  <details class="box">
+    <summary>Wenn etwas schiefgeht</summary>
+    <div class="qa">
+      <p><b>Die Demo sieht schon „benutzt“ aus.</b>Unten „Präsentation“ → „Live-Demo starten“. Das setzt alles auf den Anfang zurück.</p>
+      <p><b>Die Antwort der Kollegin kommt nicht.</b>Ruhig weitererzählen, sie erscheint nach etwa 5 Sekunden. Notfalls Schritt 7c überspringen.</p>
+      <p><b>Kein Tag ist beim Tauschen hervorgehoben.</b>Einen Monat weiterblättern (Pfeil oben) und dort einen Dienst wählen.</p>
+      <p><b>Internet weg.</b>Die geladene Demo läuft weiter. Nur der QR-Code fürs Publikum braucht Netz.</p>
+    </div>
+  </details>
+
+  <details class="box">
+    <summary>Antworten für die Fragerunde</summary>
+    <div class="qa">
+      <p><b>Wie rechnet die Auslastung?</b>Bedarf bei voller Auslastung mal aktuelle Auslastung, aber nie unter der Mindestbesetzung. Beispiel Housekeeping: 12 Personen × 62 % ≈ 8.</p>
+      <p><b>Datenschutz?</b>Mitarbeitende sehen nur ihre Abteilung, Wünsche und Feedback nur die Leitung, Krankenstände ohne Diagnose. Für den echten Einsatz bräuchte es eine Datenschutzprüfung und den Betriebsrat.</p>
+      <p><b>Warum keine App aus dem App Store?</b>Eine Web-App läuft sofort auf jedem Gerät, ohne Installation und Updates, und lässt sich trotzdem mit eigenem Symbol auf den Home-Bildschirm legen.</p>
+      <p><b>Was kostet das?</b>Der Prototyp läuft kostenlos. Für den echten Betrieb bräuchte es eine Datenbank, die es für ein Hotel dieser Größe kostenlos oder sehr günstig gibt.</p>
+      <p><b>Kann man abteilungsübergreifend tauschen?</b>Nein, bewusst nicht: Eine Köchin übernimmt keine Rezeption. Für Aushilfe gibt es Events mit „Alle Abteilungen“.</p>
+      <p><b>Wer prüft die Regeln?</b>Die App: 11 Stunden Ruhezeit nach österreichischem Arbeitszeitgesetz, Mindestbesetzung, österreichische Feiertage. Die Leitung gibt Tausch und Urlaub frei.</p>
+      <p><b>Wie bist du vorgegangen?</b>Diese Frage beantwortest du am besten selbst, so wie es deine Lehrveranstaltung verlangt, auch zur KI-Unterstützung.</p>
+    </div>
+  </details>
+</div>
+
+<div class="timer" role="region" aria-label="Stoppuhr">
+  <div class="prog" id="prog" style="width:0"></div>
+  <div class="tin">
+    <span class="clock" id="clock">0:00</span>
+    <span class="tnow" id="tnow"><b>Bereit</b>Start drücken, wenn du beginnst</span>
+    <button class="tbtn go" id="go">Start</button>
+    <button class="tbtn reset" id="reset">Zurück</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const QR_GH="data:image/png;base64,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";
+document.getElementById("qrImg").src=QR_GH;
+const STEPS=[
+ {from:0,to:60,title:"Einstieg: das Problem",tap:["Startbildschirm mit QR-Code ist zu sehen"],say:"Ein Hotel in Wien, 100 Mitarbeitende, 8 Abteilungen, Betrieb rund um die Uhr. Der Plan hängt als Excel im Büro, getauscht wird per WhatsApp, und morgens telefoniert die Leitung bei Krankenständen die halbe Liste ab. Schichtblick macht daraus eine einfache App. Scannt gern den QR-Code und macht mit.",tip:"Kurz Pause, damit das Publikum scannen kann."},
+ {from:60,to:120,title:"Mein Plan",tap:["<b>Live-Demo starten</b>","Begrüßung zeigen: Abteilung, heutiger Dienst, Kollegen","Kalender: <b>Woche</b>, dann zurück auf <b>Monat</b>"],say:"Ich bin Rezeptionistin. Ich sehe sofort meinen Dienst, mit wem ich arbeite und meine Woche. Alles in einer App, auf Handy, iPad oder PC."},
+ {from:120,to:210,title:"Dienst tauschen",tap:["Großer Knopf <b>Tauschen</b>","Einen hervorgehobenen Tag antippen","Auf „Passen würden: …“ zeigen","Notiz „Arzttermin“, dann <b>Im Team posten</b> → <b>Ja, anbieten</b>","Nach 5 Sekunden: Meldung, dass eine Kollegin übernehmen möchte"],say:"Die App führt mich Schritt für Schritt. Sie schlägt nur Kolleginnen aus meiner Abteilung vor, die frei sind und die 11 Stunden Ruhezeit nach dem Arbeitszeitgesetz einhalten. Und bevor etwas passiert, fragt sie nach."},
+ {from:210,to:270,title:"Einspringen",tap:["Unten bzw. oben <b>Tauschen</b>","Bei „Einspringer gesucht“: <b>Ich springe ein</b> → bestätigen"],say:"Maximilian ist krank. Früher hätte die Leitung herumtelefoniert, jetzt sieht jeder, der frei ist, die Anfrage sofort und springt mit einem Klick ein."},
+ {from:270,to:315,title:"Event mit Personalbedarf",tap:["Karte „Events: Helfer gesucht“","Bei der <b>Weihnachtsfeier</b>: <b>Ich bin dabei</b> → bestätigen","Kurz zu <b>Mein Plan</b>: Stunden-Karte zeigen"],say:"Für Hochzeiten oder Firmenfeiern sucht das Hotel Personal. Ich trage mich ein, und die Stunden landen automatisch auf meinem Stundenkonto."},
+ {from:315,to:360,title:"Urlaub beantragen",tap:["<b>Mein Plan</b> → großer Knopf <b>Urlaub</b>","Einen Tag antippen, Enddatum wählen","<b>Urlaub beantragen</b>: Bestätigung zeigt Diensttage und Resturlaub"],say:"Urlaub in drei Klicks. Die App zählt nur echte Diensttage und zeigt mir, wie viel Urlaub mir danach bleibt."},
+ {from:360,to:480,title:"Rollenwechsel: die Hoteldirektion",tap:["<b>Team</b> → Abteilung <b>Housekeeping</b>","Heutigen Tag antippen → Reiter <b>Team</b>","Auslastung auf <b>100</b> → <b>Speichern</b>: Bedarf steigt, Besetzung wird rot","Abteilung <b>Alle Abteilungen</b> → <b>Woche</b>: alle 8 Abteilungen auf einen Blick","<b>Tauschen</b> → Reiter <b>Meine</b> → <b>Annehmen</b>","<b>Leitung</b> → Zur Freigabe: Tausch <b>Freigeben</b>, dann <b>Rückgängig</b> zeigen, nochmal freigeben","Urlaub <b>Genehmigen</b>: Besetzungs-Check zeigen"],say:"Jetzt bin ich die Hoteldirektion. Je voller das Hotel, desto mehr Zimmerreinigung brauche ich. Schichtblick rechnet das automatisch aus der Auslastung und zeigt rot, wo Personal fehlt. Freigaben gehen mit einem Klick, und Fehlklicks kann ich rückgängig machen.",tip:"Der wichtigste Teil. Hier lieber langsamer sein."},
+ {from:480,to:540,title:"Einstellen ohne IT",tap:["<b>Leitung</b> → <b>Abteilungen</b> → Housekeeping aufklappen","Schichtzeiten, Bedarf bei 100 % und Rhythmus-Vorschau zeigen","Kurz die Karte <b>Event planen</b> zeigen"],say:"Jede Abteilung hat eigene Schichtzeiten und einen eigenen Rhythmus. Das stellt die Leitung selbst ein, ganz ohne IT-Abteilung."},
+ {from:540,to:570,title:"Einfach für alle",tap:["Ganz unten <b>Größere Schrift</b>, dann wieder normal","Erwähnen: WhatsApp-Teilen und App-Symbol am Home-Bildschirm"],say:"Die App ist für alle gemacht: große Knöpfe, größere Schrift auf Wunsch, und sie lässt sich wie eine echte App auf den Home-Bildschirm legen."},
+ {from:570,to:600,title:"Abschluss",tap:["Ganz unten <b>Präsentation</b>: QR-Code wieder zeigen"],say:"Als Nächstes würde ich Abteilungsleitungen, geteilte Dienste und mehrere Sprachen einbauen. Probiert es gern selbst aus: einfach scannen. Fragen?"}
+];
+const fmtT=s=>{s=Math.max(0,Math.floor(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const $=id=>document.getElementById(id);
+let done=new Set((store.get("sz-done")||"").split(",").filter(Boolean).map(Number));
+$("steps").innerHTML=STEPS.map((s,i)=>`<article class="step" id="st${i}" aria-labelledby="sh${i}">
+  <div class="time">${fmtT(s.from)}<small>bis ${fmtT(s.to)}</small></div>
+  <h3 id="sh${i}">${s.title}</h3>
+  <div class="body"><ul class="tap">${s.tap.map(t=>`<li><span>${t}</span></li>`).join("")}</ul><p class="say">${s.say}</p>${s.tip?`<p class="tip">${s.tip}</p>`:""}</div>
+  <button class="done-btn" data-i="${i}" aria-pressed="false">Erledigt</button></article>`).join("");
+document.querySelectorAll(".check input").forEach(cb=>{cb.checked=store.get("sz-"+cb.id)==="1";cb.addEventListener("change",()=>store.set("sz-"+cb.id,cb.checked?"1":"0"))});
+let start=null,acc=0,timer=null,lastNow=-1;
+const elapsed=()=>acc+(start?(Date.now()-start)/1000:0);
+function paint(){
+  const e=elapsed(),idx=STEPS.findIndex(s=>e<s.to),cur=idx<0?STEPS.length-1:idx;
+  $("clock").textContent=fmtT(e);$("clock").classList.toggle("over",e>600);
+  $("prog").style.width=Math.min(100,e/600*100)+"%";
+  STEPS.forEach((s,i)=>{const el=$("st"+i);el.classList.toggle("now",(start||acc)&&i===cur);el.classList.toggle("done",done.has(i));el.querySelector(".done-btn").setAttribute("aria-pressed",done.has(i))});
+  if(start||acc){const s=STEPS[cur];$("tnow").innerHTML=`<b>${s.title}</b>${e>600?"Zeit ist um, zum Schluss kommen":"noch "+fmtT(s.to-e)+" für diesen Schritt"}`;
+    if(cur!==lastNow&&start){lastNow=cur;$("st"+cur).scrollIntoView({behavior:"smooth",block:"center"})}}
+}
+$("go").onclick=()=>{if(start){acc=elapsed();start=null;clearInterval(timer);$("go").textContent="Weiter"}else{start=Date.now();timer=setInterval(paint,500);$("go").textContent="Pause";try{navigator.wakeLock&&navigator.wakeLock.request("screen").catch(()=>{})}catch(e){}}paint()};
+$("reset").onclick=()=>{start=null;acc=0;clearInterval(timer);lastNow=-1;$("go").textContent="Start";$("tnow").innerHTML="<b>Bereit</b>Start drücken, wenn du beginnst";paint();window.scrollTo({top:0,behavior:"smooth"})};
+document.addEventListener("click",e=>{const b=e.target.closest(".done-btn");if(!b)return;const i=+b.dataset.i;if(done.has(i))done.delete(i);else done.add(i);store.set("sz-done",[...done].join(","));paint()});
+paint();
+})();
+</script>
+
+</body>
+</html>

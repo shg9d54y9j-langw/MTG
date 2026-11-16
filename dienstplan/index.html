@@ -482,6 +482,26 @@ body[data-tab="team"] .agenda{display:none!important}
 .occday{display:flex;flex-direction:column;gap:3px;font-size:.76rem;color:var(--muted);font-weight:600}
 .occday input{width:100%}
 .occbox{background:var(--surface-2);border-radius:14px;padding:12px}
+/* Präsentations-Startbildschirm */
+.stage{position:fixed;inset:0;z-index:60;background:radial-gradient(1200px 600px at 85% 10%,var(--hello-a),transparent 60%),radial-gradient(900px 500px at 0% 100%,var(--accent-soft),transparent 60%),var(--bg);overflow:auto;
+  padding:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));display:grid;place-items:center}
+.stinner{width:min(1100px,100%);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr);gap:48px;align-items:center}
+.stlogo{width:72px;height:72px;border-radius:22px;background:var(--ink);color:#f7a8c4;display:grid;place-items:center;margin-bottom:18px;box-shadow:0 14px 34px rgba(29,26,25,.25)}
+.stkicker{margin:0;text-transform:uppercase;letter-spacing:.14em;font-weight:700;font-size:.85rem;color:var(--accent-ink)}
+.stage h1{font-size:clamp(3rem,7vw,5.4rem);line-height:1;margin:.15em 0 .2em;letter-spacing:-.03em}
+.stsub{font-size:clamp(1.1rem,1.8vw,1.4rem);margin:0 0 26px;max-width:32ch;color:var(--fg);opacity:.85}
+.stfacts{list-style:none;padding:0;margin:0 0 30px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stfacts li{background:var(--surface);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow)}
+.stfacts b{font-family:var(--display);font-size:1.6rem;color:var(--accent-ink);line-height:1.1}
+.stfacts span{font-size:.92rem;color:var(--muted)}
+.stbtn{font-size:1.05rem;padding:14px 24px}
+.stright{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.stqr{background:#fff;border-radius:28px;padding:22px;box-shadow:0 24px 60px rgba(90,60,40,.18)}
+.stqr img{display:block;width:min(280px,60vw);height:auto;image-rendering:pixelated}
+.stscan{font-family:var(--display);font-weight:700;font-size:1.35rem;margin:10px 0 0}
+.stnote{margin:0;color:var(--muted);max-width:30ch}
+.sturl{margin:0;font-size:.8rem;color:var(--muted);word-break:break-all;max-width:36ch}
+@media (max-width:820px){.stinner{grid-template-columns:1fr;gap:28px}.stfacts{grid-template-columns:1fr 1fr}}
 .tourinv{display:flex;align-items:center;gap:14px;flex-wrap:wrap;grid-column:1/-1}
 .tourinv>div:nth-child(2){flex:1;min-width:200px}
 .tourinv b{font-family:var(--display);font-size:1.05rem}
@@ -737,7 +757,7 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
 
   <footer>
     <span id="footNote"></span>
-    <span class="split"><button class="btn ghost" id="fontBtn" aria-pressed="false">Größere Schrift</button><button class="btn ghost" id="fbOpen">Feedback geben</button><button class="btn ghost" id="showIntro">Tour zeigen</button><button class="btn ghost" id="reset" hidden>Demo zurücksetzen</button></span>
+    <span class="split"><button class="btn ghost" id="stOpen" hidden>Präsentation</button><button class="btn ghost" id="fontBtn" aria-pressed="false">Größere Schrift</button><button class="btn ghost" id="fbOpen">Feedback geben</button><button class="btn ghost" id="showIntro">Tour zeigen</button><button class="btn ghost" id="reset" hidden>Demo zurücksetzen</button></span>
   </footer>
 </div>
 
@@ -751,6 +771,29 @@ body.big .wrap,body.big .drawer,body.big .tabbar,body.big .confirm,body.big .fbb
 </aside>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <form class="fbbox" id="fbBox" hidden aria-label="Feedback an die Teamleitung"><b style="font-family:var(--display);font-size:1.05rem">Feedback an die Teamleitung</b><p style="margin:0;font-size:.85rem;color:var(--muted)">Was fehlt, was stört, was ist toll? Nur die Teamleitung liest das.</p><textarea id="fbText" maxlength="500" placeholder="Zum Beispiel: Ich hätte gern eine Erinnerung vor der Wunschfrist."></textarea><div class="split"><button class="btn primary" type="submit">Senden</button><button class="btn" type="button" id="fbClose">Abbrechen</button></div></form>
+<section class="stage" id="stage" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
+  <div class="stinner">
+    <div class="stleft">
+      <div class="stlogo" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15l2.5 2.5L16 13"/></svg></div>
+      <p class="stkicker">Live-Demo · Hotel in Wien</p>
+      <h1 id="stTitle">Schichtblick</h1>
+      <p class="stsub">Die Dienstplan-App, die Tauschen, Einspringen und Urlaub so einfach macht wie eine Nachricht.</p>
+      <ul class="stfacts">
+        <li><b>100</b><span>Mitarbeitende in 8 Abteilungen</span></li>
+        <li><b>4</b><span>Bereiche: Mein Plan, Tauschen, Team, Leitung</span></li>
+        <li><b>11 h</b><span>Ruhezeit automatisch geprüft</span></li>
+        <li><b>%</b><span>Besetzung passt sich der Hotelauslastung an</span></li>
+      </ul>
+      <div class="split"><button class="btn primary stbtn" id="stStart">Live-Demo starten</button><button class="btn" id="stClose">Schließen</button></div>
+    </div>
+    <div class="stright">
+      <div class="stqr"><img id="stQr" alt="QR-Code zur Demo" width="280" height="280"></div>
+      <p class="stscan">Scan mich und probier's selbst aus</p>
+      <p class="stnote">Du bist die Hoteldirektion eines Beispiel-Hotels. Alles, was du änderst, bleibt auf deinem Handy.</p>
+      <p class="sturl" id="stUrl"></p>
+    </div>
+  </div>
+</section>
 <div class="confirm" id="confirmBox" hidden role="dialog" aria-modal="true" aria-labelledby="cTitle"><div class="cbox"><h3 id="cTitle"></h3><div id="cText"></div><div class="split"><button class="btn primary" id="cOk">Ja</button><button class="btn" id="cNo">Zurück</button></div></div></div>
 <div class="tour" id="tour" hidden><div class="tring" id="tRing"></div><div class="tcard" id="tCard" role="dialog" aria-live="polite"><small id="tStep"></small><p id="tText"></p><div class="split"><button class="btn primary" id="tNext">Weiter</button><button class="btn ghost" id="tSkip">Überspringen</button></div></div></div>
 <div class="copybox" id="copybox" hidden role="dialog" aria-label="Text zum Kopieren"><b>Text markieren und kopieren</b><textarea id="copyText" readonly></textarea><div class="split"><button class="btn" id="copyClose">Schließen</button></div></div>
@@ -1922,6 +1965,19 @@ async function ask(q){
 }
 $("askSuggest").addEventListener("click",e=>{const b=e.target.closest("button");if(b)ask(b.textContent)});
 
+const QR_GH="data:image/png;base64,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";
+const QR_CL="data:image/png;base64,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";
+const DEMO_URL="https://claude.ai/artifact/JtnW7buAfU3McZEChuAYqp";
+function stageTarget(){if(/github\.io$/.test(location.hostname))return{url:"https://shg9d54y9j-langw.github.io/MTG/dienstplan/demo.html",img:QR_GH};
+  if(window.claude)return{url:DEMO_URL,img:QR_CL};return{url:"https://shg9d54y9j-langw.github.io/MTG/dienstplan/demo.html",img:QR_GH}}
+function openStage(){const t=stageTarget();$("stQr").src=t.img;$("stUrl").textContent=t.url.replace(/^https:\/\//,"");$("stage").hidden=false;setTimeout(()=>$("stStart").focus(),50)}
+function closeStage(){$("stage").hidden=true}
+$("stOpen").onclick=openStage;$("stClose").onclick=closeStage;
+$("stStart").onclick=()=>{if(mode==="demo"){store.set(DEMO_KEY,"");demoSeed();demoSave();evKnown=null}
+  view=new Date(today.getFullYear(),today.getMonth(),1);weekStart=mondayOf(today);calView="month";store.set(VIEW_KEY,"month");teamDept="";store.set(TEAMDEPT_KEY,"");
+  closeStage();$("intro").hidden=true;store.set(INTRO_KEY,"1");setTab("plan",true);changed();window.scrollTo({top:0})};
+window.addEventListener("hashchange",()=>{if(location.hash==="#praesentation")openStage()});
+
 /* ---------- Bereiche ---------- */
 const TAB_KEY="schichtblick-tab";
 let curTab=store.get(TAB_KEY)||"plan";
@@ -2100,6 +2156,7 @@ function handleHash(){
 }
 window.addEventListener("hashchange",handleHash);
 document.addEventListener("keydown",e=>{
+  if(!$("stage").hidden){if(e.key==="Escape"){closeStage();e.preventDefault()}return}
   if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&!e.altKey&&!e.ctrlKey&&!e.metaKey&&!openDay&&tourIdx<0&&$("confirmBox").hidden&&!/INPUT|SELECT|TEXTAREA/.test((document.activeElement||{}).tagName||"")&&(curTab==="plan"||curTab==="team")){stepCal(e.key==="ArrowLeft"?-1:1);return}
   if(e.key==="Escape"&&tourIdx>=0){endTour();return}if(e.key==="Escape"&&pickMode){pickMode=null;renderPick();return}if(e.key==="Escape"){if(!$("fbBox").hidden){$("fbBox").hidden=true;return}if(!$("copybox").hidden){$("copybox").hidden=true;return}if(!$("notif").hidden)closeNotif();else if(openDay)closeDrawer()}});
 $("reset").onclick=()=>{store.set(DEMO_KEY,"");demoSeed();demoSave();evKnown=null;view=new Date(today.getFullYear(),today.getMonth(),1);changed();toast("Demo-Daten wiederhergestellt.")};
@@ -2112,7 +2169,7 @@ document.body.dataset.tab="plan";document.querySelectorAll("[data-tabs]").forEac
 
 /* ---------- Start ---------- */
 let loaded=false;
-function startDemo(){mode="demo";me="me";isLead=true;canWrite=true;setTab(curTab,true);DEMO_TEAM.forEach((p,i)=>names["d"+i]=p.name);demoLoad();lastSeen=+(store.get(SEEN_KEY())||0);loaded=true;loadedAt=Date.now();renderBanner();changed();handleHash()}
+function startDemo(){mode="demo";me="me";isLead=true;canWrite=true;setTab(curTab,true);$("stOpen").hidden=false;if(location.hash==="#praesentation")setTimeout(openStage,0);DEMO_TEAM.forEach((p,i)=>names["d"+i]=p.name);demoLoad();lastSeen=+(store.get(SEEN_KEY())||0);loaded=true;loadedAt=Date.now();renderBanner();changed();handleHash()}
 
 async function startLive(){
   mode="live";lastSeen=+(store.get(SEEN_KEY())||0);
