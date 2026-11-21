@@ -18,6 +18,7 @@
         <span class="tab-indicator" aria-hidden="true"></span>
         <button class="tab-btn active" data-tab="analyze" role="tab">Deck analysieren</button>
         <button class="tab-btn" data-tab="precon" role="tab">Precons</button>
+        <button class="tab-btn" data-tab="new" role="tab">Neue Commander</button>
         <button class="tab-btn" data-tab="wizard" role="tab">Deck-Assistent</button>
       </nav>
       <label class="currency"><span>Währung</span>
@@ -109,6 +110,44 @@
         </div>
         <div id="pc-results" class="results"></div>
       </div>
+    </section>
+
+    <!-- ================= NEUE COMMANDER ================= -->
+    <section id="tab-new" class="tab">
+      <div class="hero">
+        <h1>Neue Commander.</h1>
+        <p>Alle neu gedruckten legendären Kreaturen und Commander – aus Sets, Commander-Precons und Secret Lair Drops, inklusive bereits angekündigter Karten.</p>
+      </div>
+      <div class="panel toolbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="nc-search" type="search" placeholder="Name, Typ oder Set filtern …" autocomplete="off">
+        </div>
+        <div id="nc-colors" class="mini-mana" title="Nach Farben filtern"></div>
+        <select id="nc-period" aria-label="Zeitraum">
+          <option value="30">Letzte 30 Tage</option>
+          <option value="90" selected>Letzte 3 Monate</option>
+          <option value="180">Letzte 6 Monate</option>
+          <option value="365">Letztes Jahr</option>
+        </select>
+        <select id="nc-sort" aria-label="Sortierung">
+          <option value="new">Nach Erscheinen</option>
+          <option value="pop">Beliebtheit</option>
+          <option value="price">Preis</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+      <div class="chips nc-sources" id="nc-sources">
+        <button type="button" class="chip on" data-src="all">Alle</button>
+        <button type="button" class="chip" data-src="sld">Secret Lair</button>
+        <button type="button" class="chip" data-src="commander">Commander-Precons</button>
+        <button type="button" class="chip" data-src="set">Sets</button>
+        <button type="button" class="chip" data-src="upcoming">Nur angekündigt</button>
+      </div>
+      <p id="nc-count" class="count"></p>
+      <div id="nc-status" class="status" aria-live="polite"></div>
+      <div id="nc-list"></div>
+      <div class="center"><button type="button" id="nc-more" class="btn ghost hidden">Mehr anzeigen</button></div>
     </section>
 
     <!-- ================= ASSISTENT ================= -->

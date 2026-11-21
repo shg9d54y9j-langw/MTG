@@ -49,9 +49,9 @@ MTG.api = (() => {
   }
 
   /** Scryfall-Suche; liefert Array von Karten (max. pages * 175). */
-  async function search(query, { pages = 1, order = 'edhrec' } = {}) {
+  async function search(query, { pages = 1, order = 'edhrec', dir = 'auto' } = {}) {
     const out = [];
-    let url = `/cards/search?q=${encodeURIComponent(query)}&order=${order}&unique=cards`;
+    let url = `/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&unique=cards`;
     for (let p = 0; p < pages && url; p++) {
       const json = await sf(url);
       if (!json || !json.data) break;

@@ -385,3 +385,19 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 28p
 .row.small > label { flex: none; min-width: 0; }
 .cmdr-head img, .citem img, .cmdr-card img { color: transparent; background: var(--surface-2); }
 .cmdr-head img { min-height: 265px; }
+
+/* Neue Commander */
+.nc-sources { margin-top: 16px; }
+.nc-group { margin-bottom: 34px; animation: fadeUp .45s var(--ease) both; }
+.nc-group-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; }
+.nc-group-head h3 { margin: 0; font-size: 1.15rem; letter-spacing: -.02em; }
+.nc-group-head span { color: var(--muted); font-size: .85rem; }
+.nc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+.nc-card { position: relative; }
+.nc-card .badge { position: absolute; top: 20px; left: 20px; z-index: 1; box-shadow: var(--shadow-sm); }
+.nc-card .meta-line { font-size: .78rem; color: var(--muted); }
+.nc-card .row-btns { display: flex; gap: 6px; margin-top: auto; }
+.nc-card .row-btns .btn { flex: 1; margin: 0; }
+.cmdr-card img { aspect-ratio: 488 / 680; object-fit: cover; }
+.nc-card .row-btns .btn { white-space: nowrap; padding: 7px 10px; }
+.nc-card .badge { top: 22px; left: 22px; }

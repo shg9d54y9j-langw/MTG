@@ -20,6 +20,12 @@ Statische Website für MTG-Commander-Decks – ohne Server, ohne Build-Schritt.
 - **Schnelles Upgrade-Paket**: 5/10/15 Tausche im gewählten Budget inkl. Gesamtkosten, Einkaufsliste und upgedateter Liste
 - **Umbau-Ideen**: alternative Commander (aus dem Deck selbst, ähnliche laut EDHREC, passend zu den Themes) mit Angabe, wie viele Karten spielbar bleiben – per Klick als Umbau analysieren
 
+**Neue Commander**
+- Alle neu gedruckten Commander (keine Reprints) live von Scryfall – aus Sets, Commander-Precons und **Secret Lair** Drops, inklusive bereits angekündigter Karten
+- Zeitraum 30 Tage bis 1 Jahr, gruppiert nach Set und Erscheinungsdatum
+- Filter: Quelle (Secret Lair / Precons / Sets / nur angekündigt), Farben, Textsuche; Sortierung nach Erscheinen, Beliebtheit, Preis oder Name
+- Pro Commander: „Deck bauen“ (direkt im Deck-Assistenten) und Link zu EDHREC
+
 **Deck-Assistent**
 1. Lieblingsfarben (genau oder als Obergrenze)
 2. Bracket 1–5
@@ -53,6 +59,7 @@ node test/parser.test.js          # Parser & Kartenkategorien
 node test/smoke.js                # UI-Durchlauf mit gemockten APIs (Playwright)
 node test/smoke.js --edhrec       # dasselbe mit gemockten EDHREC-Daten
 node test/live.js                 # kompletter Durchlauf gegen die echten APIs (Netz nötig)
+node test/live-new.js             # Tab „Neue Commander“ gegen Scryfall
 ```
 
 ## Struktur
