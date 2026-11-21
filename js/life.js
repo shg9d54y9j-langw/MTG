@@ -60,6 +60,7 @@
   const pending = {}; // Spieler -> laufende Änderung (Delta-Anzeige)
   const timers = {};
   const counting = {}; // Spieler -> laufende Hochzähl-Animation
+  let cmdMode = null; // { from: Angreifer, second: Partner-Commander? }
 
   const save = () => write(KEY, game);
   const saveSettings = () => write(SKEY, settings);
@@ -73,9 +74,11 @@
         theme: old[i]?.theme || THEMES[i % THEMES.length].id,
         art: old[i]?.art || '',
         artName: old[i]?.artName || '',
+        partner: !!old[i]?.partner,
         life: startLife, poison: 0, tax: 0, energy: 0, exp: 0, cmd: {},
       })),
     };
+    cmdMode = null;
     save();
   }
 
@@ -123,6 +126,8 @@
           <div class="pdead" aria-hidden="true"><span>Raus</span></div>
           <div class="pwin" aria-hidden="true"><span class="crown">♛</span><span>Sieg!</span></div>
           <button type="button" class="pmenu-btn" data-menu="${i}" aria-label="Zähler und Hintergrund für ${esc(p.name)}">⋯</button>
+          <button type="button" class="pcmd-btn" data-cmd="${i}" aria-label="Commander-Schaden von ${esc(p.name)} austeilen" title="Commander-Schaden austeilen">⚔</button>
+          <div class="pcmdov"></div>
           <div class="ppanel hidden"></div>
         </div>
       </div>`;
@@ -130,6 +135,7 @@
     game.players.forEach((_, i) => update(i));
     if (intro && motion()) game.players.forEach((p, i) => countUp(i, p.life, 900 + i * 80));
     if (game.winner != null) celebrate(game.winner, true);
+    if (cmdMode && cmdMode.from < game.n) setCmdMode(cmdMode); else cmdMode = null;
   }
 
   const tileEl = (i) => grid.children[i];
@@ -149,10 +155,14 @@
     tile.classList.toggle('low', isLow(p));
     const badges = [];
     COUNTERS.forEach((c) => { if (p[c.k]) badges.push(`<span class="badge${c.k === 'poison' && p.poison >= 7 ? ' hot' : ''}" title="${c.name}">${c.icon} ${p[c.k]}</span>`); });
-    Object.entries(p.cmd).forEach(([from, v]) => {
-      if (!v || !game.players[from]) return;
-      badges.push(`<span class="badge cmd${v >= 15 ? ' hot' : ''}" title="Commander-Schaden von ${esc(game.players[from].name)}"><i style="background:${grad(game.players[from])}"></i>${v}</span>`);
+    Object.entries(p.cmd).forEach(([key, v]) => {
+      const from = parseInt(key, 10);
+      const src = game.players[from];
+      if (!v || !src) return;
+      const second = key.endsWith('b');
+      badges.push(`<span class="badge cmd${v >= 15 ? ' hot' : ''}" title="Commander-Schaden von ${esc(src.name)}${second ? ' (Partner)' : ''}"><i style="background:${grad(src)}"></i>${second ? '<sup>2</sup>' : ''}${v}</span>`);
     });
+    if (cmdMode && cmdMode.from !== i) updateCmdOverlay(i);
     $('.pbadges', tile).innerHTML = badges.join('');
     const d = pending[i];
     const delta = $('.pdelta', tile);
@@ -203,13 +213,30 @@
     counting[i] = requestAnimationFrame(step);
   }
 
-  function change(i, d, kind = 'life') {
+  // Commander-Schaden ändern (zieht das Leben automatisch mit ab). key = "<Spieler>" oder "<Spieler>b" (Partner)
+  function applyCmd(i, key, delta) {
+    const p = game.players[i];
+    const cur = p.cmd[key] || 0;
+    const next = Math.max(0, cur + delta);
+    if (next === cur) return cur;
+    p.cmd[key] = next;
+    change(i, -(next - cur), 'cmd', parseInt(key, 10));
+    return next;
+  }
+
+  const pendingKind = {};
+  function change(i, d, kind = 'life', from) {
     const p = game.players[i];
     p.life += d;
     pending[i] = (pending[i] || 0) + d;
+    // Gemischte Änderungen (Leben + Commander) im Verlauf als normales Leben zählen
+    const prev = pendingKind[i];
+    pendingKind[i] = prev && (prev.kind !== kind || prev.from !== from) ? { kind: 'life' } : { kind, from };
     clearTimeout(timers[i]);
     timers[i] = setTimeout(() => {
-      if (pending[i]) game.history.push({ t: Date.now(), p: i, d: pending[i], life: p.life, kind });
+      const pk = pendingKind[i] || { kind: 'life' };
+      if (pending[i]) game.history.push({ t: Date.now(), p: i, d: pending[i], life: p.life, kind: pk.kind, from: pk.from });
+      pendingKind[i] = null;
       if (game.history.length > 300) game.history.splice(0, game.history.length - 300);
       pending[i] = 0;
       update(i);
@@ -255,8 +282,86 @@
     setTimeout(() => box.remove(), 2200);
   }
 
+  // ---------------- Commander-Schaden-Modus ----------------
+  // Angreifer tippt ⚔ → alle Gegner zeigen den Schaden dieses Commanders und können ±1 tippen.
+  const cmdKey = () => cmdMode.from + (cmdMode.second ? 'b' : '');
+
+  function setCmdMode(m) {
+    cmdMode = m;
+    root.classList.toggle('cmd-mode', !!m);
+    game.players.forEach((_, i) => {
+      const tile = tileEl(i);
+      if (!tile) return;
+      tile.classList.toggle('cmd-src', !!m && m.from === i);
+      tile.classList.toggle('cmd-dst', !!m && m.from !== i);
+      const ov = $('.pcmdov', tile);
+      if (!m) { ov.innerHTML = ''; return; }
+      $('.ppanel', tile).classList.add('hidden');
+      ov.innerHTML = m.from === i ? cmdSrcHtml(i) : cmdDstHtml(i);
+      updateCmdOverlay(i);
+    });
+  }
+
+  function cmdSrcHtml(i) {
+    const p = game.players[i];
+    return `<div class="cs-box">
+      <div class="cs-icon">⚔</div>
+      <div class="cs-title">Commander-Schaden</div>
+      <div class="cs-sub">Tippe bei den Gegnern auf + oder −</div>
+      ${p.partner ? `<div class="cs-partner">
+        <button type="button" data-cmd-which="a" class="${cmdMode.second ? '' : 'on'}">Commander 1</button>
+        <button type="button" data-cmd-which="b" class="${cmdMode.second ? 'on' : ''}">Commander 2</button></div>` : ''}
+      <button type="button" class="cs-done" data-cmd-done>Fertig</button>
+    </div>`;
+  }
+
+  function cmdDstHtml(i) {
+    const src = game.players[cmdMode.from];
+    const pic = src.art ? `background-image:url('${esc(src.art)}')` : `background:${grad(src)}`;
+    return `<button type="button" class="czone minus" data-cz="${i}" data-d="-1" aria-label="Commander-Schaden −1"></button>
+      <button type="button" class="czone plus" data-cz="${i}" data-d="1" aria-label="Commander-Schaden +1"></button>
+      <span class="hint minus" aria-hidden="true">−</span><span class="hint plus" aria-hidden="true">+</span>
+      <div class="cz-from"><i style="${pic}"></i><span>⚔ ${esc(src.name)}${cmdMode.second ? ' · Commander 2' : ''}</span></div>
+      <div class="cz-val"></div>
+      <div class="cz-life"></div>`;
+  }
+
+  function updateCmdOverlay(i, bump) {
+    if (!cmdMode || cmdMode.from === i) return;
+    const ov = $('.pcmdov', tileEl(i) || document.createElement('div'));
+    const el = ov && $('.cz-val', ov);
+    if (!el) return;
+    const p = game.players[i];
+    const v = p.cmd[cmdKey()] || 0;
+    el.textContent = v;
+    el.classList.toggle('hot', v >= 15 && v < 21);
+    el.classList.toggle('lethal', v >= 21);
+    $('.cz-life', ov).textContent = v >= 21 ? 'Tödlich – ausgeschieden!' : `Leben ${p.life}${v >= 15 ? ` · noch ${21 - v} bis tödlich` : ''}`;
+    if (bump && motion()) el.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'cubic-bezier(.2,.9,.3,1.4)' });
+  }
+
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && cmdMode) setCmdMode(null); });
+  grid.addEventListener('change', (e) => {
+    const t = e.target.closest('[data-partner]');
+    if (!t) return;
+    game.players[+t.dataset.partner].partner = t.checked;
+    save();
+  });
+
   // ---------------- Tippen / Halten ----------------
   grid.addEventListener('pointerdown', (e) => {
+    const cz = e.target.closest('.czone');
+    if (cz && cmdMode) {
+      e.preventDefault();
+      ripple(cz, e);
+      const i = +cz.dataset.cz, d = +cz.dataset.d;
+      const hit = () => { applyCmd(i, cmdKey(), d); updateCmdOverlay(i, true); };
+      hit();
+      let hold = setTimeout(function rep() { hit(); hold = setTimeout(rep, 170); }, 450);
+      const stop = () => { clearTimeout(hold); ['pointerup', 'pointercancel', 'pointerleave'].forEach((t) => cz.removeEventListener(t, stop)); };
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach((t) => cz.addEventListener(t, stop));
+      return;
+    }
     const z = e.target.closest('.zone');
     if (!z) return;
     e.preventDefault();
@@ -440,6 +545,14 @@
 
   // ---------------- Spieler-Panel (im gedrehten Feld) ----------------
   grid.addEventListener('click', (e) => {
+    const cb = e.target.closest('[data-cmd]');
+    if (cb) {
+      const i = +cb.dataset.cmd;
+      return setCmdMode(cmdMode && cmdMode.from === i ? null : { from: i, second: false });
+    }
+    if (e.target.closest('[data-cmd-done]')) return setCmdMode(null);
+    const which = e.target.closest('[data-cmd-which]');
+    if (which && cmdMode) return setCmdMode({ from: cmdMode.from, second: which.dataset.cmdWhich === 'b' });
     const mb = e.target.closest('[data-menu]');
     if (mb) return openPanel(+mb.dataset.menu);
     const act = e.target.closest('[data-act]');
@@ -475,7 +588,10 @@
           <span class="pwall-arrow">›</span>
         </button>
         <h4>Commander-Schaden erhalten</h4>
-        ${others.map(({ o, j }) => stepper(i, 'cmd:' + j, p.cmd[j] || 0, `<i class="dot" style="background:${grad(o)}"></i>${esc(o.name)}`)).join('')}
+        <p class="phint">Schneller: Angreifer tippt auf ⚔ und verteilt den Schaden direkt auf die Gegner.</p>
+        ${others.map(({ o, j }) => stepper(i, 'cmd:' + j, p.cmd[j] || 0, `<i class="dot" style="background:${grad(o)}"></i>${esc(o.name)}${o.partner ? ' · 1' : ''}`)
+          + (o.partner ? stepper(i, `cmd:${j}b`, p.cmd[j + 'b'] || 0, `<i class="dot" style="background:${grad(o)}"></i>${esc(o.name)} · 2`) : '')).join('')}
+        <label class="pswitch"><input type="checkbox" data-partner="${i}" ${p.partner ? 'checked' : ''}><span></span>Ich spiele zwei Commander (Partner)</label>
         <h4>Zähler</h4>
         ${COUNTERS.map((c) => stepper(i, c.k, p[c.k], `${c.icon} ${c.name}`)).join('')}
         <h4>Farbe</h4>
@@ -493,10 +609,7 @@
       const k = el.dataset.k;
       const sign = act === 'inc' ? 1 : -1;
       if (k.startsWith('cmd:')) {
-        const from = +k.slice(4);
-        const cur = p.cmd[from] || 0;
-        const next = Math.max(0, cur + sign);
-        if (next !== cur) { p.cmd[from] = next; change(i, -(next - cur), 'cmd'); }
+        applyCmd(i, k.slice(4), sign);
       } else {
         const c = COUNTERS.find((x) => x.k === k);
         p[k] = Math.max(0, p[k] + sign * (c.step || 1));
@@ -505,7 +618,7 @@
       }
       save();
       const val = el.parentElement.querySelector('.pval');
-      val.textContent = k.startsWith('cmd:') ? p.cmd[+k.slice(4)] : p[k];
+      val.textContent = k.startsWith('cmd:') ? (p.cmd[k.slice(4)] || 0) : p[k];
       if (motion()) val.animate([{ transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'ease-out' });
       return;
     }
@@ -546,7 +659,10 @@
   });
 
   // ---------------- Hauptmenü ----------------
-  $('.life-hub', root).addEventListener('click', () => openModal('menu'));
+  $('.life-hub', root).addEventListener('click', () => {
+    if (cmdMode) return setCmdMode(null); // erster Tipp beendet den Commander-Schaden-Modus
+    openModal('menu');
+  });
   modal.addEventListener('click', (e) => {
     if (e.target === modal) return closeModal();
     const a = e.target.closest('[data-act]');
@@ -606,7 +722,7 @@
           const p = game.players[h.p];
           if (!p) return '';
           return `<div class="lh-row"><i class="dot" style="background:${grad(p)}"></i>
-            <span class="lh-name">${esc(p.name)}${h.kind === 'cmd' ? ' <small>Cmdr</small>' : ''}</span>
+            <span class="lh-name">${esc(p.name)}${h.kind === 'cmd' ? ` <small>⚔ ${esc(game.players[h.from]?.name || 'Commander')}</small>` : ''}</span>
             <span class="lh-d ${h.d < 0 ? 'neg' : ''}">${h.d > 0 ? '+' : ''}${h.d}</span>
             <span class="lh-life">${h.life}</span>
             <span class="lh-t">${new Date(h.t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span></div>`;

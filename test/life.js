@@ -109,6 +109,38 @@ const check = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (
   await page.waitForTimeout(1400);
   check((await life(3)) === 41, 'Spielstand nach Neuladen erhalten (#life)');
 
+  // Commander-Schaden-Modus (⚔ beim Angreifer, ±1 bei den Gegnern)
+  await page.click('.ptile[data-p="0"] .pcmd-btn');
+  check(await page.$eval('#life', (e) => e.classList.contains('cmd-mode')), '⚔ startet den Commander-Schaden-Modus');
+  check((await page.$$('.ptile.cmd-dst')).length === 3, 'Alle 3 Gegner zeigen das Schadensfeld');
+  const before = await life(3);
+  for (let k = 0; k < 3; k++) await page.click('.ptile[data-p="3"] .czone.plus');
+  await page.click('.ptile[data-p="3"] .czone.minus');
+  check((await page.textContent('.ptile[data-p="3"] .cz-val')) === '2', 'Gegner-Feld zeigt 2 Commander-Schaden');
+  await page.waitForTimeout(400);
+  if (SHOT) await page.screenshot({ path: `${SHOT}/life-cmd.png` });
+  await page.click('.ptile[data-p="0"] [data-cmd-done]');
+  check(!(await page.$eval('#life', (e) => e.classList.contains('cmd-mode'))), '„Fertig“ beendet den Modus');
+  check((await life(3)) === before - 2, `Leben automatisch abgezogen (${before} → ${await life(3)})`);
+  check(/2/.test(await page.textContent('.ptile[data-p="3"] .badge.cmd')), 'Commander-Schaden-Badge beim Gegner');
+
+  // Partner: zweiter Commander wird getrennt gezählt
+  await page.click('.ptile[data-p="0"] .pmenu-btn');
+  await page.click('.ptile[data-p="0"] .pswitch');
+  await page.click('.ptile[data-p="0"] [data-act="close"]');
+  await page.click('.ptile[data-p="0"] .pcmd-btn');
+  await page.click('.ptile[data-p="0"] [data-cmd-which="b"]');
+  await page.click('.ptile[data-p="3"] .czone.plus');
+  await page.click('.life-hub', { force: true }); // Menüknopf beendet den Modus
+  const cmd3 = await page.evaluate(() => MTG.life.game().players[3].cmd);
+  check(cmd3['0'] === 2 && cmd3['0b'] === 1, `Partner getrennt gezählt (${JSON.stringify(cmd3)})`);
+  await page.waitForTimeout(1800);
+  await page.click('.life-hub', { force: true });
+  await page.click('[data-m="history"]');
+  check(/⚔/.test(await page.textContent('.lm-history')), 'Verlauf zeigt, von wem der Commander-Schaden kam');
+  await page.click('[data-m="menu"]');
+  await page.click('[data-m="close"]');
+
   // Querformat
   await page.setViewportSize({ width: 844, height: 390 });
   await page.waitForTimeout(400);
