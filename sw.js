@@ -1,6 +1,6 @@
 /* Service Worker: macht die Werkstatt installierbar und offline nutzbar.
    Bei jeder Änderung an App-Dateien VERSION und die ?v=-Parameter in index.html erhöhen. */
-const VERSION = '2026-11-21e';
+const VERSION = '2026-11-22a';
 const SHELL_CACHE = 'cw-shell-' + VERSION;
 const IMG_CACHE = 'cw-images';
 const FONT_CACHE = 'cw-fonts';
