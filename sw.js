@@ -1,6 +1,6 @@
 /* Service Worker: macht die Werkstatt installierbar und offline nutzbar.
    Bei jeder Änderung an App-Dateien VERSION und die ?v=-Parameter in index.html erhöhen. */
-const VERSION = '2026-11-21c';
+const VERSION = '2026-11-21d';
 const SHELL_CACHE = 'cw-shell-' + VERSION;
 const IMG_CACHE = 'cw-images';
 const FONT_CACHE = 'cw-fonts';
@@ -67,16 +67,25 @@ async function cacheFirst(req, cacheName, maxEntries) {
   return res;
 }
 
+// Nur die Dateien der Werkstatt selbst verwalten – andere Apps unter derselben Adresse
+// (z. B. ./dienstplan/) bleiben unberührt.
+const BASE = new URL('./', self.location).pathname;
+const OWN = new Set(SHELL.map((f) => new URL(f, self.location).pathname + (f.includes('?') ? '?' + f.split('?')[1] : '')));
+const isAppPage = (url) => url.pathname === BASE || url.pathname === BASE + 'index.html';
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Seite selbst: immer zuerst Netz (damit Updates sofort ankommen), offline aus dem Cache
-  if (req.mode === 'navigate') return event.respondWith(networkFirst(req));
-  // Eigene Dateien
   if (url.origin === self.location.origin) {
-    return event.respondWith(caches.match(req).then((hit) => hit || networkFirst(req)));
+    // Startseite: immer zuerst Netz (Updates kommen sofort an), offline aus dem Cache
+    if (isAppPage(url)) return event.respondWith(networkFirst(req));
+    // App-Dateien aus der Liste oben: aus dem Cache, sonst Netz
+    if (OWN.has(url.pathname + url.search) || OWN.has(url.pathname)) {
+      return event.respondWith(caches.match(req).then((hit) => hit || networkFirst(req)));
+    }
+    return; // alles andere (andere Seiten/Apps) normal übers Netz
   }
   // Kartenbilder: einmal geladen, offline verfügbar
   if (url.hostname === 'cards.scryfall.io') return event.respondWith(cacheFirst(req, IMG_CACHE, 600));
