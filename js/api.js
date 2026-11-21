@@ -49,16 +49,23 @@ MTG.api = (() => {
   }
 
   /** Scryfall-Suche; liefert Array von Karten (max. pages * 175). */
-  async function search(query, { pages = 1, order = 'edhrec', dir = 'auto' } = {}) {
+  async function search(query, { pages = 1, order = 'edhrec', dir = 'auto', unique = 'cards' } = {}) {
     const out = [];
-    let url = `/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&unique=cards`;
+    let url = `/cards/search?q=${encodeURIComponent(query)}&order=${order}&dir=${dir}&unique=${unique}`;
     for (let p = 0; p < pages && url; p++) {
       const json = await sf(url);
       if (!json || !json.data) break;
-      json.data.forEach((c) => out.push(remember(c)));
+      // Einzelne Drucke (unique=art/prints) nicht in den Namens-Cache legen
+      json.data.forEach((c) => out.push(unique === 'cards' ? remember(c) : c));
       url = json.has_more && json.next_page ? json.next_page.replace(SF, '') : null;
     }
     return out;
+  }
+
+  /** Zufällige Karte zu einer Suchanfrage. */
+  async function random(query) {
+    const json = await sf(`/cards/random?q=${encodeURIComponent(query)}`);
+    return json && json.object === 'card' ? json : null;
   }
 
   /** Karten per Name laden (gecacht, gebündelt zu je 75). */
@@ -167,5 +174,5 @@ MTG.api = (() => {
     return result;
   }
 
-  return { search, getCards, getCard, autocomplete, edhrec, slugify, isEdhrecDown: () => edhrecDown };
+  return { search, random, getCards, getCard, autocomplete, edhrec, slugify, isEdhrecDown: () => edhrecDown };
 })();

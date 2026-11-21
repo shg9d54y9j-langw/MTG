@@ -28,8 +28,11 @@ Statische Website für MTG-Commander-Decks – ohne Server, ohne Build-Schritt.
 
 **Life Counter**
 - 2–6 Spieler, Startleben 20/30/40; jedes Feld zum Spieler am Tisch gedreht (Hoch- und Querformat)
-- Tippen ±1, gedrückt halten ±10, Delta-Anzeige der letzten Änderung
-- Pro Spieler: Commander-Schaden je Gegner (zieht Leben ab, 21 = raus), Gift, Commander-Steuer, Energie, Erfahrung, Name, Farbe, Commander-Bild als Hintergrund
+- Tippen ±1, gedrückt halten ±10, Delta-Pille der letzten Änderung
+- **Commander-Hintergründe**: jeder Commander als randloses Wallpaper mit langsamer Kamerafahrt – Suche, beliebte Commander, Zufall und Auswahl aller Artworks; das Auswahlfenster öffnet sich zum jeweiligen Spieler gedreht
+- **Animationen**: Einflug + Hochzählen beim Start, rollende Zahlen, Tipp-Wellen, grüner/roter Blitz, pulsierende Warnung bei wenig Leben, Sieg mit Krone und Konfetti, W20 mit Kritisch/Patzer; abschaltbar (respektiert „Bewegung reduzieren“)
+- **Zahlenschriften**: Kantig (Big Shoulders Display), Rund (Unbounded), Episch (Cinzel), Clean (Inter) – lokal eingebunden, offline verfügbar
+- Pro Spieler: Commander-Schaden je Gegner (zieht Leben ab, 21 = raus), Gift, Commander-Steuer, Energie, Erfahrung, Name, Farbe
 - Menü: Spielzeit, W20/W6/Münze, zufälliger Startspieler, Verlauf, Neustart, Vollbild
 - Bildschirm bleibt an, Spielstand wird automatisch gespeichert; direkt aufrufbar über `#life`
 
@@ -73,6 +76,7 @@ node test/smoke.js --edhrec       # dasselbe mit gemockten EDHREC-Daten
 node test/live.js                 # kompletter Durchlauf gegen die echten APIs (Netz nötig)
 node test/live-new.js             # Tab „Neue Commander“ gegen Scryfall
 node test/life.js                 # Life Counter + App/Offline (lokaler Server)
+node test/live-life.js            # Commander-Hintergründe, Schriften, Animationen (Netz nötig)
 ```
 
 ## Struktur
@@ -90,6 +94,7 @@ js/app.js      Oberfläche
 js/life.js     Life Counter
 sw.js          Service Worker (Offline/App)
 manifest.webmanifest, icons/  App-Manifest und Icons (tools/make-icons.js)
+fonts/         Lokale Schriften (SIL OFL, siehe fonts/LICENSE.md)
 ```
 
 Inoffizielles Fan-Projekt, nicht mit Wizards of the Coast verbunden.

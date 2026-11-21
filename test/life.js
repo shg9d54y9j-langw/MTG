@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const SHOT = process.env.SHOT_DIR;
 const ROOT = path.resolve(__dirname, '..');
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 
 const server = http.createServer((req, res) => {
   const p = decodeURIComponent(req.url.split('?')[0]);
@@ -26,7 +26,7 @@ const check = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await ctx.route(/fonts\.|scryfall|edhrec/, (r) => r.abort());
+  await ctx.route(/fonts\.(googleapis|gstatic)|scryfall|edhrec/, (r) => r.abort());
 
   await page.goto(base);
   // ---- PWA ----
@@ -49,7 +49,8 @@ const check = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (
   await page.click('#ls-start');
   await page.waitForSelector('#life:not(.hidden) .ptile');
   check((await page.$$('.ptile')).length === 4, '4 Spielerfelder');
-  const life = (i) => page.$eval(`.ptile[data-p="${i}"] .plife`, (e) => +e.textContent);
+  const life = (i) => page.$eval(`.ptile[data-p="${i}"] .plife:not(.ghost)`, (e) => +e.textContent);
+  await page.waitForTimeout(1400); // Hochzähl-Animation abwarten
   check((await life(3)) === 40, 'Startleben 40');
 
   // Tippen +1 / −1 (Zonen sind gedreht -> Mittelpunkt der Zone klicken)
@@ -89,7 +90,7 @@ const check = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (
   if (SHOT) await page.screenshot({ path: `${SHOT}/life-portrait.png` });
 
   // Menü, Würfel, Verlauf
-  await page.click('.life-hub');
+  await page.click('.life-hub', { force: true });
   await page.click('[data-m="d20"]');
   await page.waitForTimeout(700);
   const roll = +(await page.textContent('#lm-result b'));
@@ -105,6 +106,7 @@ const check = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (
   // Speichern & Fortsetzen nach Reload
   await page.reload();
   await page.waitForSelector('#life:not(.hidden) .ptile');
+  await page.waitForTimeout(1400);
   check((await life(3)) === 41, 'Spielstand nach Neuladen erhalten (#life)');
 
   // Querformat
@@ -116,14 +118,14 @@ const check = (cond, msg) => { console.log((cond ? '✓ ' : '✗ ') + msg); if (
 
   // 6 Spieler
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.click('.life-hub');
+  await page.click('.life-hub', { force: true });
   await page.click('[data-m="setn"][data-v="6"]');
   await page.click('[data-m="new"]');
   check((await page.$$('.ptile')).length === 6, '6 Spieler');
   if (SHOT) await page.screenshot({ path: `${SHOT}/life-6.png` });
 
   // Beenden
-  await page.click('.life-hub');
+  await page.click('.life-hub', { force: true });
   await page.click('[data-m="exit"]');
   check(await page.$eval('#life', (e) => e.classList.contains('hidden')), 'Beenden schließt den Counter');
   console.log('JS-Fehler:', errors.length ? errors : 'keine');

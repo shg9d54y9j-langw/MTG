@@ -1,6 +1,6 @@
 /* Service Worker: macht die Werkstatt installierbar und offline nutzbar.
    Bei jeder Änderung an App-Dateien VERSION und die ?v=-Parameter in index.html erhöhen. */
-const VERSION = '2026-11-21b';
+const VERSION = '2026-11-21c';
 const SHELL_CACHE = 'cw-shell-' + VERSION;
 const IMG_CACHE = 'cw-images';
 const FONT_CACHE = 'cw-fonts';
@@ -10,6 +10,14 @@ const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
+  'fonts/fonts.css' + V,
+  'fonts/inter-latin-wght-normal.woff2',
+  'fonts/big-shoulders-display-latin-800-normal.woff2',
+  'fonts/big-shoulders-display-latin-900-normal.woff2',
+  'fonts/unbounded-latin-700-normal.woff2',
+  'fonts/unbounded-latin-900-normal.woff2',
+  'fonts/cinzel-latin-700-normal.woff2',
+  'fonts/cinzel-latin-900-normal.woff2',
   'css/style.css' + V,
   'css/life.css' + V,
   'data/precons.js' + V,
