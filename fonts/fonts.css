@@ -1,0 +1,50 @@
+/* Lokal eingebundene Schriften (SIL Open Font License 1.1, über Fontsource) – siehe fonts/LICENSE.md */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('inter-latin-wght-normal.woff2') format('woff2-variations'), url('inter-latin-wght-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Big Shoulders Display';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url('big-shoulders-display-latin-800-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Big Shoulders Display';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url('big-shoulders-display-latin-900-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('unbounded-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url('unbounded-latin-900-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('cinzel-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url('cinzel-latin-900-normal.woff2') format('woff2');
+}

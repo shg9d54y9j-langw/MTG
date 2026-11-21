@@ -15,6 +15,7 @@
     anThemes: new Set(),
     wz: { colors: new Set(), bracket: 2, themes: new Set(), budget: 'mid' },
     pc: { query: '', colors: new Set(), sort: 'new', shown: 24, current: null, r: null },
+    nc: { ready: false, cache: new Map(), cards: [], query: '', colors: new Set(), src: 'all', sort: 'new', loading: 0, shown: 96, truncated: false },
   };
   const fmt = (v, cur = state.cur) => E.fmt(v, cur);
   const capLabel = (v) => (isFinite(v) ? `≤ ${fmt(v)}` : 'Kein Limit');
@@ -32,6 +33,7 @@
     $$('.tab').forEach((t) => t.classList.toggle('active', t.id === 'tab-' + name));
     store.set('tab', name);
     moveIndicator();
+    if (name === 'new' && state.nc.ready && !state.nc.cards.length) loadNew();
   }
   $$('.tab-btn').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   addEventListener('resize', moveIndicator);
@@ -600,6 +602,169 @@
   renderPrecons();
 
   // =====================================================================
+  //  NEUE COMMANDER
+  // =====================================================================
+  const today = new Date().toISOString().slice(0, 10);
+  const deDate = (d) => (d ? new Date(d + 'T00:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '');
+  const ncSource = (c) => (c.set === 'sld' || /secret lair/i.test(c.set_name || '') ? 'sld' : c.set_type === 'commander' ? 'commander' : 'set');
+  const SRC_NAMES = { sld: 'Secret Lair', commander: 'Commander-Precon', set: 'Set' };
+  const NC_PAGES = { 30: 2, 90: 4, 180: 7, 365: 12 };
+  const NC_STEP = 96;
+  // Bei Filterwechsel wieder von vorne anzeigen
+  const rerenderNew = () => { state.nc.shown = NC_STEP; renderNew(); };
+
+  const ncColors = $('#nc-colors');
+  ncColors.innerHTML = ['w', 'u', 'b', 'r', 'g', 'c'].map((k) => `<button type="button" class="${k}" data-k="${k}" title="${k === 'c' ? 'Farblos' : D.COLORS.find((c) => c.k === k).name}">${k.toUpperCase()}</button>`).join('');
+  ncColors.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button');
+    if (!b) return;
+    const k = b.dataset.k;
+    state.nc.colors.has(k) ? state.nc.colors.delete(k) : state.nc.colors.add(k);
+    b.classList.toggle('on', state.nc.colors.has(k));
+    rerenderNew();
+  });
+  $('#nc-sources').addEventListener('click', (ev) => {
+    const b = ev.target.closest('.chip');
+    if (!b) return;
+    state.nc.src = b.dataset.src;
+    $$('#nc-sources .chip').forEach((x) => x.classList.toggle('on', x === b));
+    rerenderNew();
+  });
+  let ncT;
+  $('#nc-search').addEventListener('input', (ev) => {
+    clearTimeout(ncT);
+    ncT = setTimeout(() => { state.nc.query = ev.target.value.trim().toLowerCase(); rerenderNew(); }, 120);
+  });
+  $('#nc-sort').addEventListener('change', (ev) => { state.nc.sort = ev.target.value; rerenderNew(); });
+  $('#nc-period').addEventListener('change', loadNew);
+  $('#nc-more').addEventListener('click', () => { state.nc.shown += NC_STEP; renderNew(); });
+
+  async function loadNew() {
+    const days = +$('#nc-period').value;
+    const st = $('#nc-status');
+    const run = ++state.nc.loading;
+    const from = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10);
+    try {
+      let entry = state.nc.cache.get(days);
+      if (!entry) {
+        setStatus(st, 'Lade neue Commander von Scryfall …', 'busy');
+        $('#nc-list').innerHTML = '';
+        const pages = NC_PAGES[days] || 4;
+        // Angekündigte Karten separat laden: auch Nachdrucke in kommenden Produkten (ohne Promos)
+        const upcoming = await api.search('is:commander date>today -is:digital game:paper -st:promo -st:memorabilia', { pages: 1, order: 'released', dir: 'asc' });
+        const list = await api.search(`is:commander -is:reprint -is:digital game:paper date>=${from}`, { pages, order: 'released', dir: 'desc' });
+        const seen = new Set();
+        const cards = [...upcoming, ...list].filter((c) => {
+          const id = c.oracle_id || c.name;
+          if (seen.has(id)) return false;
+          seen.add(id);
+          return true;
+        });
+        entry = { cards, truncated: list.length >= pages * 175 };
+        state.nc.cache.set(days, entry);
+      }
+      if (run !== state.nc.loading) return;
+      state.nc.cards = entry.cards;
+      state.nc.truncated = entry.truncated;
+      state.nc.shown = NC_STEP;
+      setStatus(st, '');
+      renderNew();
+    } catch (e) {
+      console.error(e);
+      if (run === state.nc.loading) setStatus(st, e.message || String(e), 'error');
+    }
+  }
+
+  function filteredNew() {
+    const { query: q, colors: cols, src } = state.nc;
+    const list = state.nc.cards.filter((c) => {
+      if (src === 'upcoming') { if (!(c.released_at > today)) return false; } else if (src !== 'all' && ncSource(c) !== src) return false;
+      if (q && !`${c.name} ${C.typeLine(c)} ${c.set_name}`.toLowerCase().includes(q)) return false;
+      const ci = (c.color_identity || []).map((x) => x.toLowerCase());
+      if (cols.size) {
+        if (cols.has('c')) { if (ci.length) return false; } else if (![...cols].every((k) => ci.includes(k))) return false;
+      }
+      return true;
+    });
+    const by = {
+      new: (a, b) => (b.released_at || '').localeCompare(a.released_at || '') || (a.set_name || '').localeCompare(b.set_name || '') || a.name.localeCompare(b.name),
+      pop: (a, b) => (a.edhrec_rank || 1e9) - (b.edhrec_rank || 1e9),
+      price: (a, b) => (C.price(b, state.cur) || 0) - (C.price(a, state.cur) || 0),
+      name: (a, b) => a.name.localeCompare(b.name),
+    };
+    return [...list].sort(by[state.nc.sort]);
+  }
+
+  function ncCard(c, i) {
+    const upcoming = c.released_at > today;
+    const src = ncSource(c);
+    const ci = (c.color_identity || []).map((x) => x.toLowerCase());
+    return `<div class="cmdr-card nc-card" style="animation-delay:${Math.min(i, 12) * 0.03}s">
+      <span class="tag badge ${upcoming ? 'warn' : 'good'}">${upcoming ? 'Ab ' + deDate(c.released_at) : 'Neu'}</span>
+      <img loading="lazy" src="${esc(C.image(c))}" alt="" data-img="${esc(C.image(c, 'large'))}">
+      <div class="nm">${esc(c.name)}</div>
+      <div class="meta-line">${esc(C.typeLine(c).split(' // ')[0])}</div>
+      <div class="tags">${pips(ci)} <span class="tag ${src === 'sld' ? 'gc' : src === 'commander' ? 'accent' : ''}">${esc(SRC_NAMES[src])}</span> ${C.price(c, state.cur) != null ? `<span class="tag">${fmt(C.price(c, state.cur))}</span>` : ''}</div>
+      <div class="meta-line">${esc(c.set_name)} · ${deDate(c.released_at)}</div>
+      <div class="row-btns">
+        <button type="button" class="btn small primary" data-build="${esc(c.name)}">Deck bauen</button>
+        <a class="btn small" href="https://edhrec.com/commanders/${esc(api.slugify(c.name))}" target="_blank" rel="noopener">EDHREC</a>
+      </div>
+    </div>`;
+  }
+
+  function renderNew() {
+    const out = $('#nc-list');
+    const filtered = filteredNew();
+    const total = state.nc.cards.length;
+    const isUp = (c) => c.released_at > today;
+    const upList = filtered.filter(isUp).sort((a, b) => (a.released_at || '').localeCompare(b.released_at || '') || a.name.localeCompare(b.name));
+    const upTotal = state.nc.cards.filter(isUp).length;
+    const trunc = state.nc.truncated;
+    $('#nc-up-count').textContent = upTotal ? ` (${upTotal})` : '';
+    $('#nc-count').textContent = total ? `${filtered.length} von ${total}${trunc ? '+' : ''} neuen Commandern${upList.length ? ` · ${upList.length} davon angekündigt` : ''}${trunc ? ' · Liste gekürzt – für alle den Zeitraum verkleinern' : ''}` : '';
+
+    // „Demnächst“-Leiste immer ganz oben; die Liste darunter zeigt die bereits erschienenen
+    const strip = state.nc.src !== 'upcoming' && upList.length
+      ? `<section class="panel nc-upcoming-box"><div class="nc-group-head"><h3>Demnächst</h3><span>${upList.length} angekündigte Commander · nach Erscheinungsdatum</span></div>
+          <div class="nc-upcoming">${upList.map(ncCard).join('')}</div></section>`
+      : '';
+    const all = strip ? filtered.filter((c) => !isUp(c)) : filtered;
+    $('#nc-more').classList.toggle('hidden', all.length <= state.nc.shown);
+    const list = all.slice(0, state.nc.shown);
+    if (!list.length) { out.innerHTML = strip || (total ? '<div class="empty">Keine Commander für diesen Filter.</div>' : ''); return; }
+    if (state.nc.sort !== 'new' || state.nc.src === 'upcoming') {
+      out.innerHTML = `${strip}<div class="nc-grid">${list.map(ncCard).join('')}</div>`;
+      return;
+    }
+    // Nach Set und Erscheinungsdatum gruppieren
+    const groups = [];
+    list.forEach((c) => {
+      const key = c.set + '|' + c.released_at;
+      let g = groups[groups.length - 1];
+      if (!g || g.key !== key) groups.push((g = { key, name: c.set_name, date: c.released_at, cards: [] }));
+      g.cards.push(c);
+    });
+    out.innerHTML = strip + groups.map((g) => `<section class="nc-group">
+      <div class="nc-group-head"><h3>${esc(g.name)}</h3><span>${g.date > today ? 'erscheint ' : ''}${deDate(g.date)} · ${g.cards.length} Commander</span></div>
+      <div class="nc-grid">${g.cards.map(ncCard).join('')}</div></section>`).join('');
+  }
+
+  $('#nc-list').addEventListener('click', async (ev) => {
+    const b = ev.target.closest('[data-build]');
+    if (!b) return;
+    const card = state.nc.cards.find((c) => c.name === b.dataset.build);
+    if (!card) return;
+    $('#wz-cmdr').value = card.name;
+    $('#wz-results').innerHTML = '';
+    showTab('wizard');
+    await build(card, wizardOpts());
+  });
+
+  state.nc.ready = true;
+  if ($('#tab-new').classList.contains('active')) loadNew();
+
+  // =====================================================================
   //  ASSISTENT
   // =====================================================================
   function wizardOpts() {
@@ -743,5 +908,51 @@
       showTab('analyze');
       scrollTo({ top: 0 });
     });
+  }
+
+  // =====================================================================
+  //  LIFE COUNTER (Startseite) & APP-FUNKTIONEN
+  // =====================================================================
+  const lifeSel = { n: 4, l: 40 };
+  const lifeChips = (id, key) => $(id).addEventListener('click', (ev) => {
+    const b = ev.target.closest('.chip');
+    if (!b) return;
+    lifeSel[key] = +b.dataset.v;
+    $$(`${id} .chip`).forEach((x) => x.classList.toggle('on', x === b));
+  });
+  lifeChips('#ls-n', 'n');
+  lifeChips('#ls-l', 'l');
+  const updateResume = () => $('#ls-resume').classList.toggle('hidden', !MTG.life.hasGame());
+  updateResume();
+  addEventListener('life:closed', updateResume);
+  $('#ls-start').addEventListener('click', () => MTG.life.open({ n: lifeSel.n, life: lifeSel.l }));
+  $('#ls-resume').addEventListener('click', () => MTG.life.open({ resume: true }));
+
+  // Direktaufruf über Adresse/App-Verknüpfung: #life, #new, #precon …
+  const hash = location.hash.slice(1);
+  if (hash === 'life') { showTab('life'); MTG.life.open({ resume: true }); }
+  else if (['analyze', 'precon', 'new', 'wizard'].includes(hash)) showTab(hash);
+
+  // Installieren (Chrome/Edge/Android)
+  let installPrompt = null;
+  addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installPrompt = e;
+    $('#install-btn').classList.remove('hidden');
+  });
+  $('#install-btn').addEventListener('click', async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice.catch(() => null);
+    installPrompt = null;
+    $('#install-btn').classList.add('hidden');
+  });
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (standalone) $('#install-box').classList.add('hidden');
+  addEventListener('appinstalled', () => { $('#install-btn').classList.add('hidden'); $('#install-box').classList.add('hidden'); });
+
+  // Offline-Fähigkeit
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch((e) => console.warn('Service Worker:', e)));
   }
 })();
