@@ -6,7 +6,7 @@
   <title>Commander Werkstatt</title>
   <meta name="description" content="Commander-Decks und Precons analysieren, Adds & Cuts erhalten, neue Commander entdecken und Leben zählen.">
   <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#5b4cf0">
+  <meta name="theme-color" content="#0a0b10">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Werkstatt">
@@ -14,9 +14,9 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-  <link rel="stylesheet" href="fonts/fonts.css?v=2026-11-22a">
-  <link rel="stylesheet" href="css/style.css?v=2026-11-22a">
-  <link rel="stylesheet" href="css/life.css?v=2026-11-22a">
+  <link rel="stylesheet" href="fonts/fonts.css?v=2026-11-22b">
+  <link rel="stylesheet" href="css/style.css?v=2026-11-22b">
+  <link rel="stylesheet" href="css/life.css?v=2026-11-22b">
 </head>
 <body>
   <header class="topbar">
@@ -24,10 +24,11 @@
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Commander&nbsp;Werkstatt</div>
       <nav class="tabs" role="tablist">
         <span class="tab-indicator" aria-hidden="true"></span>
-        <button class="tab-btn active" data-tab="analyze" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="long">Deck analysieren</span><span class="short">Analyse</span></button>
+        <button class="tab-btn active" data-tab="home" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span class="long">Start</span><span class="short">Start</span></button>
+        <button class="tab-btn" data-tab="analyze" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="long">Deck analysieren</span><span class="short">Analyse</span></button>
         <button class="tab-btn" data-tab="precon" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg><span class="long">Precons</span><span class="short">Precons</span></button>
         <button class="tab-btn" data-tab="new" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m6.3 6.3 2.1 2.1M15.6 15.6l2.1 2.1M6.3 17.7l2.1-2.1M15.6 8.4l2.1-2.1"/></svg><span class="long">Neue Commander</span><span class="short">Neu</span></button>
-        <button class="tab-btn" data-tab="wizard" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 4 5 5L9 20H4v-5L15 4Z"/><path d="m12.5 6.5 5 5"/></svg><span class="long">Deck-Assistent</span><span class="short">Assistent</span></button>
+        <button class="tab-btn nav-desktop" data-tab="wizard" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 4 5 5L9 20H4v-5L15 4Z"/><path d="m12.5 6.5 5 5"/></svg><span class="long">Deck-Assistent</span><span class="short">Assistent</span></button>
         <button class="tab-btn" data-tab="life" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg><span class="long">Life Counter</span><span class="short">Life</span></button>
       </nav>
       <button type="button" id="install-btn" class="btn small primary install-btn hidden">App installieren</button>
@@ -41,9 +42,24 @@
   </header>
 
   <main>
+    <!-- ================= START ================= -->
+    <section id="tab-home" class="tab active">
+      <div class="home-head">
+        <span class="eyebrow">Commander Werkstatt</span>
+        <h1>Was spielen wir heute?</h1>
+      </div>
+      <div class="home-grid">
+        <button type="button" class="home-tile big" data-go="analyze"><span class="ht-art" data-art-for="analyze"></span><span class="ht-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="ht-text"><b>Deck analysieren</b><small>Cuts, Adds &amp; Budget</small></span><span class="ht-go" aria-hidden="true">›</span></button>
+        <button type="button" class="home-tile " data-go="precon"><span class="ht-art" data-art-for="precon"></span><span class="ht-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg></span><span class="ht-text"><b>Precons</b><small>200 Decks upgraden</small></span><span class="ht-go" aria-hidden="true">›</span></button>
+        <button type="button" class="home-tile " data-go="new"><span class="ht-art" data-art-for="new"></span><span class="ht-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m6.3 6.3 2.1 2.1M15.6 15.6l2.1 2.1M6.3 17.7l2.1-2.1M15.6 8.4l2.1-2.1"/></svg></span><span class="ht-text"><b>Neue Commander</b><small>inkl. Secret Lair</small></span><span class="ht-go" aria-hidden="true">›</span></button>
+        <button type="button" class="home-tile " data-go="wizard"><span class="ht-art" data-art-for="wizard"></span><span class="ht-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 4 5 5L9 20H4v-5L15 4Z"/><path d="m12.5 6.5 5 5"/></svg></span><span class="ht-text"><b>Deck-Assistent</b><small>Deck aus 5 Fragen</small></span><span class="ht-go" aria-hidden="true">›</span></button>
+        <button type="button" class="home-tile " data-go="life"><span class="ht-art" data-art-for="life"></span><span class="ht-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></span><span class="ht-text"><b>Life Counter</b><small>Leben &amp; Cmdr-Schaden</small></span><span class="ht-go" aria-hidden="true">›</span></button>
+      </div>
+    </section>
+
     <!-- ================= ANALYSE ================= -->
-    <section id="tab-analyze" class="tab active">
-      <div class="hero">
+    <section id="tab-analyze" class="tab">
+      <div class="hero" data-art-for="analyze">
         <span class="eyebrow">Deck-Analyse</span>
         <h1>Mach dein Deck besser.</h1>
         <p>Liste einfügen, Ziel-Bracket und Budget wählen – du bekommst Statistiken, Cuts, Adds und günstige Alternativen.</p>
@@ -51,7 +67,7 @@
       <div class="layout">
         <form id="analyze-form" class="panel sticky">
           <h2>Deckliste</h2>
-          <p class="hint">Format wie bei Moxfield, Archidekt oder MTGA: <code>1 Sol Ring</code>. Commander unter <code>Commander</code> oder mit <code>*CMDR*</code> markieren.</p>
+          <p class="hint">Liste aus Moxfield, Archidekt oder MTGA einfügen.</p>
           <textarea id="decklist" spellcheck="false" placeholder="Commander&#10;1 Atraxa, Praetors' Voice&#10;&#10;Deck&#10;1 Sol Ring&#10;1 Arcane Signet&#10;..."></textarea>
           <label class="field">Commander (falls nicht markiert)
             <input id="cmdr-input" list="cmdr-suggest" autocomplete="off" placeholder="optional">
@@ -62,7 +78,7 @@
             <label>Max. Preis pro Add <select id="an-cap" class="cap-select"></select></label>
           </div>
           <div class="field">
-            <span class="label">Deck-Themes <small>(optional – sonst automatisch erkannt)</small></span>
+            <span class="label">Themes <small>optional</small></span>
             <div id="an-themes" class="chips"></div>
             <input id="an-typal" class="typal-input hidden" placeholder="Kreaturentyp, z. B. Dragon">
           </div>
@@ -84,7 +100,7 @@
     <!-- ================= PRECONS ================= -->
     <section id="tab-precon" class="tab">
       <div id="pc-browse">
-        <div class="hero">
+        <div class="hero" data-art-for="precon">
         <span class="eyebrow">Precon-Upgrades</span>
           <h1>Precons durchsuchen.</h1>
           <p>Alle Commander-Precons – mit Upgrade-Vorschlägen, Cuts und Ideen für einen Umbau mit anderem Commander.</p>
@@ -92,7 +108,7 @@
         <div class="panel toolbar">
           <div class="search">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <input id="pc-search" type="search" placeholder="Precon, Commander oder Set suchen …" autocomplete="off">
+            <input id="pc-search" type="search" placeholder="Precon, Commander, Set …" autocomplete="off">
           </div>
           <div id="pc-colors" class="mini-mana" title="Nach Farben filtern"></div>
           <select id="pc-sort" aria-label="Sortierung">
@@ -126,7 +142,7 @@
 
     <!-- ================= NEUE COMMANDER ================= -->
     <section id="tab-new" class="tab">
-      <div class="hero">
+      <div class="hero" data-art-for="new">
         <span class="eyebrow">Neuerscheinungen</span>
         <h1>Neue Commander.</h1>
         <p>Alle neu gedruckten legendären Kreaturen und Commander – aus Sets, Commander-Precons und Secret Lair Drops, inklusive bereits angekündigter Karten.</p>
@@ -134,7 +150,7 @@
       <div class="panel toolbar">
         <div class="search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input id="nc-search" type="search" placeholder="Name, Typ oder Set filtern …" autocomplete="off">
+          <input id="nc-search" type="search" placeholder="Name, Typ, Set …" autocomplete="off">
         </div>
         <div id="nc-colors" class="mini-mana" title="Nach Farben filtern"></div>
         <select id="nc-period" aria-label="Zeitraum">
@@ -165,7 +181,7 @@
 
     <!-- ================= LIFE COUNTER ================= -->
     <section id="tab-life" class="tab">
-      <div class="hero">
+      <div class="hero" data-art-for="life">
         <span class="eyebrow">Spieltisch</span>
         <h1>Life Counter.</h1>
         <p>Handy in die Tischmitte legen – jede Seite ist zum Spieler gedreht. Tippen für ±1, gedrückt halten für ±10.</p>
@@ -219,7 +235,7 @@
 
     <!-- ================= ASSISTENT ================= -->
     <section id="tab-wizard" class="tab">
-      <div class="hero">
+      <div class="hero" data-art-for="wizard">
         <span class="eyebrow">Deck-Assistent</span>
         <h1>Finde dein nächstes Deck.</h1>
         <p>Fünf Fragen – dann bekommst du passende Commander und eine komplette 100-Karten-Liste.</p>
@@ -232,7 +248,7 @@
             <label class="check"><input type="radio" name="colormode" value="exact" checked> Genau diese Farben</label>
             <label class="check"><input type="radio" name="colormode" value="subset"> Diese Farben oder weniger</label>
           </div>
-          <p class="hint">Keine Farbe gewählt = farblos.</p>
+          <p class="hint">Keine Farbe = farblos</p>
         </fieldset>
 
         <fieldset>
@@ -275,12 +291,12 @@
     Inoffizielles Fan-Tool, nicht mit Wizards of the Coast verbunden.
   </footer>
 
-  <script src="data/precons.js?v=2026-11-22a"></script>
-  <script src="js/data.js?v=2026-11-22a"></script>
-  <script src="js/api.js?v=2026-11-22a"></script>
-  <script src="js/cards.js?v=2026-11-22a"></script>
-  <script src="js/engine.js?v=2026-11-22a"></script>
-  <script src="js/life.js?v=2026-11-22a"></script>
-  <script src="js/app.js?v=2026-11-22a"></script>
+  <script src="data/precons.js?v=2026-11-22b"></script>
+  <script src="js/data.js?v=2026-11-22b"></script>
+  <script src="js/api.js?v=2026-11-22b"></script>
+  <script src="js/cards.js?v=2026-11-22b"></script>
+  <script src="js/engine.js?v=2026-11-22b"></script>
+  <script src="js/life.js?v=2026-11-22b"></script>
+  <script src="js/app.js?v=2026-11-22b"></script>
 </body>
 </html>
