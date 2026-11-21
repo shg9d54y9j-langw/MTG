@@ -401,3 +401,47 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 28p
 .cmdr-card img { aspect-ratio: 488 / 680; object-fit: cover; }
 .nc-card .row-btns .btn { white-space: nowrap; padding: 7px 10px; }
 .nc-card .badge { top: 22px; left: 22px; }
+
+/* „Demnächst“-Leiste */
+.nc-upcoming-box { margin-bottom: 30px; background: linear-gradient(135deg, #fff, var(--accent-soft)); border-color: #dcd6ff; padding: 20px 20px 14px; }
+.nc-upcoming {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 200px; gap: 16px;
+  overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 12px; margin: 0 -2px;
+  scrollbar-width: thin;
+}
+.nc-upcoming > * { scroll-snap-align: start; }
+#nc-up-count { opacity: .8; }
+
+/* Handy: kompakter */
+@media (max-width: 720px) {
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; border-radius: 16px; overflow: visible; }
+  .tab-btn { border-radius: 12px; font-size: .85rem; }
+  .tab-indicator { display: none; }
+  .tab-btn.active { background: var(--surface); box-shadow: var(--shadow-sm); }
+  .hero h1 { font-size: 1.7rem; }
+  .hero p { font-size: .92rem; }
+  .toolbar { gap: 10px; padding: 12px; }
+  .toolbar .search { flex-basis: 100%; }
+  .toolbar select { flex: 1; min-width: 0; font-size: .85rem; padding: 8px 30px 8px 12px; }
+  .mini-mana { flex-basis: 100%; justify-content: space-between; }
+  .nc-sources { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .nc-sources .chip { white-space: nowrap; }
+  .nc-grid, .cmdr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .cmdr-card { padding: 8px; gap: 6px; border-radius: 14px; }
+  .cmdr-card .nm { font-size: .85rem; }
+  .cmdr-card .tags .tag, .nc-card .meta-line { font-size: .68rem; }
+  .nc-card .badge { top: 14px; left: 14px; font-size: .64rem; padding: 2px 7px; }
+  .nc-card .row-btns { flex-direction: column; }
+  .nc-upcoming-box { padding: 14px 12px 8px; margin-left: -4px; margin-right: -4px; }
+  .nc-upcoming { grid-auto-columns: 46%; gap: 10px; }
+  .precon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .precon-tile .body { padding: 10px 12px 12px; }
+  .precon-tile .pn { font-size: .88rem; }
+  .precon-tile .pc, .precon-tile .ps { font-size: .74rem; }
+}
+@media (max-width: 720px) {
+  .topbar { position: static; }
+  .currency > span { display: none; }
+  .brand { font-size: .98rem; }
+}
+@media (max-width: 720px) { #tab-new .hero p { display: none; } #tab-new .hero { padding-bottom: 12px; } }

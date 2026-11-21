@@ -650,9 +650,11 @@
         setStatus(st, 'Lade neue Commander von Scryfall …', 'busy');
         $('#nc-list').innerHTML = '';
         const pages = NC_PAGES[days] || 4;
+        // Angekündigte Karten separat laden: auch Nachdrucke in kommenden Produkten (ohne Promos)
+        const upcoming = await api.search('is:commander date>today -is:digital game:paper -st:promo -st:memorabilia', { pages: 1, order: 'released', dir: 'asc' });
         const list = await api.search(`is:commander -is:reprint -is:digital game:paper date>=${from}`, { pages, order: 'released', dir: 'desc' });
         const seen = new Set();
-        const cards = list.filter((c) => {
+        const cards = [...upcoming, ...list].filter((c) => {
           const id = c.oracle_id || c.name;
           if (seen.has(id)) return false;
           seen.add(id);
@@ -702,7 +704,7 @@
       <img loading="lazy" src="${esc(C.image(c))}" alt="" data-img="${esc(C.image(c, 'large'))}">
       <div class="nm">${esc(c.name)}</div>
       <div class="meta-line">${esc(C.typeLine(c).split(' // ')[0])}</div>
-      <div class="tags">${pips(ci)} <span class="tag ${src === 'sld' ? 'gc' : src === 'commander' ? 'accent' : ''}">${esc(SRC_NAMES[src])}</span> <span class="tag">${fmt(C.price(c, state.cur))}</span></div>
+      <div class="tags">${pips(ci)} <span class="tag ${src === 'sld' ? 'gc' : src === 'commander' ? 'accent' : ''}">${esc(SRC_NAMES[src])}</span> ${C.price(c, state.cur) != null ? `<span class="tag">${fmt(C.price(c, state.cur))}</span>` : ''}</div>
       <div class="meta-line">${esc(c.set_name)} · ${deDate(c.released_at)}</div>
       <div class="row-btns">
         <button type="button" class="btn small primary" data-build="${esc(c.name)}">Deck bauen</button>
@@ -713,16 +715,26 @@
 
   function renderNew() {
     const out = $('#nc-list');
-    const all = filteredNew();
+    const filtered = filteredNew();
     const total = state.nc.cards.length;
-    const up = all.filter((c) => c.released_at > today).length;
+    const isUp = (c) => c.released_at > today;
+    const upList = filtered.filter(isUp).sort((a, b) => (a.released_at || '').localeCompare(b.released_at || '') || a.name.localeCompare(b.name));
+    const upTotal = state.nc.cards.filter(isUp).length;
     const trunc = state.nc.truncated;
-    $('#nc-count').textContent = total ? `${all.length} von ${total}${trunc ? '+' : ''} neuen Commandern${up ? ` · ${up} davon angekündigt` : ''}${trunc ? ' · Liste gekürzt – für alle den Zeitraum verkleinern' : ''}` : '';
+    $('#nc-up-count').textContent = upTotal ? ` (${upTotal})` : '';
+    $('#nc-count').textContent = total ? `${filtered.length} von ${total}${trunc ? '+' : ''} neuen Commandern${upList.length ? ` · ${upList.length} davon angekündigt` : ''}${trunc ? ' · Liste gekürzt – für alle den Zeitraum verkleinern' : ''}` : '';
+
+    // „Demnächst“-Leiste immer ganz oben; die Liste darunter zeigt die bereits erschienenen
+    const strip = state.nc.src !== 'upcoming' && upList.length
+      ? `<section class="panel nc-upcoming-box"><div class="nc-group-head"><h3>Demnächst</h3><span>${upList.length} angekündigte Commander · nach Erscheinungsdatum</span></div>
+          <div class="nc-upcoming">${upList.map(ncCard).join('')}</div></section>`
+      : '';
+    const all = strip ? filtered.filter((c) => !isUp(c)) : filtered;
     $('#nc-more').classList.toggle('hidden', all.length <= state.nc.shown);
     const list = all.slice(0, state.nc.shown);
-    if (!list.length) { out.innerHTML = total ? '<div class="empty">Keine Commander für diesen Filter.</div>' : ''; return; }
-    if (state.nc.sort !== 'new') {
-      out.innerHTML = `<div class="nc-grid">${list.map(ncCard).join('')}</div>`;
+    if (!list.length) { out.innerHTML = strip || (total ? '<div class="empty">Keine Commander für diesen Filter.</div>' : ''); return; }
+    if (state.nc.sort !== 'new' || state.nc.src === 'upcoming') {
+      out.innerHTML = `${strip}<div class="nc-grid">${list.map(ncCard).join('')}</div>`;
       return;
     }
     // Nach Set und Erscheinungsdatum gruppieren
@@ -733,7 +745,7 @@
       if (!g || g.key !== key) groups.push((g = { key, name: c.set_name, date: c.released_at, cards: [] }));
       g.cards.push(c);
     });
-    out.innerHTML = groups.map((g) => `<section class="nc-group">
+    out.innerHTML = strip + groups.map((g) => `<section class="nc-group">
       <div class="nc-group-head"><h3>${esc(g.name)}</h3><span>${g.date > today ? 'erscheint ' : ''}${deDate(g.date)} · ${g.cards.length} Commander</span></div>
       <div class="nc-grid">${g.cards.map(ncCard).join('')}</div></section>`).join('');
   }
