@@ -14,9 +14,9 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-  <link rel="stylesheet" href="fonts/fonts.css?v=2026-11-21e">
-  <link rel="stylesheet" href="css/style.css?v=2026-11-21e">
-  <link rel="stylesheet" href="css/life.css?v=2026-11-21e">
+  <link rel="stylesheet" href="fonts/fonts.css?v=2026-11-22a">
+  <link rel="stylesheet" href="css/style.css?v=2026-11-22a">
+  <link rel="stylesheet" href="css/life.css?v=2026-11-22a">
 </head>
 <body>
   <header class="topbar">
@@ -24,11 +24,11 @@
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Commander&nbsp;Werkstatt</div>
       <nav class="tabs" role="tablist">
         <span class="tab-indicator" aria-hidden="true"></span>
-        <button class="tab-btn active" data-tab="analyze" role="tab"><span class="long">Deck analysieren</span><span class="short">Analyse</span></button>
-        <button class="tab-btn" data-tab="precon" role="tab">Precons</button>
-        <button class="tab-btn" data-tab="new" role="tab"><span class="long">Neue Commander</span><span class="short">Neu</span></button>
-        <button class="tab-btn" data-tab="wizard" role="tab"><span class="long">Deck-Assistent</span><span class="short">Assistent</span></button>
-        <button class="tab-btn" data-tab="life" role="tab"><span class="long">Life Counter</span><span class="short">Life</span></button>
+        <button class="tab-btn active" data-tab="analyze" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="long">Deck analysieren</span><span class="short">Analyse</span></button>
+        <button class="tab-btn" data-tab="precon" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg><span class="long">Precons</span><span class="short">Precons</span></button>
+        <button class="tab-btn" data-tab="new" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m6.3 6.3 2.1 2.1M15.6 15.6l2.1 2.1M6.3 17.7l2.1-2.1M15.6 8.4l2.1-2.1"/></svg><span class="long">Neue Commander</span><span class="short">Neu</span></button>
+        <button class="tab-btn" data-tab="wizard" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 4 5 5L9 20H4v-5L15 4Z"/><path d="m12.5 6.5 5 5"/></svg><span class="long">Deck-Assistent</span><span class="short">Assistent</span></button>
+        <button class="tab-btn" data-tab="life" role="tab"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg><span class="long">Life Counter</span><span class="short">Life</span></button>
       </nav>
       <button type="button" id="install-btn" class="btn small primary install-btn hidden">App installieren</button>
       <label class="currency"><span>Währung</span>
@@ -44,6 +44,7 @@
     <!-- ================= ANALYSE ================= -->
     <section id="tab-analyze" class="tab active">
       <div class="hero">
+        <span class="eyebrow">Deck-Analyse</span>
         <h1>Mach dein Deck besser.</h1>
         <p>Liste einfügen, Ziel-Bracket und Budget wählen – du bekommst Statistiken, Cuts, Adds und günstige Alternativen.</p>
       </div>
@@ -84,6 +85,7 @@
     <section id="tab-precon" class="tab">
       <div id="pc-browse">
         <div class="hero">
+        <span class="eyebrow">Precon-Upgrades</span>
           <h1>Precons durchsuchen.</h1>
           <p>Alle Commander-Precons – mit Upgrade-Vorschlägen, Cuts und Ideen für einen Umbau mit anderem Commander.</p>
         </div>
@@ -125,6 +127,7 @@
     <!-- ================= NEUE COMMANDER ================= -->
     <section id="tab-new" class="tab">
       <div class="hero">
+        <span class="eyebrow">Neuerscheinungen</span>
         <h1>Neue Commander.</h1>
         <p>Alle neu gedruckten legendären Kreaturen und Commander – aus Sets, Commander-Precons und Secret Lair Drops, inklusive bereits angekündigter Karten.</p>
       </div>
@@ -163,6 +166,7 @@
     <!-- ================= LIFE COUNTER ================= -->
     <section id="tab-life" class="tab">
       <div class="hero">
+        <span class="eyebrow">Spieltisch</span>
         <h1>Life Counter.</h1>
         <p>Handy in die Tischmitte legen – jede Seite ist zum Spieler gedreht. Tippen für ±1, gedrückt halten für ±10.</p>
       </div>
@@ -216,6 +220,7 @@
     <!-- ================= ASSISTENT ================= -->
     <section id="tab-wizard" class="tab">
       <div class="hero">
+        <span class="eyebrow">Deck-Assistent</span>
         <h1>Finde dein nächstes Deck.</h1>
         <p>Fünf Fragen – dann bekommst du passende Commander und eine komplette 100-Karten-Liste.</p>
       </div>
@@ -270,12 +275,12 @@
     Inoffizielles Fan-Tool, nicht mit Wizards of the Coast verbunden.
   </footer>
 
-  <script src="data/precons.js?v=2026-11-21e"></script>
-  <script src="js/data.js?v=2026-11-21e"></script>
-  <script src="js/api.js?v=2026-11-21e"></script>
-  <script src="js/cards.js?v=2026-11-21e"></script>
-  <script src="js/engine.js?v=2026-11-21e"></script>
-  <script src="js/life.js?v=2026-11-21e"></script>
-  <script src="js/app.js?v=2026-11-21e"></script>
+  <script src="data/precons.js?v=2026-11-22a"></script>
+  <script src="js/data.js?v=2026-11-22a"></script>
+  <script src="js/api.js?v=2026-11-22a"></script>
+  <script src="js/cards.js?v=2026-11-22a"></script>
+  <script src="js/engine.js?v=2026-11-22a"></script>
+  <script src="js/life.js?v=2026-11-22a"></script>
+  <script src="js/app.js?v=2026-11-22a"></script>
 </body>
 </html>
