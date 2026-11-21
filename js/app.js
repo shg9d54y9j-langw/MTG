@@ -909,4 +909,50 @@
       scrollTo({ top: 0 });
     });
   }
+
+  // =====================================================================
+  //  LIFE COUNTER (Startseite) & APP-FUNKTIONEN
+  // =====================================================================
+  const lifeSel = { n: 4, l: 40 };
+  const lifeChips = (id, key) => $(id).addEventListener('click', (ev) => {
+    const b = ev.target.closest('.chip');
+    if (!b) return;
+    lifeSel[key] = +b.dataset.v;
+    $$(`${id} .chip`).forEach((x) => x.classList.toggle('on', x === b));
+  });
+  lifeChips('#ls-n', 'n');
+  lifeChips('#ls-l', 'l');
+  const updateResume = () => $('#ls-resume').classList.toggle('hidden', !MTG.life.hasGame());
+  updateResume();
+  addEventListener('life:closed', updateResume);
+  $('#ls-start').addEventListener('click', () => MTG.life.open({ n: lifeSel.n, life: lifeSel.l }));
+  $('#ls-resume').addEventListener('click', () => MTG.life.open({ resume: true }));
+
+  // Direktaufruf über Adresse/App-Verknüpfung: #life, #new, #precon …
+  const hash = location.hash.slice(1);
+  if (hash === 'life') { showTab('life'); MTG.life.open({ resume: true }); }
+  else if (['analyze', 'precon', 'new', 'wizard'].includes(hash)) showTab(hash);
+
+  // Installieren (Chrome/Edge/Android)
+  let installPrompt = null;
+  addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installPrompt = e;
+    $('#install-btn').classList.remove('hidden');
+  });
+  $('#install-btn').addEventListener('click', async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice.catch(() => null);
+    installPrompt = null;
+    $('#install-btn').classList.add('hidden');
+  });
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (standalone) $('#install-box').classList.add('hidden');
+  addEventListener('appinstalled', () => { $('#install-btn').classList.add('hidden'); $('#install-box').classList.add('hidden'); });
+
+  // Offline-Fähigkeit
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch((e) => console.warn('Service Worker:', e)));
+  }
 })();

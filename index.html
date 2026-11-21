@@ -2,13 +2,23 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Commander Werkstatt</title>
-  <meta name="description" content="Commander-Decks und Precons analysieren, Adds & Cuts erhalten und neue Decks per Fragebogen generieren.">
+  <meta name="description" content="Commander-Decks und Precons analysieren, Adds & Cuts erhalten, neue Commander entdecken und Leben zählen.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#5b4cf0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Werkstatt">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20261121">
+  <link rel="stylesheet" href="css/style.css?v=2026-11-21b">
+  <link rel="stylesheet" href="css/life.css?v=2026-11-21b">
 </head>
 <body>
   <header class="topbar">
@@ -16,11 +26,13 @@
       <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Commander&nbsp;Werkstatt</div>
       <nav class="tabs" role="tablist">
         <span class="tab-indicator" aria-hidden="true"></span>
-        <button class="tab-btn active" data-tab="analyze" role="tab">Deck analysieren</button>
+        <button class="tab-btn active" data-tab="analyze" role="tab"><span class="long">Deck analysieren</span><span class="short">Analyse</span></button>
         <button class="tab-btn" data-tab="precon" role="tab">Precons</button>
-        <button class="tab-btn" data-tab="new" role="tab">Neue Commander</button>
-        <button class="tab-btn" data-tab="wizard" role="tab">Deck-Assistent</button>
+        <button class="tab-btn" data-tab="new" role="tab"><span class="long">Neue Commander</span><span class="short">Neu</span></button>
+        <button class="tab-btn" data-tab="wizard" role="tab"><span class="long">Deck-Assistent</span><span class="short">Assistent</span></button>
+        <button class="tab-btn" data-tab="life" role="tab"><span class="long">Life Counter</span><span class="short">Life</span></button>
       </nav>
+      <button type="button" id="install-btn" class="btn small primary install-btn hidden">App installieren</button>
       <label class="currency"><span>Währung</span>
         <select id="currency">
           <option value="eur">€ EUR</option>
@@ -150,6 +162,58 @@
       <div class="center"><button type="button" id="nc-more" class="btn ghost hidden">Mehr anzeigen</button></div>
     </section>
 
+    <!-- ================= LIFE COUNTER ================= -->
+    <section id="tab-life" class="tab">
+      <div class="hero">
+        <h1>Life Counter.</h1>
+        <p>Handy in die Tischmitte legen – jede Seite ist zum Spieler gedreht. Tippen für ±1, gedrückt halten für ±10.</p>
+      </div>
+      <div class="panel life-setup">
+        <div class="life-preview" aria-hidden="true"><div>40</div><div>37</div><div>40</div><div>32</div></div>
+        <div class="row">
+          <div class="field" style="margin-top:0">
+            <span class="label">Spieler</span>
+            <div class="chips" id="ls-n">
+              <button type="button" class="chip" data-v="2">2</button>
+              <button type="button" class="chip" data-v="3">3</button>
+              <button type="button" class="chip on" data-v="4">4</button>
+              <button type="button" class="chip" data-v="5">5</button>
+              <button type="button" class="chip" data-v="6">6</button>
+            </div>
+          </div>
+          <div class="field" style="margin-top:0">
+            <span class="label">Startleben</span>
+            <div class="chips" id="ls-l">
+              <button type="button" class="chip" data-v="20">20</button>
+              <button type="button" class="chip" data-v="30">30</button>
+              <button type="button" class="chip on" data-v="40">40</button>
+            </div>
+          </div>
+        </div>
+        <div class="row actions">
+          <button type="button" class="btn primary" id="ls-start">Neues Spiel starten</button>
+          <button type="button" class="btn hidden" id="ls-resume">Spiel fortsetzen</button>
+        </div>
+        <ul class="feature-list">
+          <li><b>Commander-Schaden</b>pro Gegner, zieht automatisch Leben ab</li>
+          <li><b>Gift, Energie, Erfahrung</b>und Commander-Steuer</li>
+          <li><b>Commander-Bilder</b>als Hintergrund für jeden Spieler</li>
+          <li><b>Würfel &amp; Startspieler</b>W20, W6, Münze, zufälliger Start</li>
+          <li><b>Verlauf &amp; Spielzeit</b>jede Änderung nachvollziehbar</li>
+          <li><b>Bildschirm bleibt an</b>und das Spiel wird automatisch gespeichert</li>
+        </ul>
+      </div>
+      <div class="panel life-setup install-box" id="install-box">
+        <h2>Als App installieren</h2>
+        <p class="hint" style="margin-bottom:4px">Dann startet die Werkstatt vom Home-Bildschirm im Vollbild und funktioniert auch offline.</p>
+        <ol id="install-steps">
+          <li><b>iPhone/iPad (Safari):</b> Teilen-Symbol <span aria-hidden="true">⬆︎</span> → „Zum Home-Bildschirm“</li>
+          <li><b>Android (Chrome):</b> Menü ⋮ → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“</li>
+          <li><b>PC (Chrome/Edge):</b> Installieren-Symbol rechts in der Adressleiste</li>
+        </ol>
+      </div>
+    </section>
+
     <!-- ================= ASSISTENT ================= -->
     <section id="tab-wizard" class="tab">
       <div class="hero">
@@ -207,11 +271,12 @@
     Inoffizielles Fan-Tool, nicht mit Wizards of the Coast verbunden.
   </footer>
 
-  <script src="data/precons.js?v=20261121"></script>
-  <script src="js/data.js?v=20261121"></script>
-  <script src="js/api.js?v=20261121"></script>
-  <script src="js/cards.js?v=20261121"></script>
-  <script src="js/engine.js?v=20261121"></script>
-  <script src="js/app.js?v=20261121"></script>
+  <script src="data/precons.js?v=2026-11-21b"></script>
+  <script src="js/data.js?v=2026-11-21b"></script>
+  <script src="js/api.js?v=2026-11-21b"></script>
+  <script src="js/cards.js?v=2026-11-21b"></script>
+  <script src="js/engine.js?v=2026-11-21b"></script>
+  <script src="js/life.js?v=2026-11-21b"></script>
+  <script src="js/app.js?v=2026-11-21b"></script>
 </body>
 </html>

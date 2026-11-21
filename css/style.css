@@ -445,3 +445,13 @@ footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 28p
   .brand { font-size: .98rem; }
 }
 @media (max-width: 720px) { #tab-new .hero p { display: none; } #tab-new .hero { padding-bottom: 12px; } }
+
+/* Tabs: Kurzlabels, Installieren-Knopf */
+.tab-btn .short { display: none; }
+.install-btn { white-space: nowrap; }
+@media (max-width: 1180px) { .tab-btn .long { display: none; } .tab-btn .short { display: inline; } }
+@media (max-width: 720px) {
+  .tabs { grid-template-columns: repeat(5, 1fr); gap: 2px; }
+  .tab-btn { padding: 8px 2px; font-size: .78rem; }
+  .install-btn { order: 2; margin-left: auto; }
+}

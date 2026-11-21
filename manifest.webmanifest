@@ -1,0 +1,21 @@
+{
+  "name": "Commander Werkstatt",
+  "short_name": "Werkstatt",
+  "description": "Commander-Decks analysieren, Precons upgraden, neue Commander entdecken und Leben zählen.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f7fb",
+  "theme_color": "#5b4cf0",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Life Counter", "short_name": "Life", "url": "./#life", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Neue Commander", "short_name": "Neu", "url": "./#new", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

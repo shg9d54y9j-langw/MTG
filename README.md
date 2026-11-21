@@ -26,6 +26,18 @@ Statische Website für MTG-Commander-Decks – ohne Server, ohne Build-Schritt.
 - Filter: Quelle (Secret Lair / Precons / Sets / nur angekündigt), Farben, Textsuche; Sortierung nach Erscheinen, Beliebtheit, Preis oder Name
 - Pro Commander: „Deck bauen“ (direkt im Deck-Assistenten) und Link zu EDHREC
 
+**Life Counter**
+- 2–6 Spieler, Startleben 20/30/40; jedes Feld zum Spieler am Tisch gedreht (Hoch- und Querformat)
+- Tippen ±1, gedrückt halten ±10, Delta-Anzeige der letzten Änderung
+- Pro Spieler: Commander-Schaden je Gegner (zieht Leben ab, 21 = raus), Gift, Commander-Steuer, Energie, Erfahrung, Name, Farbe, Commander-Bild als Hintergrund
+- Menü: Spielzeit, W20/W6/Münze, zufälliger Startspieler, Verlauf, Neustart, Vollbild
+- Bildschirm bleibt an, Spielstand wird automatisch gespeichert; direkt aufrufbar über `#life`
+
+**Als App (PWA)**
+- Installierbar auf iPhone/Android/PC (Manifest, Icons, Service Worker), startet im Vollbild
+- Offline nutzbar: App-Dateien, Precon-Listen, Schriften und geladene Kartenbilder werden zwischengespeichert
+- Bei Änderungen an App-Dateien `VERSION` in `sw.js` und die `?v=`-Parameter in `index.html` erhöhen
+
 **Deck-Assistent**
 1. Lieblingsfarben (genau oder als Obergrenze)
 2. Bracket 1–5
@@ -60,6 +72,7 @@ node test/smoke.js                # UI-Durchlauf mit gemockten APIs (Playwright)
 node test/smoke.js --edhrec       # dasselbe mit gemockten EDHREC-Daten
 node test/live.js                 # kompletter Durchlauf gegen die echten APIs (Netz nötig)
 node test/live-new.js             # Tab „Neue Commander“ gegen Scryfall
+node test/life.js                 # Life Counter + App/Offline (lokaler Server)
 ```
 
 ## Struktur
@@ -74,6 +87,9 @@ js/api.js      Scryfall- & EDHREC-Zugriff (Rate-Limit, Cache)
 js/cards.js    Parser, Kategorien, Preise
 js/engine.js   Analyse, Adds/Cuts, Commander-Vorschläge, Deck-Generator
 js/app.js      Oberfläche
+js/life.js     Life Counter
+sw.js          Service Worker (Offline/App)
+manifest.webmanifest, icons/  App-Manifest und Icons (tools/make-icons.js)
 ```
 
 Inoffizielles Fan-Projekt, nicht mit Wizards of the Coast verbunden.
