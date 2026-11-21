@@ -34,11 +34,13 @@
     store.set('tab', name);
     moveIndicator();
     if (name === 'new' && state.nc.ready && !state.nc.cards.length) loadNew();
+    // Precon-Raster (und seine Bilder) erst laden, wenn der Tab geöffnet wird
+    if (name === 'precon' && state.pc.ready && !state.pc.rendered) { state.pc.rendered = true; renderPrecons(); }
   }
   $$('.tab-btn').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   addEventListener('resize', moveIndicator);
   document.fonts?.ready.then(moveIndicator);
-  showTab(store.get('tab', 'analyze'));
+  showTab(store.get('tab', 'home'));
 
   // ---------------- Währung ----------------
   const curSel = $('#currency');
@@ -599,7 +601,8 @@
     }
   }
 
-  renderPrecons();
+  state.pc.ready = true;
+  if ($('#tab-precon').classList.contains('active')) { state.pc.rendered = true; renderPrecons(); }
 
   // =====================================================================
   //  NEUE COMMANDER
@@ -931,7 +934,40 @@
   // Direktaufruf über Adresse/App-Verknüpfung: #life, #new, #precon …
   const hash = location.hash.slice(1);
   if (hash === 'life') { showTab('life'); MTG.life.open({ resume: true }); }
-  else if (['analyze', 'precon', 'new', 'wizard'].includes(hash)) showTab(hash);
+  else if (['home', 'analyze', 'precon', 'new', 'wizard'].includes(hash)) showTab(hash);
+
+  // Startseite: Kacheln öffnen die Bereiche
+  $('#tab-home').addEventListener('click', (ev) => {
+    const t = ev.target.closest('[data-go]');
+    if (!t) return;
+    showTab(t.dataset.go);
+    scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Kartenkunst für Startkacheln und Seiten-Banner (einmal laden, offline durch den Service Worker)
+  const ART = {
+    analyze: "Atraxa, Praetors' Voice",
+    precon: 'Lathril, Blade of the Elves',
+    new: 'Kenrith, the Returned King',
+    wizard: 'The Ur-Dragon',
+    life: 'Edgar Markov',
+  };
+  (async () => {
+    try {
+      const { cards } = await api.getCards(Object.values(ART));
+      Object.entries(ART).forEach(([key, name]) => {
+        const c = cards.get(name.toLowerCase());
+        const url = c && C.image(c, 'art_crop');
+        if (!url) return;
+        const img = new Image();
+        img.onload = () => $$(`[data-art-for="${key}"]`).forEach((el) => {
+          el.style.setProperty('--art', `url("${url}")`);
+          el.classList.add('has-art');
+        });
+        img.src = url;
+      });
+    } catch { /* offline: Farbverläufe bleiben */ }
+  })();
 
   // Installieren (Chrome/Edge/Android)
   let installPrompt = null;

@@ -71,6 +71,7 @@ function mkCard(name, i = hash(name)) {
   await page.goto('file://' + path.resolve(__dirname, '../index.html'));
 
   // ---- Analyse ----
+  await page.click('.tab-btn[data-tab="analyze"]');
   await page.click('#example-btn');
   await page.fill('#decklist', (await page.inputValue('#decklist')) + '\n1 Unknown Card');
   await page.click('#an-themes .chip[data-id="tokens"]');
